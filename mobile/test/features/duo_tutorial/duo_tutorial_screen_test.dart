@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/duo_tutorial/duo_tutorial_step.dart';
@@ -22,6 +23,7 @@ void main() {
     DuoPose start, {
     Locale locale = const Locale('fr'),
     bool accessibleNavigation = false,
+    bool dark = false,
   }) async {
     renderer = FakeDuoSceneRenderer();
     finished = 0;
@@ -34,7 +36,7 @@ void main() {
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
+          theme: dark ? AppTheme.darkTheme : AppTheme.lightTheme,
           locale: locale,
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -144,6 +146,42 @@ void main() {
           await tester.pump(const Duration(milliseconds: 500));
         }
       }
+    });
+
+    // Renaud, 2026-10-27 : le tutoriel restait blanc en mode sombre, et la
+    // colonne de la barre d'état lui volait un bord de l'écran.
+    testWidgets('mode sombre : la scène le reçoit, le fond est sombre', (
+      tester,
+    ) async {
+      await pumpTutorial(tester, DuoPose.closed, dark: true);
+      expect(renderer.poses.last.dark, isTrue);
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
+      expect(scaffold.backgroundColor, AppTheme.darkTheme.colorScheme.surface);
+    });
+
+    testWidgets('plein écran pendant le tutoriel, barre rendue en sortant', (
+      tester,
+    ) async {
+      final modes = <Object?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'SystemChrome.setEnabledSystemUIMode') {
+            modes.add(call.arguments);
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await pumpTutorial(tester, DuoPose.closed);
+      expect(modes, ['SystemUiMode.immersiveSticky']);
+      await tester.pumpWidget(const SizedBox());
+      expect(modes.last, 'SystemUiMode.edgeToEdge');
     });
 
     testWidgets('« Passer » termine tout de suite, une seule fois', (

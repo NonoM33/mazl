@@ -35,6 +35,7 @@ class DuoTutorialController extends ChangeNotifier {
   FoldState _fold = FoldState.unknown;
   Size _size = Size.zero;
   bool _reduceMotion = false;
+  bool _dark = false;
   bool _autoAdvance = true;
   bool _hasPose = false;
 
@@ -60,12 +61,14 @@ class DuoTutorialController extends ChangeNotifier {
     required FoldState fold,
     required Size size,
     bool reduceMotion = false,
+    bool dark = false,
     bool autoAdvance = true,
   }) {
     if (_finished || _disposed) return;
     _fold = fold;
     _size = size;
     _reduceMotion = reduceMotion;
+    _dark = dark;
     _autoAdvance = autoAdvance;
     _hasPose = true;
     _sendPose();
@@ -108,6 +111,7 @@ class DuoTutorialController extends ChangeNotifier {
       step: _step,
       validated: _validated,
       reduceMotion: _reduceMotion,
+      dark: _dark,
     );
     if (pose == _sent) return;
     _sent = pose;

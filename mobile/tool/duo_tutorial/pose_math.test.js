@@ -40,6 +40,11 @@ describe('approach (interpolation vers l\'angle réel)', () => {
 });
 
 describe('normalizePose (le message de Dart n\'est pas cru sur parole)', () => {
+  test('le mode sombre seulement sur un vrai booléen', () => {
+    expect(M.normalizePose({ hinge: 'closed', dark: true }).dark).toBe(true);
+    expect(M.normalizePose({ hinge: 'closed', dark: 'oui' }).dark).toBe(false);
+    expect(M.normalizePose({ hinge: 'closed' }).dark).toBe(false);
+  });
   test('prend l\'angle donné', () => {
     expect(M.normalizePose({ hinge: 'partiallyOpen', angle: 1.9 }).angle).toBe(1.9);
   });

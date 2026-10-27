@@ -64,6 +64,7 @@
       step: STEPS.includes(m.step) ? m.step : 'welcome',
       validated: m.validated === true,
       reduceMotion: m.reduceMotion === true,
+      dark: m.dark === true,
     };
   }
 

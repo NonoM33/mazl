@@ -22,6 +22,21 @@ DuoScenePose sceneFor(
 /// Ce que la page 3D reçoit pour chaque pose mesurée : la charnière réelle,
 /// l'axe du pli (vu de la fenêtre).
 void main() {
+  // Renaud, 2026-10-27 : le tutoriel restait blanc en mode sombre.
+  test('le mode sombre part vers la page 3D', () {
+    final pose = DuoScenePose.from(
+      fold: DuoPose.closed.foldState,
+      size: DuoPose.closed.size,
+      step: DuoTutorialStep.welcome,
+      validated: false,
+      reduceMotion: false,
+      dark: true,
+    );
+    expect(pose.toMessage()['dark'], isTrue);
+    expect(sceneFor(DuoPose.closed).toMessage()['dark'], isFalse);
+    expect(pose == sceneFor(DuoPose.closed), isFalse);
+  });
+
   test('fermé et debout : charnière fermée, angle 0', () {
     final pose = sceneFor(DuoPose.closed);
     expect(pose.hinge, HingeStatus.closed);
