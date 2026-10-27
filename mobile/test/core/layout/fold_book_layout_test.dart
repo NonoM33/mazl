@@ -128,6 +128,62 @@ void main() {
       expect(end.left, greaterThan(start.right));
     });
 
+    testWidgets('laptop volets: start above the fold, end below it, the '
+        'state of what moves is kept', (tester) async {
+      final laptop = DuoPose.halfOpenLaptop.fold!;
+      Widget volets() => Scaffold(
+        body: FoldSpread(
+          laptopVolets: true,
+          start: const [Text('Titre'), Text('Question du jour')],
+          end: [
+            const TextField(key: Key('answer')),
+            for (var i = 0; i < 40; i++) Text('Rangée $i'),
+          ],
+        ),
+      );
+      final pose = await _pump(tester, DuoPose.halfOpenLaptop, volets());
+
+      expect(
+        _rectOf(tester, find.text('Question du jour')).bottom,
+        lessThanOrEqualTo(laptop.top),
+        reason: 'the key information stays above the fold',
+      );
+      expect(
+        _rectOf(tester, find.byKey(const Key('answer'))).top,
+        greaterThanOrEqualTo(laptop.bottom),
+        reason: 'what the member acts on starts below the fold',
+      );
+
+      // What the member typed survives the fold opening and closing.
+      await tester.enterText(find.byKey(const Key('answer')), 'Le café');
+      pose.value = DuoPose.openPortrait;
+      await settleFold(tester);
+      expect(find.text('Le café'), findsOneWidget);
+      pose.value = DuoPose.halfOpenLaptop;
+      await settleFold(tester);
+      expect(find.text('Le café'), findsOneWidget);
+
+      // The lower volet scrolls alone: the upper one does not move, and no
+      // row that can be touched ever sits in the fold.
+      final titleTop = _rectOf(tester, find.text('Titre')).top;
+      await tester.drag(find.byType(ListView).last, const Offset(0, -300));
+      await tester.pump();
+      expect(_rectOf(tester, find.text('Titre')).top, titleTop);
+      final rows = find.textContaining('Rangée').hitTestable();
+      expect(rows, findsWidgets);
+      for (final row in rows.evaluate()) {
+        final rect = tester.getRect(find.byElementPredicate((e) => e == row));
+        expect(rect.top, greaterThanOrEqualTo(laptop.bottom - 0.5));
+      }
+    });
+
+    testWidgets('without laptopVolets the laptop pose is still one list', (
+      tester,
+    ) async {
+      await _pump(tester, DuoPose.halfOpenLaptop, spread());
+      expect(find.byType(ListView), findsOneWidget);
+    });
+
     testWidgets('upright and laptop: one list, end below start', (
       tester,
     ) async {
@@ -157,7 +213,11 @@ void main() {
           final start = _rectOf(tester, find.text('Profil'));
           final end = _rectOf(tester, find.text('Réglages'));
           expect(end.top, start.top, reason: pose.name);
-          expect(end.left, greaterThanOrEqualTo(start.right), reason: pose.name);
+          expect(
+            end.left,
+            greaterThanOrEqualTo(start.right),
+            reason: pose.name,
+          );
         }
       });
 
