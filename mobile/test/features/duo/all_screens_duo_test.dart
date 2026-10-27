@@ -144,6 +144,7 @@ Future<List<String>> _measure(
       qrScannerBuilderProvider.overrideWithValue(
         (context, onCode) => const ColoredBox(color: Colors.black),
       ),
+      ...?screen.providerOverrides?.call(),
     ],
   );
   // The container is never closed: it would dispose the app's single

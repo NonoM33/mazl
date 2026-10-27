@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:mazl/core/di/providers/storefront_providers.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/presentation/features/chat/screens/chat_conversation_screen.dart';
 
+import '../../presentation/storefront/storefront_fixtures.dart';
 import 'duo_screens.dart';
 
 /// The first full button of the screen.
 Finder _filledButton() =>
     find.byWidgetPredicate((w) => w is ElevatedButton || w is FilledButton);
+
+/// The purchase button of the mazl+ page, not the one of its campaign.
+Finder _buyButton() => find.byWidgetPredicate(
+  (w) => w is ElevatedButton && w.key != const ValueKey('campaign-cta'),
+);
 
 /// The button labelled [text]: its Material button, else the nearest ink.
 Finder _action(String text) {
@@ -246,6 +253,15 @@ final List<DuoScreen> duoScreens = [
     file: 'settings/screens/settings_screen.dart',
     path: '/profile/settings',
   ),
+  DuoScreen(
+    id: '/profile/settings > with a campaign (christmas)',
+    feature: 'settings',
+    file: 'settings/screens/settings_screen.dart',
+    path: '/profile/settings',
+    providerOverrides: () => [
+      storefrontProvider.overrideWithValue(storefrontWithCampaign('christmas')),
+    ],
+  ),
   const DuoScreen(
     id: '/profile/settings/shabbat',
     feature: 'settings',
@@ -291,6 +307,18 @@ final List<DuoScreen> duoScreens = [
     path: '/premium',
     primary: _filledButton,
   ),
+  // The mazl+ page with a campaign: a light accent and the ink of black Friday.
+  for (final theme in ['valentine', 'black_friday'])
+    DuoScreen(
+      id: '/premium > with a campaign ($theme)',
+      feature: 'premium',
+      file: 'premium/screens/premium_screen.dart',
+      path: '/premium',
+      providerOverrides: () => [
+        storefrontProvider.overrideWithValue(storefrontWithCampaign(theme)),
+      ],
+      primary: _buyButton,
+    ),
   const DuoScreen(
     id: '/premium/welcome',
     feature: 'premium',
