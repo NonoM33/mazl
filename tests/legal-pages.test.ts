@@ -12,6 +12,8 @@ describe("legal pages served by the API server", () => {
     ["/cgu", "Conditions générales d'utilisation"],
     ["/cgv", "Conditions générales de vente"],
     ["/confidentialite", "Politique de confidentialité"],
+    ["/mentions-legales", "Mentions légales"],
+    ["/cookies", "Politique de cookies et de traceurs"],
   ] as const) {
     test(`${path} answers the page`, async () => {
       const res = await get(path);

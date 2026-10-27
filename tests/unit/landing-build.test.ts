@@ -57,7 +57,7 @@ describe("showcase build", () => {
   });
 
   test("links go to the client, the legal pages and the store; no placeholder is left", () => {
-    for (const href of ["/app", "/cgu", "/cgv", "/confidentialite"]) expect(html).toContain(`href="${href}"`);
+    for (const href of ["/app", "/cgu", "/cgv", "/confidentialite", "/mentions-legales", "/cookies"]) expect(html).toContain(`href="${href}"`);
     expect(html).toMatch(/href="https:\/\/apps\.apple\.com\/app\/id\d+"/);
     expect(html).not.toContain("{{");
     expect(html).not.toContain("TODO_APP_STORE_URL");
