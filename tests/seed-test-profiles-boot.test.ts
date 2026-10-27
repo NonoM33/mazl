@@ -46,6 +46,8 @@ interface FixtureEventRow {
   is_published: boolean;
   in_future: boolean;
   image_url: string | null;
+  latitude: string | null;
+  longitude: string | null;
   date: string;
 }
 
@@ -53,7 +55,7 @@ async function fixtureEvents(url: string): Promise<FixtureEventRow[]> {
   const sql = postgres(url, { max: 1, onnotice: () => undefined });
   try {
     return await sql<FixtureEventRow[]>`
-      SELECT id, fixture_key, availability, is_published, date > CURRENT_DATE AS in_future, image_url, to_char(date, 'YYYY-MM-DD') AS date
+      SELECT id, fixture_key, availability, is_published, date > CURRENT_DATE AS in_future, image_url, latitude, longitude, to_char(date, 'YYYY-MM-DD') AS date
       FROM events WHERE fixture_key IS NOT NULL ORDER BY fixture_key`;
   } finally {
     await sql.end({ timeout: 2 });
@@ -116,11 +118,33 @@ describe("test profiles at start-up", () => {
     expect(await countSeedMembersWithPhotos(withoutFlag.url)).toBe(0);
   });
 
-  test("SEED_TEST_PROFILES=true: the API writes the fake events, published, coming soon, in the future, without picture", async () => {
+  test("SEED_TEST_PROFILES=true: the API writes the fake events, published, coming soon, in the future, with their picture and place", async () => {
     const rows = await fixtureEvents(withFlag.url);
     expect(rows.map((row) => row.fixture_key)).toEqual(TEST_EVENTS.map((event) => event.key).sort());
-    expect(rows.every((row) => row.availability === "coming_soon" && row.is_published && row.in_future && row.image_url === null)).toBe(true);
+    expect(rows.every((row) => row.availability === "coming_soon" && row.is_published && row.in_future)).toBe(true);
+    for (const event of TEST_EVENTS) {
+      const row = rows.find((candidate) => candidate.fixture_key === event.key);
+      expect(row?.image_url).toBe(event.imageUrl);
+      expect(Number(row?.latitude)).toBeCloseTo(event.latitude, 4);
+      expect(Number(row?.longitude)).toBeCloseTo(event.longitude, 4);
+    }
     expect(await fixtureEvents(withoutFlag.url)).toEqual([]);
+  });
+
+  test("the events list and the event detail serve the picture and the coordinates", async () => {
+    const base = servers[0]?.baseUrl ?? "";
+    const listed = (await (await fetch(`${base}/api/events?limit=50`)).json()) as { events: Array<Record<string, unknown>> };
+    const rows = await fixtureEvents(withFlag.url);
+    for (const event of TEST_EVENTS) {
+      const id = rows.find((row) => row.fixture_key === event.key)?.id;
+      const inList = listed.events.find((candidate) => candidate.id === id);
+      const detail = ((await (await fetch(`${base}/api/events/${id}`)).json()) as { event: Record<string, unknown> }).event;
+      for (const served of [inList, detail]) {
+        expect(served?.image_url).toBe(event.imageUrl);
+        expect(Number(served?.latitude)).toBeCloseTo(event.latitude, 4);
+        expect(Number(served?.longitude)).toBeCloseTo(event.longitude, 4);
+      }
+    }
   });
 
   test("a restart writes nothing twice and keeps an event an administrator opened", async () => {
