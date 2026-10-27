@@ -582,7 +582,8 @@ void main() {
           greaterThanOrEqualTo(fold.right - 0.5),
         );
         await tester.drag(find.byType(ListView).last, const Offset(0, -1500));
-        await tester.pump();
+        // iOS bounce (StarRefresh): let the list settle back on its end.
+        await tester.pumpAndSettle();
         expect(
           rect(tester, find.text('RÉGLAGES DU COUPLE')).left,
           greaterThanOrEqualTo(fold.right - 0.5),

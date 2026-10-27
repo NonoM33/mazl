@@ -140,7 +140,8 @@ void main() {
       // The page is long: the goals and the dates come into view as it
       // scrolls, still on the second page and clear of the curve.
       await tester.drag(find.byType(ListView).last, const Offset(0, -700));
-      await tester.pump();
+      // iOS bounce (StarRefresh): let the list settle.
+      await tester.pumpAndSettle();
       _onSecondPage(tester, find.text('Voir les aurores boréales'));
       _onSecondPage(tester, find.text('Notre anniversaire'));
       // The long page scrolls under the home indicator by design: whether

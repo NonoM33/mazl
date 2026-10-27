@@ -131,50 +131,46 @@ class _CoupleOutingsScreenState extends State<CoupleOutingsScreen> {
     return Scaffold(
       body: StarRefresh(
         onRefresh: () => _load(quiet: true),
-        // A short page (an empty state) can still be pulled down to refresh.
-        child: ScrollConfiguration(
-          behavior: const _PullableBehavior(),
-          child: FoldCutBuilder(
-            minPaneExtent: 240,
-            builder: (context, cut) {
-              final laptop = cut?.axis == FoldSplitAxis.horizontal;
-              final page = _page;
-              final ready = !_loading && _failure == null && page != null;
-              final showing =
-                  ready && (page.featured != null || page.items.isNotEmpty);
-              final featured = showing && page.featured != null
-                  ? _featured(page.featured!)
-                  : null;
-              return FoldSpread(
-                laptopVolets: true,
-                wideFrom: 720,
-                padding: EdgeInsets.fromLTRB(
-                  24,
-                  inset.top + 16,
-                  24,
-                  inset.bottom + 24,
-                ),
-                start: [
-                  _header(page),
-                  const SizedBox(height: 20),
-                  _filters(),
-                  const SizedBox(height: 20),
-                  if (featured != null && !laptop) featured,
-                ],
-                end: [
-                  if (!showing)
-                    _status()
-                  else ...[
-                    if (featured != null && laptop) ...[
-                      featured,
-                      const SizedBox(height: 24),
-                    ],
-                    if (page.items.isNotEmpty) ..._picks(page.items),
+        child: FoldCutBuilder(
+          minPaneExtent: 240,
+          builder: (context, cut) {
+            final laptop = cut?.axis == FoldSplitAxis.horizontal;
+            final page = _page;
+            final ready = !_loading && _failure == null && page != null;
+            final showing =
+                ready && (page.featured != null || page.items.isNotEmpty);
+            final featured = showing && page.featured != null
+                ? _featured(page.featured!)
+                : null;
+            return FoldSpread(
+              laptopVolets: true,
+              wideFrom: 720,
+              padding: EdgeInsets.fromLTRB(
+                24,
+                inset.top + 16,
+                24,
+                inset.bottom + 24,
+              ),
+              start: [
+                _header(page),
+                const SizedBox(height: 20),
+                _filters(),
+                const SizedBox(height: 20),
+                if (featured != null && !laptop) featured,
+              ],
+              end: [
+                if (!showing)
+                  _status()
+                else ...[
+                  if (featured != null && laptop) ...[
+                    featured,
+                    const SizedBox(height: 24),
                   ],
+                  if (page.items.isNotEmpty) ..._picks(page.items),
                 ],
-              );
-            },
-          ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -364,10 +360,3 @@ class _Message extends StatelessWidget {
 }
 
 /// The platform's own scrolling, but always pullable.
-class _PullableBehavior extends MaterialScrollBehavior {
-  const _PullableBehavior();
-
-  @override
-  ScrollPhysics getScrollPhysics(BuildContext context) =>
-      AlwaysScrollableScrollPhysics(parent: super.getScrollPhysics(context));
-}

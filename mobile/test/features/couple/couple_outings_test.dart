@@ -628,10 +628,18 @@ void main() {
         'GET /api/couple/outings',
         const SocketException('down'),
       );
-      await tester.drag(find.byType(ListView).first, const Offset(0, 1200));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      await tester.pump(const Duration(seconds: 1));
+      // A slow finger pull, as the star asks for (StarRefresh).
+      final gesture = await tester.startGesture(
+        tester.getTopLeft(find.byType(ListView).first) + const Offset(20, 40),
+      );
+      for (var done = 0; done < 300; done += 10) {
+        await gesture.moveBy(const Offset(0, 10));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await gesture.up();
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       expect(rig.transport.count('GET /api/couple/outings'), 2);
       expect(find.text('Cours de pâtisserie à deux'), findsOneWidget);
