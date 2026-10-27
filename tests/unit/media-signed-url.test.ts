@@ -4,6 +4,7 @@ import { resetKeyCacheForTests } from "../../src/shared/crypto/keys";
 import {
   PHOTO_URL_TTL_SECONDS,
   isExpired,
+  maxAgeFor,
   parseExpiry,
 } from "../../src/features/media/domain/signed-url";
 import {
@@ -41,9 +42,9 @@ describe("signed photo URLs (contract 2.1)", () => {
     expect(PHOTO_URL_TTL_SECONDS).toBe(3600);
   });
 
-  test("relative URL carries exp = now + 1h and the contract HMAC", () => {
+  test("relative URL carries the slice expiry and the contract HMAC", () => {
     const url = signPhotoUrl(12, NOW_MS);
-    const exp = NOW_S + 3600;
+    const exp = (Math.floor(NOW_S / 3600) + 2) * 3600;
     expect(url).toBe(`/media/photos/12?exp=${exp}&sig=${contractSignature(12, exp)}`);
   });
 
@@ -54,6 +55,30 @@ describe("signed photo URLs (contract 2.1)", () => {
     } finally {
       delete process.env.PUBLIC_BASE_URL;
     }
+  });
+
+  test("the same photo keeps the same URL within a slice, a new one in the next slice", () => {
+    const sliceStart = Math.floor(NOW_S / 3600) * 3600 * 1000;
+    const first = signPhotoUrl(12, sliceStart);
+    expect(signPhotoUrl(12, sliceStart + 1_800_000)).toBe(first);
+    expect(signPhotoUrl(12, sliceStart + 3_599_000)).toBe(first);
+    expect(signPhotoUrl(12, sliceStart + 3_600_000)).not.toBe(first);
+    expect(signPhotoUrl(13, sliceStart)).not.toBe(first);
+  });
+
+  test("a URL stays valid at least one hour and is refused after its expiry", () => {
+    const sliceEnd = (Math.floor(NOW_S / 3600) + 1) * 3600 * 1000;
+    const issuedLast = new URL(`http://x${signPhotoUrl(12, sliceEnd - 1000)}`);
+    const exp = issuedLast.searchParams.get("exp") ?? "";
+    const sig = issuedLast.searchParams.get("sig") ?? "";
+    expect(Number(exp) * 1000 - (sliceEnd - 1000)).toBeGreaterThanOrEqual(3_600_000);
+    expect(verifyPhotoSignature(12, exp, sig, sliceEnd - 1000 + 3_600_000)).toBe(true);
+    expect(verifyPhotoSignature(12, exp, sig, Number(exp) * 1000 + 1000)).toBe(false);
+  });
+
+  test("max age is the time left until expiry", () => {
+    expect(maxAgeFor(NOW_S + 500, NOW_MS)).toBe(500);
+    expect(maxAgeFor(NOW_S - 5, NOW_MS)).toBe(0);
   });
 
   test("accepts the contract signature, rejects any other", () => {

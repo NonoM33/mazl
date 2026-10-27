@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/images/mazl_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -246,11 +246,9 @@ class _MatchAvatar extends StatelessWidget {
       child: ClipOval(
         child: url == null || url!.isEmpty
             ? fallback
-            : CachedNetworkImage(
-                imageUrl: url!,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => ColoredBox(color: scheme.surfaceContainer),
-                errorWidget: (_, __, ___) => fallback,
+            : MazlNetworkImage(
+                url: url!,
+                errorBuilder: (_) => fallback,
               ),
       ),
     );

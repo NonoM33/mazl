@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/images/photo_cache.dart';
 import '../../../../core/likes/like_allowance.dart';
 import '../../../../core/likes/like_allowance_api.dart';
 import '../../../../core/models/swipe_result.dart';
@@ -67,6 +68,10 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   /// Bumped with each new list so the deck starts again from its first card.
   int _deckGeneration = 0;
 
+  /// Cards swiped since the deck on screen was built: once the member has
+  /// started, a background refresh must not swap the cards under their thumb.
+  int _swipesSinceDeck = 0;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -106,12 +111,51 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       setState(() {
         _profiles = cachedProfiles;
         _deckGeneration++;
+        _swipesSinceDeck = 0;
         _isLoading = false;
       });
+      _warmUpPhotos(cachedProfiles);
+      if (_prefetchService.discoverNeedsRefresh) {
+        unawaited(_revalidateDeck());
+      }
     } else {
       // Load from API if no cached data
       await _loadProfiles();
     }
+  }
+
+  /// Stale-while-revalidate: the deck kept from last time is on screen; the
+  /// server's current one replaces it only if the member has not swiped yet.
+  Future<void> _revalidateDeck() async {
+    final fresh = await _prefetchService.fetchDiscoverProfiles(
+      forceRefresh: true,
+    );
+    if (!mounted || fresh == null || _swipesSinceDeck > 0) return;
+    final sameDeck =
+        fresh.length == _profiles.length &&
+        [for (final p in fresh) p.id].join(',') ==
+            [for (final p in _profiles) p.id].join(',');
+    if (sameDeck) return;
+    setState(() {
+      _profiles = fresh;
+      _deckGeneration++;
+    });
+    _warmUpPhotos(fresh);
+  }
+
+  /// Loads the photos of the next cards before they are reached.
+  void _warmUpPhotos(List<Profile> profiles) {
+    // After the frame: this can be called from initState, before the screen
+    // may read its MediaQuery.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(
+        precachePhotos(context, [
+          for (final p in profiles.take(6))
+            ...p.photos.take(p == profiles.first ? 3 : 1),
+        ], logicalWidth: MediaQuery.sizeOf(context).width),
+      );
+    });
   }
 
   Future<void> _loadProfiles({bool isRefresh = false}) async {
@@ -129,8 +173,10 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       setState(() {
         _profiles = response.data!;
         _deckGeneration++;
+        _swipesSinceDeck = 0;
         _isLoading = false;
       });
+      _warmUpPhotos(response.data!);
     } else {
       setState(() {
         _loadFailed = true;
@@ -464,6 +510,8 @@ class _DiscoverScreenState extends State<DiscoverScreen>
 
   void _onSwiped(int index, SwipeDirection direction) {
     final profile = _profiles[index];
+    _swipesSinceDeck++;
+    _warmUpPhotos(_profiles.skip(index + 1).take(4).toList());
 
     String action;
     if (direction == SwipeDirection.right) {
@@ -484,10 +532,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     }
 
     // Send swipe to backend
-    _apiService.sendSwipe(
-      targetUserId: profile.userId,
-      action: action,
-    ).then((response) {
+    _apiService.sendSwipe(targetUserId: profile.userId, action: action).then((
+      response,
+    ) {
       if (response.success && swipeMatched(response.data)) {
         // Show match animation
         _showMatchDialog(profile);

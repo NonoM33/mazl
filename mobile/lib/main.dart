@@ -22,6 +22,7 @@ import 'core/di/providers/identity_providers.dart';
 import 'core/di/providers/verification_providers.dart';
 import 'presentation/features/verification/providers/verification_providers.dart';
 import 'core/services/auth_service.dart';
+import 'core/services/data_prefetch_service.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/services/store/subscription_service.dart';
 import 'core/di/providers/storefront_providers.dart';
@@ -94,6 +95,12 @@ Future<void> _start() async {
       // transactions non terminées de la session précédente.
       StartupStep('achats', () => SubscriptionService().initialize()),
       StartupStep('auth', () => AuthService().initialize()),
+      // Les dernières réponses connues (matchs, conversations…) s'affichent
+      // dès l'ouverture, avant tout appel réseau.
+      StartupStep(
+        'cache',
+        () => DataPrefetchService().hydrate(AuthService().currentUser?.id),
+      ),
       // Notifications push (APNs)
       StartupStep('push', () => PushNotificationService().initialize()),
     ],

@@ -23,7 +23,11 @@ describe("photo upload", () => {
     const served = await fetch(absolute(body.photo.url));
     expect(served.status).toBe(200);
     expect(served.headers.get("content-type")).toBe("image/jpeg");
-    expect(served.headers.get("cache-control")).toBe("private, max-age=3600");
+    expect(served.headers.get("cache-control")).toMatch(/^private, max-age=(3[6-9]\d\d|[4-6]\d{3}|7[01]\d\d|7200), immutable$/);
+    const etag = served.headers.get("etag");
+    expect(etag).toMatch(/^"[0-9a-f]{32}"$/);
+    const revalidated = await fetch(absolute(body.photo.url), { headers: { "If-None-Match": etag ?? "" } });
+    expect(revalidated.status).toBe(304);
     expect(served.headers.get("x-content-type-options")).toBe("nosniff");
     const bytes = Buffer.from(await served.arrayBuffer());
     expect([...bytes.subarray(0, 3)]).toEqual([0xff, 0xd8, 0xff]);

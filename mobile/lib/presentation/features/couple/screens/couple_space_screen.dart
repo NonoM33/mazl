@@ -18,6 +18,7 @@ import '../l10n/couple_failure_label.dart';
 import '../widgets/couple_message_view.dart';
 import 'couple_space_sheets.dart';
 import '../../../common/widgets/fold_pages.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 class CoupleSpaceScreen extends StatefulWidget {
   const CoupleSpaceScreen({super.key, this.apiService});
@@ -141,7 +142,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
       return CoupleMessageView.failure(_failure!, onRetry: _loadData);
     }
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
+    return StarRefresh(
       onRefresh: _loadData,
       // Held like a book: the couple, its numbers and its memories to look at
       // on the first page; the actions, the goals and the dates on the other.

@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+
+import '../../../../core/images/photo_cache.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -88,7 +91,39 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     if (mounted) setState(() {});
   }
 
+  /// The last answer kept for this profile is shown at once; the network
+  /// answer then replaces it without a loading screen.
+  void _showKnownProfile() {
+    if (_hasLoadedOnce) return;
+    final myKnown = ApiService.peekCurrentUser();
+    if (widget.isOwnProfile || widget.userId == null) {
+      if (myKnown == null) return;
+      setState(() {
+        _userProfile = myKnown;
+        _isLoading = false;
+        _hasLoadedOnce = true;
+      });
+      return;
+    }
+    final userId = int.tryParse(widget.userId!);
+    final known = userId == null ? null : ApiService.peekProfile(userId);
+    if (known == null) return;
+    final myProfile = myKnown?.profile;
+    setState(() {
+      _otherProfile = known;
+      _compatibilityScore = myProfile != null
+          ? CompatibilityScore.calculate(
+              myProfile: myProfile,
+              otherProfile: known,
+            )
+          : null;
+      _isLoading = false;
+      _hasLoadedOnce = true;
+    });
+  }
+
   Future<void> _loadProfile() async {
+    _showKnownProfile();
     // Only show skeleton on first load
     if (!_hasLoadedOnce) {
       setState(() => _isLoading = true);
@@ -126,6 +161,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         final myResponse = await _apiService.getCurrentUser();
         final myProfile = myResponse.success ? myResponse.data?.profile : null;
         if (!mounted) return;
+        unawaited(precachePhotos(context, otherProfile.photos));
         setState(() {
           _otherProfile = otherProfile;
           _compatibilityScore = myProfile != null

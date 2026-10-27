@@ -7,11 +7,18 @@ import 'package:flutter_test/flutter_test.dart';
 const _gestureFiles = <String>[
   'lib/presentation/features/chat/widgets/swipe_to_reply.dart',
   'lib/presentation/features/chat/widgets/photo_viewer.dart',
+  'lib/presentation/features/chat/widgets/typing_indicator.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck_pose.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck_physics.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_intent_discs.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_progress_scale.dart',
+  'lib/presentation/common/widgets/star_refresh/star_refresh.dart',
+  'lib/presentation/common/widgets/star_refresh/star_frame.dart',
+  'lib/presentation/common/widgets/star_refresh/hanukkiah_frame.dart',
+  'lib/presentation/widgets/loading_thread.dart',
+  'lib/presentation/common/widgets/like_fill/like_fill.dart',
+  'lib/presentation/common/widgets/rolling_count/rolling_count.dart',
 ];
 
 // Screens that only wire a gesture widget: they reach MazlMotion through the
@@ -56,6 +63,18 @@ void main() {
       });
     });
   }
+
+  // docs/design/MOUVEMENT.md §7bis: every pull to refresh is the star.
+  test('no screen uses the stock RefreshIndicator', () {
+    final stock = [
+      for (final entity in Directory('lib').listSync(recursive: true))
+        if (entity is File &&
+            entity.path.endsWith('.dart') &&
+            _code(entity.path).contains('RefreshIndicator('))
+          entity.path,
+    ];
+    expect(stock, isEmpty, reason: 'Use StarRefresh instead.');
+  });
 
   test('flutter_card_swiper is gone from the project', () {
     expect(

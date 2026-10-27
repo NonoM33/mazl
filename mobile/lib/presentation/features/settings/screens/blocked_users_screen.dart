@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/images/photo_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -8,6 +8,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
 import 'package:mazl/core/layout/column_app_bar.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 /// Screen to manage blocked users
 class BlockedUsersScreen extends StatefulWidget {
@@ -141,7 +142,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
       );
     }
 
-    return RefreshIndicator(
+    return StarRefresh(
       onRefresh: _loadBlockedUsers,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -171,7 +172,7 @@ class _BlockedUserTile extends StatelessWidget {
         radius: 24,
         backgroundColor: AppColors.primary.withValues(alpha: 0.1),
         backgroundImage: user.picture != null
-            ? CachedNetworkImageProvider(user.picture!)
+            ? mazlImageProvider(user.picture!, cacheWidth: 96)
             : null,
         child: user.picture == null
             ? Text(

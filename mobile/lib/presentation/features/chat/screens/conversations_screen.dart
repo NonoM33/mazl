@@ -16,6 +16,7 @@ import '../conversation_time.dart';
 import '../../../common/l10n/content_direction.dart';
 import '../l10n/chat_preview_text.dart';
 import '../../../common/widgets/fold_pages.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
@@ -57,6 +58,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         _conversations = cachedConversations;
         _isLoading = false;
       });
+      if (_prefetchService.conversationsNeedRefresh) {
+        await _loadConversations(isRefresh: true);
+      }
     } else {
       // Load from API if no cached data
       await _loadConversations();
@@ -231,8 +235,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     // Le Scaffold parent est en extendBody : la capsule d'onglets est comptée
     // dans ce padding, la liste reste donc libre au-dessus d'elle.
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
-      color: scheme.primary,
+    return StarRefresh(
       onRefresh: () => _loadConversations(isRefresh: true),
       child: visible.isEmpty
           ? ListView(

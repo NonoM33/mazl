@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:mazl/core/images/mazl_network_image.dart';
 import 'package:mazl/core/di/providers/privacy_providers.dart';
 import 'package:mazl/core/di/providers/web_sessions_providers.dart';
 import 'package:go_router/go_router.dart';
@@ -192,13 +193,21 @@ Future<List<String>> _measure(
         )
         .evaluate()
         .any(
-          (e) => find
-              .ancestor(
-                of: find.byWidget(e.widget),
-                matching: find.byType(CachedNetworkImage),
-              )
-              .evaluate()
-              .isEmpty,
+          (e) =>
+              find
+                  .ancestor(
+                    of: find.byWidget(e.widget),
+                    matching: find.byType(CachedNetworkImage),
+                  )
+                  .evaluate()
+                  .isEmpty &&
+              find
+                  .ancestor(
+                    of: find.byWidget(e.widget),
+                    matching: find.byType(MazlNetworkImage),
+                  )
+                  .evaluate()
+                  .isEmpty,
         )) {
       throw _NotMeasurable('${screen.id} is still loading after the wait');
     }

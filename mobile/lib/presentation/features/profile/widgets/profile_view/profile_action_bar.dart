@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../l10n/l10n.dart';
+import '../../../../common/widgets/like_fill/like_fill.dart';
 
 /// Rangée flottante du bas : passer, puis « J'aime » suivi du prénom.
 class ProfileActionBar extends StatelessWidget {
@@ -60,32 +61,44 @@ class ProfileActionBar extends StatelessWidget {
             excludeSemantics: true,
             child: SizedBox(
               height: height,
-              child: Material(
-                color: scheme.onSurface,
+              // The ink bar fills with the brand tekhelet; the label and the
+              // heart turn white on it.
+              child: LikeFill(
+                onTap: onLike,
+                background: scheme.onSurface,
+                fillColor: scheme.primaryContainer,
                 shape: const StadiumBorder(),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: onLike,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: -0.2,
-                            color: scheme.surface,
+                builder: (context, fill) => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: -0.2,
+                          color: Color.lerp(
+                            scheme.surface,
+                            scheme.onPrimaryContainer,
+                            fill,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Icon(LucideIcons.heart, size: 22, color: scheme.primary),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 10),
+                    Icon(
+                      LucideIcons.heart,
+                      size: 22,
+                      color: Color.lerp(
+                        scheme.primary,
+                        scheme.onPrimaryContainer,
+                        fill,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

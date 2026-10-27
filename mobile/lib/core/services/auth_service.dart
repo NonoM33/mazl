@@ -10,6 +10,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import '../cache/api_snapshots.dart';
+import '../images/photo_cache.dart';
 import '../dev/dev_login.dart';
 import 'couple_service.dart';
 import '../dev/dev_session.dart';
@@ -478,6 +480,7 @@ class AuthService extends ChangeNotifier {
       DevSession.stop();
       _profileCompleteness.reset();
       _currentUser = null;
+      unawaited(_forgetCachedData());
       debugPrint('AuthService: session fictive terminée');
       notifyListeners();
       return;
@@ -499,12 +502,20 @@ class AuthService extends ChangeNotifier {
       DevSession.stop();
       _profileCompleteness.reset();
       _currentUser = null;
+      await _forgetCachedData();
       debugPrint('AuthService: User signed out');
       notifyListeners();
     } catch (e) {
       debugPrint('AuthService: Sign out error - $e');
       rethrow;
     }
+  }
+
+  /// Nothing seen by the member who leaves may be shown to the next one: the
+  /// kept answers (memory and disk) and the photos go.
+  Future<void> _forgetCachedData() async {
+    await ApiSnapshots.instance.clear();
+    await MazlPhotoCache.clear();
   }
 
   /// Ends the session because the server (HTTP 401, 403 `account_disabled`) or
@@ -595,6 +606,8 @@ class AuthService extends ChangeNotifier {
     // A new account must not inherit the previous one's answer.
     _profileCompleteness.reset();
     _sessionEndReason = null;
+    // Another account than the one whose answers are kept: they are dropped.
+    await ApiSnapshots.instance.bindOwner(user.id);
     _currentUser = user;
     await _secureStorage.write(
       key: _userKey,

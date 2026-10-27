@@ -133,6 +133,99 @@ abstract final class MazlMotion {
   /// flies in with the Hero).
   static const viewerOpen = Duration(milliseconds: 200);
 
+  // --- Pull to refresh: the Star of David « Le trait » ----------------------
+  // Proposal approved by Renaud on 2026-10-27:
+  // docs/design/pull-refresh-proposition.html, variant A.
+
+  /// Pull that arms a refresh; a selection tick when the finger crosses it.
+  static const refreshThreshold = 64.0;
+
+  /// Gap the list keeps above it while the refresh runs.
+  static const refreshHold = 60.0;
+
+  /// The gap where the star fades in, from 0 to fully opaque.
+  static const refreshFadeInGap = 26.0;
+
+  /// One loading turn: the star turns a third (back to upright) and each
+  /// comet runs once around its triangle. Loading always ends on a whole
+  /// turn, and lasts at least [refreshMinCycles] of them.
+  static const refreshCycle = Duration(milliseconds: 800);
+  static const refreshMinCycles = 1;
+
+  /// The drawn triangles shrink into comets over the start of the loading.
+  static const refreshCometShrink = Duration(milliseconds: 300);
+
+  /// Length of each comet, as a share of its triangle.
+  static const refreshCometShare = 0.55;
+
+  /// The bloom once the refresh is done: the comets close, the star swells to
+  /// [refreshBloomScale] and fills with the accent, then the list goes back.
+  static const refreshBloom = Duration(milliseconds: 600);
+  static const refreshBloomScale = 1.4;
+
+  /// During Hanukkah a hanukkiah stands in for the star: its flames flicker
+  /// by up to this share of their size while the refresh runs.
+  static const refreshFlameFlicker = 0.15;
+
+  // --- Typing thread (chat) --------------------------------------------------
+
+  /// One loop of the « … écrit » thread: it ripples, ties a knot at the
+  /// centre, then undoes it, and starts over seamlessly.
+  static const typingThreadCycle = Duration(milliseconds: 1800);
+
+  /// Where in the cycle (0 → 1) the knot is fully tied: the still frame shown
+  /// under reduced motion.
+  static const typingThreadKnotFormed = 0.5;
+
+  // --- Loading thread (skeletons) -------------------------------------------
+  // The skeleton blocks stay flat and calm; one accent thread runs over them.
+
+  /// One pass of the thread across the skeleton, in reading direction.
+  static const loadingThreadPeriod = Duration(milliseconds: 2400);
+  static const loadingThreadCurve = Curves.easeInOutSine;
+
+  /// Width of the thread, in logical pixels.
+  static const loadingThreadWidth = 2.0;
+
+  /// Share of the height at each end of the thread where it fades out.
+  static const loadingThreadEndFade = 0.2;
+
+  /// Share of the pass, at each edge, where the whole thread fades in or out
+  /// so it never appears or vanishes abruptly.
+  static const loadingThreadEdgeFade = 0.12;
+
+  // --- Like fill (heart buttons) -------------------------------------------
+
+  /// While the finger rests on a heart button, a disc grows from the exact
+  /// touch point toward [likeFillPreview] of the button over this time.
+  static const likeFillDuration = Duration(milliseconds: 360);
+  static const likeFillCurve = Curves.easeOut;
+
+  /// How far the disc gets before the tap is confirmed (0 = nothing, 1 =
+  /// the whole button): the lift of the finger takes it the rest of the way.
+  static const likeFillPreview = 0.65;
+
+  /// Time a confirmed tap needs to bring the disc from nothing to the whole
+  /// button; less when the disc is already part way (the common bounce
+  /// follows, see [popDuration] and [popScale]).
+  static const likeFillFinish = Duration(milliseconds: 140);
+
+  /// A cancelled tap (the finger slid out) empties the disc this fast, from
+  /// full; less when it is part way.
+  static const likeFillCancel = Duration(milliseconds: 160);
+
+  /// Once the bounce is over, the full button goes back to rest in this time,
+  /// so a button that outlives its card never stays filled.
+  static const likeFillRelease = Duration(milliseconds: 200);
+
+  // --- Rolling count (likes) -----------------------------------------------
+
+  /// A digit that changes rolls vertically to its new value, like a
+  /// mechanical counter (up when the number grows, down when it shrinks).
+  /// Under reduced motion the new number simply appears.
+  static const rollingCount = Duration(milliseconds: 420);
+  static const rollingCountCurve = Curves.easeOutCubic;
+
   // --- Match sheet ---------------------------------------------------------
 
   /// The two photos slide toward each other until they touch.
@@ -172,7 +265,4 @@ abstract final class MazlMotion {
 
   /// A photo fades in over its placeholder.
   static const eventPhotoFade = Duration(milliseconds: 280);
-
-  /// Pulse of the placeholder of a photo that is still loading.
-  static const eventPlaceholderPeriod = Duration(milliseconds: 1600);
 }

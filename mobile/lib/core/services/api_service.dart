@@ -23,6 +23,8 @@ import '../models/likes.dart';
 import '../models/profile_prompt.dart';
 import '../models/boost_status.dart';
 import 'couple_api.dart';
+import '../cache/api_snapshots.dart';
+import 'data_prefetch_service.dart';
 
 export '../models/profile.dart';
 export '../models/conversation.dart';
@@ -263,25 +265,33 @@ class ApiService implements CoupleApi {
   Future<http.Response> _post(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API POST: $url');
-    return _watched(
+    final response = await _watched(
       (client) => client.post(url, headers: _headers, body: jsonEncode(body)),
     );
+    _noteWrite(endpoint, response.statusCode);
+    return response;
   }
 
   /// PUT request
   Future<http.Response> _put(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API PUT: $url');
-    return _watched(
+    final response = await _watched(
       (client) => client.put(url, headers: _headers, body: jsonEncode(body)),
     );
+    _noteWrite(endpoint, response.statusCode);
+    return response;
   }
 
   /// DELETE request
   Future<http.Response> _delete(String endpoint) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API DELETE: $url');
-    return _watched((client) => client.delete(url, headers: _headers));
+    final response = await _watched(
+      (client) => client.delete(url, headers: _headers),
+    );
+    _noteWrite(endpoint, response.statusCode);
+    return response;
   }
 
   /// Authenticated PUT, the raw response (the caller reads the status).
@@ -295,9 +305,11 @@ class ApiService implements CoupleApi {
   ) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API DELETE: $url');
-    return _watched(
+    final response = await _watched(
       (client) => client.delete(url, headers: _headers, body: jsonEncode(body)),
     );
+    _noteWrite(endpoint, response.statusCode);
+    return response;
   }
 
   /// Public POST request (returns parsed JSON)
@@ -318,6 +330,106 @@ class ApiService implements CoupleApi {
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
+  // ============ SNAPSHOTS (stale-while-revalidate) ============
+  //
+  // The last 200 answer of the main screens' endpoints is kept (see
+  // ApiSnapshots) and re-read with the SAME parsers as the network answer, so a
+  // screen can show it at once and refresh behind it.
+
+  static const String meKey = '/api/auth/me';
+  static const String discoverKey = '/api/discover?limit=20&offset=0';
+  static const String matchesKey = '/api/matches';
+  static const String conversationsKey = '/api/conversations';
+  static const String eventsKey = '/api/events';
+  static const String likesKey = '/api/likes/received';
+  static const String profileKey = '/api/profile/';
+
+  static ApiSnapshots get _snapshots => ApiSnapshots.instance;
+
+  /// The snapshot of [key], parsed by [parse]; null when there is none or it
+  /// cannot be read any more (an old format is a miss, never an error).
+  static T? _peek<T>(String key, T Function(Map<String, dynamic> data) parse) {
+    final body = _snapshots.read(key);
+    if (body == null) return null;
+    try {
+      final data = jsonDecode(body);
+      if (data is! Map<String, dynamic> || data['success'] != true) return null;
+      return parse(data);
+    } on Object catch (error) {
+      debugPrint('Snapshot $key unreadable: $error');
+      return null;
+    }
+  }
+
+  static UserProfile _userFrom(Map<String, dynamic> data) {
+    // Backend sends user and profile at root level, merge them for UserProfile
+    final userData = data['user'] as Map<String, dynamic>;
+    userData['profile'] = data['profile']; // Add profile to user data
+    return UserProfile.fromJson(userData);
+  }
+
+  static List<Profile> _discoverFrom(Map<String, dynamic> data) =>
+      (data['profiles'] as List).map((p) => Profile.fromJson(p)).toList();
+
+  static List<Map<String, dynamic>> _matchesFrom(Map<String, dynamic> data) =>
+      (data['matches'] as List).cast<Map<String, dynamic>>();
+
+  static List<Conversation> _conversationsFrom(Map<String, dynamic> data) =>
+      (data['conversations'] as List).map((c) => Conversation.fromJson(c)).toList();
+
+  static List<Event> _eventsFrom(Map<String, dynamic> data) =>
+      (data['events'] as List).map((e) => Event.fromJson(e)).toList();
+
+  /// Last known answers; null when none was kept.
+  static UserProfile? peekCurrentUser() => _peek(meKey, _userFrom);
+  static List<Profile>? peekDiscoverProfiles() => _peek(discoverKey, _discoverFrom);
+  static List<Map<String, dynamic>>? peekMatches() => _peek(matchesKey, _matchesFrom);
+  static List<Conversation>? peekConversations() =>
+      _peek(conversationsKey, _conversationsFrom);
+  static List<Event>? peekEvents() => _peek(eventsKey, _eventsFrom);
+  static LikesData? peekReceivedLikes() => _peek(likesKey, LikesData.fromJson);
+  static Profile? peekProfile(int userId) =>
+      _peek('$profileKey$userId', (data) => Profile.fromJson(data['profile']));
+
+  /// Takes a swiped profile out of the kept deck so that it never comes back
+  /// after a restart.
+  void _forgetSwiped(int targetUserId) {
+    DataPrefetchService().discardDiscoverProfile(targetUserId);
+    final body = _snapshots.read(discoverKey);
+    if (body == null) return;
+    try {
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      data['profiles'] = (data['profiles'] as List)
+          .where((p) => _parseIntSafe(p['id']) != targetUserId)
+          .toList();
+      _snapshots.record(discoverKey, jsonEncode(data));
+    } on Object catch (error) {
+      debugPrint('Snapshot discover not updated: $error');
+      _snapshots.drop([discoverKey]);
+    }
+  }
+
+  /// A successful write changed some of the kept answers: they may still be
+  /// shown, but must be read again. Blocks and couple changes also remove the
+  /// people they concern from the kept deck.
+  void _noteWrite(String endpoint, int status) {
+    if (status < 200 || status >= 300) return;
+    final path = endpoint.split('?').first;
+    if (path == '/api/swipes') {
+      _snapshots.markStale([matchesKey, likesKey, conversationsKey]);
+    } else if (path.startsWith('/api/profile')) {
+      _snapshots.markStale([meKey, profileKey]);
+    } else if (path.startsWith('/api/conversations')) {
+      _snapshots.markStale([conversationsKey]);
+    } else if (path.startsWith('/api/events')) {
+      _snapshots.markStale([eventsKey]);
+    } else if (path.startsWith('/api/users/') || path.startsWith('/api/couple')) {
+      _snapshots.drop(['/api/discover']);
+      _snapshots.markStale([matchesKey, likesKey, conversationsKey, meKey]);
+      DataPrefetchService().invalidateAfterRelationChange();
+    }
+  }
+
   /// Get current user profile
   Future<ApiResponse<UserProfile>> getCurrentUser() async {
     try {
@@ -332,11 +444,8 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
-      // Backend sends user and profile at root level, merge them for UserProfile
-      final userData = data['user'] as Map<String, dynamic>;
-      userData['profile'] = data['profile']; // Add profile to user data
-
-      return ApiResponse.success(UserProfile.fromJson(userData));
+      _snapshots.record(meKey, response.body);
+      return ApiResponse.success(_userFrom(data));
     } catch (e) {
       debugPrint('API Error: $e');
       return _networkFailure(e);
@@ -391,6 +500,7 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
+      _snapshots.record('$profileKey$userId', response.body);
       return ApiResponse.success(Profile.fromJson(data['profile']));
     } catch (e) {
       debugPrint('API Error: $e');
@@ -415,11 +525,10 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
-      final profiles = (data['profiles'] as List)
-          .map((p) => Profile.fromJson(p))
-          .toList();
-
-      return ApiResponse.success(profiles);
+      if (limit == 20 && offset == 0) {
+        _snapshots.record(discoverKey, response.body);
+      }
+      return ApiResponse.success(_discoverFrom(data));
     } catch (e) {
       debugPrint('API Error: $e');
       return _networkFailure(e);
@@ -473,6 +582,7 @@ class ApiService implements CoupleApi {
 
       final data = jsonDecode(response.body);
       _relayCredits(data);
+      _forgetSwiped(targetUserId);
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
@@ -621,8 +731,8 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
-      final matches = (data['matches'] as List).cast<Map<String, dynamic>>();
-      return ApiResponse.success(matches);
+      _snapshots.record(matchesKey, response.body);
+      return ApiResponse.success(_matchesFrom(data));
     } catch (e) {
       debugPrint('API Error: $e');
       return _networkFailure(e);
@@ -645,11 +755,8 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
-      final conversations = (data['conversations'] as List)
-          .map((c) => Conversation.fromJson(c))
-          .toList();
-
-      return ApiResponse.success(conversations);
+      _snapshots.record(conversationsKey, response.body);
+      return ApiResponse.success(_conversationsFrom(data));
     } catch (e) {
       debugPrint('API Error: $e');
       return _networkFailure(e);
@@ -726,11 +833,8 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
-      final events = (data['events'] as List)
-          .map((e) => Event.fromJson(e))
-          .toList();
-
-      return ApiResponse.success(events);
+      if (endpoint == eventsKey) _snapshots.record(eventsKey, response.body);
+      return ApiResponse.success(_eventsFrom(data));
     } catch (e) {
       debugPrint('API Error: $e');
       return _networkFailure(e);
@@ -1128,6 +1232,7 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
+      _snapshots.record(likesKey, response.body);
       return ApiResponse.success(LikesData.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');

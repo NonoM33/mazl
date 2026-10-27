@@ -14,6 +14,7 @@ import '../widgets/event_flight.dart';
 import '../widgets/event_photo.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import 'package:mazl/core/layout/column_app_bar.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 class EventsListScreen extends StatefulWidget {
   const EventsListScreen({super.key});
@@ -63,6 +64,9 @@ class _EventsListScreenState extends State<EventsListScreen>
         _events = cachedEvents;
         _isInitialLoading = false;
       });
+      if (_prefetchService.eventsNeedRefresh) {
+        await _loadEvents(isRefresh: true);
+      }
     } else {
       // Load from API if no cached data
       await _loadEvents();
@@ -332,7 +336,7 @@ class _EventsListScreenState extends State<EventsListScreen>
 
     return Stack(
       children: [
-        RefreshIndicator(
+        StarRefresh(
           onRefresh: () => _loadEvents(isRefresh: true),
           child: AnimatedOpacity(
             opacity: _isFilterLoading ? 0.5 : 1.0,
