@@ -6875,12 +6875,6 @@ abstract class AppLocalizations {
   /// **'L\'icône de l\'app change à l\'approche des fêtes. iOS affiche une alerte à chaque changement.'**
   String get settingsFestiveIconSubtitle;
 
-  /// Page Vérification : petite étiquette au-dessus du grand titre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Votre profil'**
-  String get verificationProfileEyebrow;
-
   /// Page Vérification : grand titre de l'écran où le membre prouve que ses photos sont les siennes (niveau 1 : photo, niveau 2 : identité).
   ///
   /// In fr, this message translates to:
@@ -6899,18 +6893,6 @@ abstract class AppLocalizations {
   /// **'Niveau 2'**
   String get verificationLevel2;
 
-  /// Titre du niveau 1 : le selfie en direct est comparé aux photos du profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Photo vérifiée'**
-  String get verificationPhotoTitle;
-
-  /// Titre du niveau 2 : l'identité est lue sur la puce du passeport ou de la carte d'identité.
-  ///
-  /// In fr, this message translates to:
-  /// **'Identité vérifiée'**
-  String get verificationIdentityTitle;
-
   /// Pastille posée à côté du titre d'un niveau déjà vérifié (photo ou identité). Court.
   ///
   /// In fr, this message translates to:
@@ -6928,12 +6910,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre visage correspond à vos photos.'**
   String get verificationPhotoVerifiedLine;
-
-  /// Niveau 1 vérifié : la date à laquelle la photo a été vérifiée ({date} = date courte selon la langue).
-  ///
-  /// In fr, this message translates to:
-  /// **'Vérifiée le {date}.'**
-  String verificationPhotoVerifiedOn(DateTime date);
 
   /// Bouton du niveau 1 vérifié : retire le badge (ouvre une confirmation).
   ///
@@ -6970,12 +6946,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Document contrôlé par sa puce.'**
   String get verificationIdentityCheckedNoDate;
-
-  /// Niveau 2 vérifié : la date du contrôle ({date} = date courte selon la langue).
-  ///
-  /// In fr, this message translates to:
-  /// **'Contrôlée le {date}.'**
-  String verificationIdentityCheckedOn(DateTime date);
 
   /// Niveau 2 pas encore vérifié : ce que le membre doit présenter et à quoi sert le selfie.
   ///
@@ -7846,6 +7816,132 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Terminé.'**
   String get verificationNfcAlertDone;
+
+  /// Page Vérification, en-tête : titre quand aucun niveau n'est vérifié.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre profil'**
+  String get verificationStateNoneTitle;
+
+  /// Page Vérification, en-tête : titre quand un seul niveau sur deux est vérifié, ou qu'une vérification est en cours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification en cours'**
+  String get verificationStatePartialTitle;
+
+  /// Page Vérification, en-tête : titre quand les deux niveaux sont vérifiés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil entièrement vérifié'**
+  String get verificationStateDoneTitle;
+
+  /// Page Vérification, en-tête : phrase sous le titre quand rien n'est encore vérifié.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prouvez que vos photos sont les vôtres. Un badge s\'affiche sur votre profil et rassure les autres membres.'**
+  String get verificationStateNoneBody;
+
+  /// Page Vérification, en-tête : phrase sous le titre quand un niveau est vérifié et l'autre reste à faire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre badge est déjà visible sur votre profil. Terminez l\'autre niveau pour inspirer encore plus confiance.'**
+  String get verificationStatePartialBody;
+
+  /// Page Vérification, en-tête : phrase sous le titre quand les deux niveaux sont vérifiés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les autres membres voient votre badge et savent que vous êtes bien la personne de vos photos.'**
+  String get verificationStateDoneBody;
+
+  /// Page Vérification, en-tête : progression sous les deux segments ({done} = nombre de niveaux vérifiés, 0 à 2).
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} sur 2 niveaux vérifiés'**
+  String verificationProgress(int done);
+
+  /// Carte du niveau 1 : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification de la photo'**
+  String get verificationPhotoCardTitle;
+
+  /// Carte du niveau 2 : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification de l\'identité'**
+  String get verificationIdentityCardTitle;
+
+  /// Pastille d'état d'un niveau pas encore vérifié. Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'À faire'**
+  String get verificationPillTodo;
+
+  /// Pastille d'état d'un niveau dont la vérification est en cours. Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get verificationPillBusy;
+
+  /// Pastille d'état d'un niveau dont la dernière tentative a été refusée. Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refusée'**
+  String get verificationPillRefused;
+
+  /// Pastille d'état d'un niveau dont le nombre d'essais du jour est atteint. Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite atteinte'**
+  String get verificationPillBlocked;
+
+  /// Carte du niveau 1 avant la vérification : ce que fait le niveau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un selfie en direct est comparé à vos photos de profil.'**
+  String get verificationPhotoPitch;
+
+  /// Niveau 1, première puce de ce qu'il apporte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un badge de confiance sur votre profil'**
+  String get verificationPhotoBenefitBadge;
+
+  /// Niveau 1, deuxième puce de ce qu'il apporte.
+  ///
+  /// In fr, this message translates to:
+  /// **'La preuve que vos photos sont bien les vôtres'**
+  String get verificationPhotoBenefitProof;
+
+  /// Niveau 1, troisième puce : la durée du selfie (trois poses de la tête).
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelques secondes et trois mouvements de tête'**
+  String get verificationPhotoBenefitQuick;
+
+  /// Niveau 2, première puce de ce qu'il apporte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un niveau de confiance de plus sur votre badge'**
+  String get verificationIdentityBenefitBadge;
+
+  /// Niveau 2, deuxième puce : lecture NFC de la puce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture sans contact de la puce de votre document'**
+  String get verificationIdentityBenefitChip;
+
+  /// Niveau 2, troisième puce : le document requis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un passeport ou une carte d\'identité à puce est nécessaire'**
+  String get verificationIdentityBenefitNeeds;
+
+  /// Carte d'un niveau vérifié, à côté de la pastille « Vérifiée » : la date de la vérification, en toutes lettres ({date} = date longue selon la langue, par exemple 26 octobre 2026).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le {date}'**
+  String verificationVerifiedOnDate(DateTime date);
 
   /// Titre de l'écran qui liste les ordinateurs connectés au compte (version web de MAZL), et libellé de la ligne qui l'ouvre dans les Paramètres.
   ///
