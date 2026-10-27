@@ -1,5 +1,5 @@
 /* Charte « Encre & Tekhelet » (mobile/lib/core/theme/app_colors.dart). Un seul
-   accent : le tekhelet. L'or n'existe que dans la section chabbat. */
+   accent : le tekhelet. L'or n'existe que dans la section Shabbat. */
 @font-face { font-family: "Geist"; src: url("/l/fonts/Geist-400.ttf") format("truetype"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "Geist"; src: url("/l/fonts/Geist-500.ttf") format("truetype"); font-weight: 500; font-display: swap; }
 @font-face { font-family: "Geist"; src: url("/l/fonts/Geist-600.ttf") format("truetype"); font-weight: 600; font-display: swap; }

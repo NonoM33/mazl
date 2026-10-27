@@ -20,7 +20,7 @@ Un cookie est un petit fichier enregistré par votre navigateur lorsque vous con
 |---|---|---|---|---|
 | `__Host-mazl_web` (cookie) | Espace membre du site (mazl.app/app), après connexion | Garder votre session ouverte. Cookie `HttpOnly` (illisible par un script), `Secure` et `SameSite=Strict`, attaché au seul site mazl.app | 7 jours au plus, 4 heures sans activité, effacé à la déconnexion | Non requis : strictement nécessaire |
 | `mazl.theme` (stockage local) | Espace membre | Se souvenir du thème clair, sombre ou automatique que vous avez choisi | Jusqu'à ce que vous l'effaciez | Non requis : préférence que vous avez demandée |
-| `mazl.shabbat` (stockage local) | Espace membre | Se souvenir des réglages de la pause de chabbat. Cette préférence reste dans votre navigateur et n'est jamais envoyée à nos serveurs | Jusqu'à ce que vous l'effaciez | Non requis : préférence que vous avez demandée |
+| `mazl.shabbat` (stockage local) | Espace membre | Se souvenir des réglages de la pause de Shabbat. Cette préférence reste dans votre navigateur et n'est jamais envoyée à nos serveurs | Jusqu'à ce que vous l'effaciez | Non requis : préférence que vous avez demandée |
 
 Rien d'autre n'est déposé par MAZL sur votre appareil à l'occasion de la consultation du site vitrine, des pages juridiques ou de l'espace membre.
 

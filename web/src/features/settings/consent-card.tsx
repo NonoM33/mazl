@@ -14,7 +14,7 @@ async function decide(granted: boolean, version: string): Promise<void> {
 function WithdrawDialog({ busy, error, onConfirm, onClose }: { readonly busy: boolean; readonly error: string | null; readonly onConfirm: () => void; readonly onClose: () => void }) {
   return (
     <Dialog title="Retirer mon consentement" onClose={onClose}>
-      <p className="body-m">Votre courant, votre niveau de cashrout, votre pratique du Shabbat et votre intention seront effacés de votre profil. Vous pourrez les saisir de nouveau si vous consentez plus tard.</p>
+      <p className="body-m">Votre courant, votre niveau de cacherout, votre pratique du Shabbat et votre intention seront effacés de votre profil. Vous pourrez les saisir de nouveau si vous consentez plus tard.</p>
       {error && <p className="field-error" role="alert">{error}</p>}
       <div className="inline gap-12">
         <button type="button" className="btn btn-outline" onClick={onClose}>Garder mon consentement</button>
