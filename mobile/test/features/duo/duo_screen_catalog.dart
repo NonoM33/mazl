@@ -371,19 +371,21 @@ final List<DuoScreen> duoScreens = [
     path: '/couple/outings',
     session: DuoSession.couple,
   ),
-  const DuoScreen(
+  DuoScreen(
     id: '/couple/concierge',
     feature: 'couple',
     file: 'couple/screens/couple_concierge_screen.dart',
     path: '/couple/concierge',
     session: DuoSession.couple,
+    primary: () => _action('Réserver une table'),
   ),
-  const DuoScreen(
+  DuoScreen(
     id: '/couple/concierge/:requestId',
     feature: 'couple',
     file: 'couple/screens/couple_concierge_thread_screen.dart',
-    path: '/couple/concierge/1',
+    path: '/couple/concierge/9002',
     session: DuoSession.couple,
+    primary: () => find.byType(EditableText),
   ),
   const DuoScreen(
     id: '/couple/us',
