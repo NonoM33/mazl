@@ -26,6 +26,8 @@ const { chromium } = loadPlaywright();
 // `chromium.launch()` d'abord ; si le navigateur de cette version de Playwright n'est pas installé,
 // repli sur un Chromium déjà présent dans le cache de Playwright.
 async function launch(): Promise<Browser> {
+  const explicit = process.env["CHROMIUM_PATH"];
+  if (explicit !== undefined && explicit !== "") return chromium.launch({ executablePath: explicit });
   try {
     return await chromium.launch();
   } catch (error) {
@@ -39,7 +41,11 @@ async function launch(): Promise<Browser> {
 
 const browser = await launch();
 
+// CAPTURES_ONLY=vitrine : ne réécrit que les captures de la vitrine (numéros 27 et suivants).
+const ONLY_STOREFRONT = process.env["CAPTURES_ONLY"] === "vitrine";
+
 async function shot(page: Page, name: string): Promise<void> {
+  if (ONLY_STOREFRONT && Number(name.slice(0, 2)) < 27) return;
   await page.waitForTimeout(350);
   await page.screenshot({ path: join(OUT, `maquette-${name}.png`) });
   console.log(`maquette-${name}.png`);
@@ -172,6 +178,62 @@ try {
   await analyst.waitForSelector("table.table tbody tr");
   await shot(analyst, "25-algorithme-historique-lecture-seule");
 
+
+  // Vitrine : Offres (prix, ordre, accroches) et Campagnes (frise, fiche, aperçu, préremplissage).
+  await page.goto(`${BASE}/console#/offres`);
+  await page.reload();
+  await page.getByRole("heading", { name: "Offres", level: 1 }).waitFor();
+  await page.waitForSelector(".offers-table tbody tr");
+  await shot(page, "27-offres");
+  await page.getByRole("button", { name: "Changer le prix Apple de mazl+ 3 mois" }).click();
+  const priceDialog = page.getByRole("dialog", { name: /Prix Apple/ });
+  await priceDialog.getByLabel("Nouveau prix (France)").selectOption({ label: "49,99 €" });
+  await priceDialog.getByRole("button", { name: "Voir l'effet" }).click();
+  await priceDialog.getByRole("button", { name: "Confirmer le changement de prix" }).waitFor();
+  await shot(page, "28-offres-prix-apple-confirmation");
+  await page.keyboard.press("Escape");
+
+  await page.goto(`${BASE}/console#/campagnes`);
+  await page.waitForSelector(".timeline-bar");
+  await shot(page, "29-campagnes-frise");
+  await page.locator("table.table tbody tr", { hasText: "Noël" }).first().click();
+  await page.getByRole("dialog", { name: /Noël/ }).waitFor();
+  await page.waitForSelector(".paywall");
+  await shot(page, "30-campagne-fiche-apercu");
+  await page.getByRole("button", { name: "Programmer", exact: true }).click();
+  await page.getByRole("dialog", { name: /Programmer/ }).waitFor();
+  await shot(page, "31-campagne-programmer");
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Escape");
+
+  await page.goto(`${BASE}/console#/campagnes?annee=2027`);
+  await page.reload();
+  await page.waitForSelector(".timeline-bar");
+  await page.getByRole("button", { name: "Préremplir l'année" }).click();
+  await page.waitForSelector(".preset-list");
+  await shot(page, "32-campagnes-preremplir-2027");
+  await page.keyboard.press("Escape");
+
+  await page.goto(`${BASE}/console#/campagnes`);
+  await page.locator("table.table tbody tr", { hasText: "démarrage anticipé" }).first().click();
+  await page.getByRole("dialog", { name: /Black Friday/ }).waitFor();
+  await page.waitForSelector(".paywall");
+  await shot(page, "33-campagne-en-cours-inverse");
+  await page.keyboard.press("Escape");
+
+  const manager = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: "fr-FR", colorScheme: "light" });
+  const admin = await manager.newPage();
+  await admin.goto(`${BASE}/console`);
+  await admin.getByLabel("Adresse e-mail").fill("gestion@example.com");
+  await admin.getByLabel("Mot de passe").fill("demo");
+  await admin.getByRole("button", { name: "Se connecter" }).click();
+  await admin.getByRole("heading", { name: "Code de vérification" }).waitFor();
+  await typeCode(admin, "482916");
+  await admin.getByRole("heading", { name: "Tableau de bord", level: 1 }).waitFor();
+  await admin.goto(`${BASE}/console#/offres`);
+  await admin.waitForSelector(".offers-table tbody tr");
+  await shot(admin, "34-offres-administrateur-prix-reserves");
+
   await page.goto(`${BASE}/console#/`);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.waitForSelector(".chart-svg");
@@ -185,6 +247,19 @@ try {
   await page.goto(`${BASE}/console#/algorithme?onglet=regler`);
   await page.waitForSelector(".sim-list");
   await shot(page, "26-algorithme-regler-sombre");
+
+
+  await page.goto(`${BASE}/console#/offres`);
+  await page.waitForSelector(".offers-table tbody tr");
+  await shot(page, "35-offres-sombre");
+  await page.goto(`${BASE}/console#/campagnes`);
+  await page.waitForSelector(".timeline-bar");
+  await shot(page, "36-campagnes-frise-sombre");
+  await page.locator("table.table tbody tr", { hasText: "Noël" }).first().click();
+  await page.getByRole("dialog", { name: /Noël/ }).waitFor();
+  await page.waitForSelector(".paywall");
+  await shot(page, "37-campagne-fiche-sombre");
+  await page.keyboard.press("Escape");
 
   const second = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: "fr-FR", colorScheme: "light" });
   const enrol = await second.newPage();
