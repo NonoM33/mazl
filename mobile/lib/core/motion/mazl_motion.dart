@@ -265,7 +265,4 @@ abstract final class MazlMotion {
 
   /// A photo fades in over its placeholder.
   static const eventPhotoFade = Duration(milliseconds: 280);
-
-  /// Pulse of the placeholder of a photo that is still loading.
-  static const eventPlaceholderPeriod = Duration(milliseconds: 1600);
 }

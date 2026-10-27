@@ -166,8 +166,6 @@ const _allowed = <String, _Allowed>{
     [
       ('child: Icon(typeIcon, size: iconSize, color: Colors.white54),', 1),
       ('final base = Color.alphaBlend(Colors.black26, typeColor);', 1),
-      ('final sheen = Color.alphaBlend(Colors.white24, typeColor);', 1),
-      ('child: const ColoredBox(color: Colors.white),', 1),
       ('child: Icon(typeIcon, size: iconSize, color: Colors.white38),', 1),
       ('Color(0x66000000),', 1),
       ('Color(0x00000000),', 1),
