@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/layout/full_bleed.dart';
 import '../../../../core/premium/purchase_moments.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
@@ -187,7 +188,7 @@ class _MatchesScreenState extends State<MatchesScreen>
         bottom: false,
         child: StarRefresh(
           onRefresh: _refresh,
-          child: ListView(
+          child: GutteredListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.fromLTRB(24, 16, 24, bottom + 24),
             children: [
@@ -255,25 +256,28 @@ class _MatchesScreenState extends State<MatchesScreen>
       ),
       SectionLabel(context.l10n.matchingMatchesNewSection(newCount)),
       const SizedBox(height: 16),
-      SizedBox(
-        height: 100,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: matches.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
-          itemBuilder: (context, index) {
-            final match = matches[index];
-            final profile = match['profile'] as Map<String, dynamic>;
-            return AvatarRing(
-              name:
-                  profile['display_name'] as String? ??
-                  context.l10n.matchingMatchesUnknownName,
-              pictureUrl: profile['picture'] as String?,
-              seed: (profile['user_id'] as int?) ?? index,
-              isNew: _isNewMatch(match['matchedAt'] as String?),
-              onTap: () => _openChat(match),
-            );
-          },
+      FullBleed(
+        builder: (context, gutter) => SizedBox(
+          height: 100,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: gutter,
+            itemCount: matches.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              final match = matches[index];
+              final profile = match['profile'] as Map<String, dynamic>;
+              return AvatarRing(
+                name:
+                    profile['display_name'] as String? ??
+                    context.l10n.matchingMatchesUnknownName,
+                pictureUrl: profile['picture'] as String?,
+                seed: (profile['user_id'] as int?) ?? index,
+                isNew: _isNewMatch(match['matchedAt'] as String?),
+                onTap: () => _openChat(match),
+              );
+            },
+          ),
         ),
       ),
       const SizedBox(height: 24),

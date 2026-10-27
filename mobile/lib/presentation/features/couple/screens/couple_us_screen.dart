@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_spread.dart';
+import '../../../../core/layout/full_bleed.dart';
 import '../../../../core/models/couple_daily.dart';
 import '../../../../core/models/couple_space.dart';
 import '../../../../core/router/route_names.dart';
@@ -450,7 +451,7 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
           const SizedBox(height: 32),
           _buildQuickActions(),
           const SizedBox(height: 32),
-          _buildMemoriesSection(value.memories),
+          ..._buildMemoriesSection(value.memories),
           const SizedBox(height: 32),
           _buildBucketListSection(value.bucketList),
           const SizedBox(height: 32),
@@ -532,32 +533,32 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
     );
   }
 
-  Widget _buildMemoriesSection(List<CoupleMemory> memories) {
+  List<Widget> _buildMemoriesSection(List<CoupleMemory> memories) {
     final l10n = context.l10n;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionLabel(l10n.coupleSpaceMemoriesTitle),
-        const SizedBox(height: 12),
-        if (memories.isEmpty)
-          UsEmptyCard(
-            icon: LucideIcons.camera,
-            title: l10n.coupleSpaceMemoriesEmptyTitle,
-            hint: l10n.coupleSpaceMemoriesEmptyHint,
-          )
-        else
-          SizedBox(
+    return [
+      SectionLabel(l10n.coupleSpaceMemoriesTitle),
+      const SizedBox(height: 12),
+      if (memories.isEmpty)
+        UsEmptyCard(
+          icon: LucideIcons.camera,
+          title: l10n.coupleSpaceMemoriesEmptyTitle,
+          hint: l10n.coupleSpaceMemoriesEmptyHint,
+        )
+      else
+        FullBleed(
+          builder: (context, gutter) => SizedBox(
             height: 140,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
+              padding: gutter,
               itemCount: memories.take(10).length,
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) =>
                   UsMemoryTile(memory: memories[index], seed: index),
             ),
           ),
-      ],
-    );
+        ),
+    ];
   }
 
   Widget _buildBucketListSection(List<BucketListItem> bucketList) {

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'fold_cut.dart';
+import 'full_bleed.dart';
 
 /// A scrolling page that reads like a book when the foldable iPhone is held
 /// half open: [start] on the reading-start page, [end] on the other, each
@@ -78,14 +79,14 @@ class _FoldSpreadState extends State<FoldSpread> {
           children: [
             SizedBox(
               height: cut!.leadExtent,
-              child: ListView(
+              child: GutteredListView(
                 padding: padding.copyWith(bottom: _voletGap),
                 children: start,
               ),
             ),
             SizedBox(height: cut.gap),
             Expanded(
-              child: ListView(
+              child: GutteredListView(
                 padding: padding.copyWith(top: _voletGap),
                 children: end,
               ),
@@ -98,7 +99,7 @@ class _FoldSpreadState extends State<FoldSpread> {
         return LayoutBuilder(
           builder: (context, constraints) {
             if (wideFrom == null || constraints.maxWidth < wideFrom) {
-              return ListView(
+              return GutteredListView(
                 padding: widget.padding,
                 children: [...start, ...end],
               );
@@ -107,10 +108,16 @@ class _FoldSpreadState extends State<FoldSpread> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: ListView(padding: widget.padding, children: start),
+                  child: GutteredListView(
+                    padding: widget.padding,
+                    children: start,
+                  ),
                 ),
                 Expanded(
-                  child: ListView(padding: widget.padding, children: end),
+                  child: GutteredListView(
+                    padding: widget.padding,
+                    children: end,
+                  ),
                 ),
               ],
             );
@@ -122,11 +129,11 @@ class _FoldSpreadState extends State<FoldSpread> {
         children: [
           SizedBox(
             width: cut!.leadExtent,
-            child: ListView(padding: widget.padding, children: start),
+            child: GutteredListView(padding: widget.padding, children: start),
           ),
           SizedBox(width: cut.gap),
           Expanded(
-            child: ListView(padding: widget.padding, children: end),
+            child: GutteredListView(padding: widget.padding, children: end),
           ),
         ],
       );
