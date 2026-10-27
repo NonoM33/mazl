@@ -213,7 +213,8 @@ void main() {
     ) async {
       await _pumpSpace(tester, size: _phones['390x844']!);
       await tester.drag(find.byType(ListView).first, const Offset(0, -3000));
-      await tester.pump();
+      // The list bounces, as on the iPhone (pull to refresh): measure at rest.
+      await tester.pumpAndSettle();
       final last = tester.getRect(find.text('Notre anniversaire'));
       expect(last.bottom, lessThanOrEqualTo(844 - 34 - 16 + 0.5));
     });

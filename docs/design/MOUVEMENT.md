@@ -50,8 +50,8 @@ Retours haptiques autorisés, et seulement eux :
 
 | moment | haptique |
 |---|---|
-| franchissement d'un seuil (aimer, passer, fermer une photo, survol d'une réaction) | `HapticFeedback.selectionClick` |
-| seuil de la réponse glissée, double tap sur une bulle | `HapticFeedback.lightImpact` |
+| franchissement d'un seuil (aimer, passer, fermer une photo, survol d'une réaction, tirer pour actualiser) | `HapticFeedback.selectionClick` |
+| seuil de la réponse glissée, double tap sur une bulle, éclosion de l'étoile d'actualisation | `HapticFeedback.lightImpact` |
 | super like acquis, match, début et envoi d'un message vocal | `HapticFeedback.mediumImpact` |
 
 Rien au départ de la carte, rien sur les boutons, rien en continu pendant un geste. Revenir en
@@ -155,8 +155,85 @@ repart vers sa carte, le même vol à l'envers. Valeurs : `MazlMotion.eventOpen`
 - **Feuilles** (`showMazlSheet`) : élastique quand on les tire vers le haut ; la fermeture dépend
   de la vitesse du geste autant que de la distance. Pas d'haptique.
 - **Pages et listes** : défilement natif de la plateforme, jamais réécrit. Seul un indicateur de
-  page glisse au lieu de sauter.
+  page glisse au lieu de sauter. Exception : une liste qu'on peut actualiser rebondit partout
+  (Android compris), pour que l'étoile du §7bis s'ouvre de la même façon.
 - **Barre d'onglets repliée** : déjà en ressort, inchangée.
+
+## 7bis. Tirer pour actualiser : l'étoile « Le trait »
+
+Choisie par Renaud le 2026-10-27 (variante A de `docs/design/pull-refresh-proposition.html`, où les
+quatre propositions restent jouables). Widget unique : `StarRefresh`
+(`mobile/lib/presentation/common/widgets/star_refresh/`), à la place de `RefreshIndicator`, qui est
+refusé dans `lib/` par `test/core/motion_single_source_test.dart`.
+
+- **Pendant** : la liste suit le doigt et rebondit. L'étoile se construit dans l'espace ouvert :
+  le triangle pointe en haut se trace, puis le triangle pointe en bas, pendant qu'elle se redresse
+  d'un quart de tour et grandit de 0,6 à 1. Elle apparaît en fondu sur les 26 premiers points
+  (`refreshFadeInGap`).
+- **Seuil** : 64 points (`refreshThreshold`), `selectionClick` en le franchissant (une fois ;
+  revenir en deçà ne redéclenche rien). On actualise en **lâchant** au-delà du seuil.
+- **Chargement** : la liste reste baissée de 60 points (`refreshHold`) ; les deux tracés deviennent
+  deux comètes de 55 % de leur triangle (`refreshCometShare`, en 300 ms `refreshCometShrink`) qui
+  font le tour pendant que l'étoile tourne d'un tiers par tour de 800 ms (`refreshCycle`). Le
+  chargement finit **toujours sur un tour entier**, donc sur une étoile droite, et dure au moins
+  un tour (`refreshMinCycles`) même si la réponse est instantanée.
+- **Éclosion** : les comètes se referment, l'étoile gonfle jusqu'à 1,4 (`refreshBloomScale`) et se
+  remplit de tekhelet, puis revient, en 600 ms (`refreshBloom`) ; `lightImpact`. La liste remonte
+  ensuite en ressort (`spring`).
+- **Où** : au-dessus du milieu de la liste tirée (la page tirée quand le Duo est tenu en livre),
+  jamais dans le pli ; une liste qui traverse le pli met l'étoile du côté le plus large.
+- **Hanoucca** : pendant les huit soirs, une hanoukia remplace l'étoile (`hanukkahNight`, calcul
+  hébraïque de `kosher_dart`, hors d'Israël). Le soir commence à 17 h (`kHanukkahEveningHour`) : la
+  première bougie brûle dès le soir qui précède le 25 kislev. Même geste que l'étoile : le corps se
+  trace sur la première moitié du tirage, puis le shamash s'allume, et les bougies du soir — posées
+  de droite à gauche, une de plus chaque soir — s'allument de la plus récente (la plus à gauche)
+  vers la droite. Pendant le chargement les flammes scintillent (`refreshFlameFlicker`, 15 %) et
+  reviennent à leur taille à chaque tour entier ; à l'éclosion ce sont les flammes qui gonflent.
+  Corps en tekhelet, flammes dans l'ambre du thème `hanukkah` de la vitrine. Animations réduites :
+  flammes immobiles.
+- **Animations réduites** : l'étoile se construit toujours sous le doigt, mais ne tourne pas et ne
+  gonfle pas ; elle reste entière pendant le chargement, son remplissage s'efface en 150 ms
+  (`reducedFade`) et la liste remonte en 120 ms (`reducedReturn`).
+
+## 7ter. Chargements : le fil qui passe
+
+Depuis le 2026-10-27, les squelettes de chargement (`mobile/lib/presentation/widgets/skeletons.dart`)
+n'utilisent plus le reflet gris du paquet `shimmer`, retiré du projet. Les blocs sont des aplats
+`surfaceContainer`. Un seul fil d'accent de 2 points (`loadingThreadWidth`) les traverse dans le sens
+de lecture (de droite à gauche en hébreu), en 2,4 s (`loadingThreadPeriod`, `loadingThreadCurve`),
+estompé à ses extrémités et aux bords de sa course. Il n'apparaît que sur les blocs
+(`LoadingThread`). Il n'y a qu'un fil par liste, donc un seul ticker. Animations réduites : ni fil, ni
+ticker. En pose livre, le squelette des événements tient dans la première page.
+
+## 7quater. Aimer : le cœur qui se remplit depuis le doigt
+
+Depuis le 2026-10-27, les boutons « aimer » (carte de Découvrir, « aimer en retour » des Likes, barre
+« J'aime » du profil) se remplissent depuis le point exact du toucher (`LikeFill`) :
+- **Pendant l'appui** : un disque grandit depuis le doigt, découpé à la forme du bouton, jusqu'à 65 % du
+  bouton (`likeFillPreview`, en 360 ms : `likeFillDuration`, `likeFillCurve`).
+- **Tap validé** : le disque couvre le bouton (`likeFillFinish`, 140 ms au plus), puis le rebond
+  commun (`popDuration`, `popScale`).
+- **Tap annulé** (le doigt sort) : le disque se vide (`likeFillCancel`) et rien n'est envoyé.
+- **Après le rebond** : le bouton revient au repos (`likeFillRelease`).
+- **Couleurs** : sur le bouton accent, le disque est un tekhelet plus profond et le cœur reste blanc. Sur
+  la barre encre du profil, le disque est tekhelet et le texte passe au blanc.
+- **Haptique** : aucune, comme pour tous les boutons.
+- **Animations réduites** : ni disque partiel ni rebond, un fondu de 150 ms.
+
+## 7quinquies. Le compteur de likes qui roule
+
+Depuis le 2026-10-27, quand le nombre de likes reçus change à l'écran, les chiffres qui changent
+roulent vers leur nouvelle valeur (`RollingCount`) : vers le haut quand il monte, vers le bas quand il
+descend, en 420 ms (`rollingCount`, `rollingCountCurve`). Les chiffres sont tabulaires et ceux qui ne
+changent pas restent immobiles.
+- **Où** : Matchs (« Ils vous ont aimé · N », « voir les N autres ») et Likes (libellé, phrase « N
+  personnes… », tranches « 10+ » dont seuls les chiffres roulent).
+- **Traductions** : la phrase traduite reste entière ; seul le nombre y est remplacé pendant le
+  roulement. Une phrase qui écrit le nombre en toutes lettres ne roule pas.
+- **Premier affichage** : rien ne roule.
+- **Lecteur d'écran** : il lit le nombre final une seule fois.
+- **Récompense** : pas de rebond, pas d'haptique.
+- **Animations réduites** : le nouveau nombre apparaît d'un coup.
 
 ## 8. Ce que les tests doivent prouver
 

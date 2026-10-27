@@ -50,9 +50,11 @@ alors gratuit. Une valeur écrite en dur dans un fichier du chat est un défaut.
 - **Nouveaux messages** : bouton pilule flottant au-dessus du composer, fond `scheme.onSurface`
   (encre), texte `scheme.surface`, libellé « 3 nouveaux messages » + flèche bas Lucide, 12 px
   au-dessus du composer. Il disparaît en fondu quand on arrive en bas.
-- **En train d'écrire** : bulle reçue de 56 × 36 px, trois points de 6 px `onSurfaceVariant` qui
-  montent l'un après l'autre (amplitude 3 px, cycle 1,2 s). Le statut de l'en-tête
-  (« écrit… » en accent) reste. Animation coupée si `MediaQuery.disableAnimationsOf`.
+- **En train d'écrire** (2026-10-27, à la place des trois points) : bulle reçue de 56 × 36 px où un
+  fil tekhelet de 2 px ondule entre deux extrémités fixes, se noue en boucle au centre comme les
+  nœuds des tsitsit, puis se dénoue (`typingThreadCycle`, 1,8 s). Le statut de l'en-tête
+  (« écrit… » en accent) reste. Animations réduites : fil immobile, nœud formé
+  (`typingThreadKnotFormed`).
 
 ## 4. Réactions
 

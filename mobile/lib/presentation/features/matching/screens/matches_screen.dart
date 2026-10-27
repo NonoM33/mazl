@@ -12,6 +12,8 @@ import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
 import '../../likes/widgets/like_widgets.dart';
 import '../widgets/avatar_ring.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
+import '../../../common/widgets/rolling_count/rolling_count.dart';
 
 /// Nombre maximal de likes aperçus sur l'écran des matchs.
 const int _likesPreviewCount = 4;
@@ -170,7 +172,7 @@ class _MatchesScreenState extends State<MatchesScreen>
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: RefreshIndicator(
+        child: StarRefresh(
           onRefresh: _refresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -250,7 +252,8 @@ class _MatchesScreenState extends State<MatchesScreen>
             final match = matches[index];
             final profile = match['profile'] as Map<String, dynamic>;
             return AvatarRing(
-              name: profile['display_name'] as String? ??
+              name:
+                  profile['display_name'] as String? ??
                   context.l10n.matchingMatchesUnknownName,
               pictureUrl: profile['picture'] as String?,
               seed: (profile['user_id'] as int?) ?? index,
@@ -347,7 +350,10 @@ class _MatchesScreenState extends State<MatchesScreen>
 
     return [
       const SizedBox(height: 32),
-      SectionLabel(context.l10n.likesSection('${data.totalCount}')),
+      SectionLabel(
+        context.l10n.likesSection('${data.totalCount}'),
+        count: data.totalCount,
+      ),
       const SizedBox(height: 16),
       GridView.builder(
         shrinkWrap: true,
@@ -383,6 +389,7 @@ class _MatchesScreenState extends State<MatchesScreen>
           label: remaining > 0
               ? context.l10n.matchingSeeMoreWithPlus(remaining)
               : context.l10n.likesSeeWhoWithPlus,
+          count: remaining > 0 ? remaining : null,
           onPressed: () => context.push(RoutePaths.premium),
         ),
       ] else if (remaining > 0) ...[
@@ -391,7 +398,10 @@ class _MatchesScreenState extends State<MatchesScreen>
           width: double.infinity,
           child: OutlinedButton(
             onPressed: () => context.push(RoutePaths.likes),
-            child: Text(context.l10n.matchingMatchesSeeMore(remaining)),
+            child: RollingCount(
+              value: remaining,
+              sentence: context.l10n.matchingMatchesSeeMore(remaining),
+            ),
           ),
         ),
       ],

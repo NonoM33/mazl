@@ -14,6 +14,7 @@ import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
 import 'package:mazl/core/layout/column_app_bar.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 class SavedActivitiesScreen extends StatefulWidget {
   const SavedActivitiesScreen({super.key, this.apiService});
@@ -151,7 +152,7 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
     return FoldAwareSplit(
       minPaneExtent: bookPaneExtent,
       lead: _buildSummary(),
-      action: RefreshIndicator(
+      action: StarRefresh(
         onRefresh: _loadActivities,
         child: ListView.builder(
           padding: EdgeInsets.fromLTRB(

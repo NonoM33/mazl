@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tirer pour actualiser MAZL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a grid of four mini iPhones, each one a live pull-to-refresh demo. */
+:root {
+  --ink: #0B0B0F; --paper: #FFFFFF; --mist: #F3F3F5; --hairline: #E2E2E6;
+  --muted: #6B6B76; --accent: #2747F5; --accent-soft: rgba(39,71,245,.10);
+  --pass: #6B6B76; --bg: #FAFAFB; --card: #FFFFFF; --veil: rgba(11,11,15,.92);
+  --ph1: #E7E4DF; --ph2: #E1E5EA; --ph3: #E8E2E5; --ph4: #E1E8E4;
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ink: #F4F4F5; --paper: #141418; --mist: #1C1C22; --hairline: #26262C;
+  --muted: #A1A1AA; --accent: #5B78FF; --accent-soft: rgba(91,120,255,.16);
+  --pass: #A1A1AA; --bg: #0B0B0F; --card: #141418; --veil: rgba(0,0,0,.92);
+  --ph1: #2A2825; --ph2: #23272C; --ph3: #2B2528; --ph4: #232A26; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ink: #F4F4F5; --paper: #141418; --mist: #1C1C22; --hairline: #26262C;
+  --muted: #A1A1AA; --accent: #5B78FF; --accent-soft: rgba(91,120,255,.16);
+  --pass: #A1A1AA; --bg: #0B0B0F; --card: #141418; --veil: rgba(0,0,0,.92);
+  --ph1: #2A2825; --ph2: #23272C; --ph3: #2B2528; --ph4: #232A26; color-scheme: dark }
+
+:root { --tk: var(--accent) }
+* { box-sizing: border-box }
+html { background: var(--bg) }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 80px }
+main { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px }
+h1 { margin: 0; font-size: clamp(28px, 5vw, 40px); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance }
+p { margin: 0; max-width: 65ch }
+code { font-family: var(--mono); font-size: .9em; background: var(--mist); border: 1px solid var(--hairline); border-radius: 6px; padding: 1px 6px; overflow-wrap: anywhere }
+header { display: flex; flex-direction: column; gap: 14px }
+.lede { font-size: 17px; color: var(--muted) }
+.hint { font-size: 14px; color: var(--muted) }
+.bar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center }
+button { font: inherit; font-size: 14px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--hairline); background: var(--card); color: var(--ink); cursor: pointer }
+button:hover { border-color: var(--accent) }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+label { font-size: 14px; color: var(--muted); display: flex; gap: 8px; align-items: center; cursor: pointer }
+
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px }
+@media (max-width: 680px) { .grid { grid-template-columns: minmax(0, 1fr) } }
+.card { position: relative; background: var(--card); border: 1px solid var(--hairline); border-radius: 20px; padding: 24px 16px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 18px; min-width: 0 }
+.card.chosen { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) }
+.badge { position: absolute; top: 12px; left: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .02em; color: #fff;
+  background: var(--accent); border-radius: 999px; padding: 3px 10px }
+.card.chosen { padding-top: 48px }
+.caption { text-align: center; display: flex; flex-direction: column; gap: 2px }
+.name { margin: 0; font-size: 16px; font-weight: 600 }
+.sub { margin: 0; font-size: 14px; color: var(--muted) }
+
+/* Mini iPhone: thick ink frame, Dynamic Island, status bar, home indicator. */
+.phone { position: relative; flex: none; width: 200px; height: 420px; border: 8px solid #0B0B0F; box-shadow: 0 0 0 1px var(--hairline); border-radius: 38px; background: var(--paper); overflow: hidden }
+.screen { position: absolute; inset: 0; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none }
+.screen:active { cursor: grabbing }
+.island { position: absolute; top: 8px; left: 50%; width: 62px; height: 18px; margin-left: -31px; border-radius: 999px; background: #000; z-index: 3; pointer-events: none }
+.status { position: absolute; top: 0; left: 0; right: 0; height: 36px; display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 16px 0 20px; background: var(--paper); z-index: 2; pointer-events: none; color: var(--ink) }
+.time { font-size: 12px; font-weight: 600; letter-spacing: -0.01em }
+.icons { display: flex; align-items: center; gap: 4px }
+.sig { display: flex; align-items: flex-end; gap: 1px; height: 8px }
+.sig i { display: block; width: 2px; border-radius: 1px; background: currentColor }
+.sig i:nth-child(1) { height: 3px } .sig i:nth-child(2) { height: 5px } .sig i:nth-child(3) { height: 7px } .sig i:nth-child(4) { height: 8px }
+.wifi { width: 11px; height: 8px; background: currentColor; clip-path: polygon(50% 100%, 0 28%, 14% 10%, 50% 0, 86% 10%, 100% 28%) }
+.batt { position: relative; width: 16px; height: 8px; border: 1px solid currentColor; border-radius: 3px; opacity: .9 }
+.batt::before { content: ""; position: absolute; inset: 1px; border-radius: 1px; background: currentColor }
+.batt::after { content: ""; position: absolute; right: -3px; top: 2px; width: 1px; height: 2px; border-radius: 0 1px 1px 0; background: currentColor }
+.pane { position: absolute; top: 36px; left: 0; right: 0; bottom: 0; overflow: hidden }
+.list { position: absolute; inset: 0; padding: 4px 14px 0; will-change: transform }
+.title { margin: 0 0 14px; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2 }
+.row { display: flex; gap: 10px; align-items: center; margin-bottom: 16px }
+.av { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--hairline) }
+.l { height: 8px; border-radius: 4px; background: var(--hairline); margin: 5px 0 }
+.star { position: absolute; left: 50%; top: 0; margin-left: -28px; pointer-events: none }
+.home { position: absolute; bottom: 6px; left: 50%; width: 70px; height: 4px; margin-left: -35px; border-radius: 2px; background: var(--ink); opacity: .85; z-index: 3; pointer-events: none }
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Tirer pour actualiser — étoile de David</h1>
+<p class="lede">La variante A, « Le trait », a été choisie par Renaud le 2026-10-27. Les valeurs font foi dans <code>mobile/lib/core/motion/mazl_motion.dart</code> (section « Pull to refresh ») et <code>docs/design/MOUVEMENT.md</code> §7bis.</p>
+<p class="hint">Tire un écran vers le bas à la souris ou au doigt, puis lâche quand l'étoile est complète. Les trois autres variantes restent affichées comme alternatives.</p>
+<div class="bar">
+<button id="replay" type="button">Tout rejouer</button>
+<label><input type="checkbox" id="slow"> Ralenti</label>
+</div>
+</header>
+<div class="grid" id="grid"></div>
+</main>
+<script>
+const NS='http://www.w3.org/2000/svg',R=18,RI=R/Math.sqrt(3),TH=64,MAX=110,HOLD=60,LOAD=1.6;
+const cl=x=>Math.max(0,Math.min(1,x)),ease=x=>1-Math.pow(1-x,3),pop=dn=>1+0.4*Math.sin(Math.PI*Math.min(1,dn/0.6));
+const pt=(r,a)=>(r*Math.cos(a*Math.PI/180)).toFixed(2)+','+(r*Math.sin(a*Math.PI/180)).toFixed(2);
+const tri=a0=>'M'+pt(R,a0)+'L'+pt(R,a0+120)+'L'+pt(R,a0+240)+'Z';
+const UP=tri(-90),DN=tri(90);
+let HEX='';for(let k=0;k<12;k++)HEX+=(k?'L':'M')+pt(k%2?RI:R,-90+30*k);HEX+='Z';
+function mk(tag,at,par){const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);par.appendChild(e);return e}
+const line={fill:'var(--tk)','fill-opacity':0,stroke:'var(--tk)','stroke-width':2.4,'stroke-linejoin':'round','stroke-linecap':'round'};
+const V=[
+{name:'A · Le trait',sub:'Se dessine, devient comète, éclot',chosen:true,
+build(g){const u=mk('path',{d:UP,...line},g),d=mk('path',{d:DN,...line},g);return{u,d,L:u.getTotalLength()}},
+draw(e,g,ph,p,lt,dn){const L=e.L;let rot=0,s=1,f=0;
+if(ph==='pull'){rot=(p-1)*90;s=0.6+0.4*p;e.u.style.strokeDasharray=e.d.style.strokeDasharray=L;e.u.style.strokeDashoffset=L*(1-cl(p*2));e.d.style.strokeDashoffset=L*(1-cl(p*2-1))}
+else{const a=ph==='loading'?L-0.45*L*ease(cl(lt/0.3)):L*(0.55+0.45*ease(cl(dn/0.4)));const t=ph==='loading'?lt:LOAD;
+rot=ph==='loading'?lt*150:0;e.u.style.strokeDasharray=e.d.style.strokeDasharray=a+' '+(L-a);e.u.style.strokeDashoffset=-t*1.25*L;e.d.style.strokeDashoffset=-t*1.25*L+L/2;
+if(ph==='done'){s=pop(dn);f=0.85*Math.sin(Math.PI*dn)}}
+e.u.setAttribute('fill-opacity',f);e.d.setAttribute('fill-opacity',f);g.setAttribute('transform','rotate('+rot+') scale('+s+')')}},
+{name:'B · L\'emboîtement',sub:'Deux triangles qui se rejoignent',
+build(g){const gu=mk('g',{},g),gd=mk('g',{},g);return{gu,gd,u:mk('path',{d:UP,...line},gu),d:mk('path',{d:DN,...line},gd)}},
+draw(e,g,ph,p,lt,dn){let s=1,f=0;
+if(ph==='pull'){const o=1-p;s=0.6+0.4*p;e.gu.setAttribute('transform','translate(0,'+(-o*22)+') rotate('+(-o*180)+')');e.gd.setAttribute('transform','translate(0,'+(o*22)+') rotate('+(o*180)+')')}
+else if(ph==='loading'){e.gu.setAttribute('transform','rotate('+(lt*150)+')');e.gd.setAttribute('transform','rotate('+(-lt*150)+')')}
+else{e.gu.setAttribute('transform','');e.gd.setAttribute('transform','');s=pop(dn);f=0.85*Math.sin(Math.PI*dn)}
+e.u.setAttribute('fill-opacity',f);e.d.setAttribute('fill-opacity',f);g.setAttribute('transform','scale('+s+')')}},
+{name:'C · Les six branches',sub:'Une étincelle par branche',
+build(g){const o={...line,'stroke-width':1.6};const u=mk('path',{d:UP,...o},g),d=mk('path',{d:DN,...o},g);const dots=[];for(let k=0;k<6;k++)dots.push(mk('circle',{r:0,fill:'var(--tk)'},g));return{u,d,dots}},
+draw(e,g,ph,p,lt,dn){let rot=0,s=1,so=0.22,f=0;
+e.dots.forEach((c,k)=>{const a=-90+60*k;let r=0,rad=R,op=1;
+if(ph==='pull'){r=2.8*cl(p*6-k);so=0.22*p}
+else if(ph==='loading'){const w=((lt*7.5-k)%6+6)%6;r=2.2+2.2*Math.max(0,1-w/2.2)}
+else{rad=R+18*ease(dn);r=3*(1-dn);op=1-dn}
+c.setAttribute('cx',(rad*Math.cos(a*Math.PI/180)).toFixed(2));c.setAttribute('cy',(rad*Math.sin(a*Math.PI/180)).toFixed(2));c.setAttribute('r',Math.max(0,r).toFixed(2));c.setAttribute('opacity',op)});
+if(ph==='loading')rot=lt*75;if(ph==='done'){so=0.22+0.78*ease(cl(dn/0.3));f=0.85*Math.sin(Math.PI*dn);s=pop(dn)}
+[e.u,e.d].forEach(x=>{x.setAttribute('stroke-opacity',so);x.setAttribute('fill-opacity',f)});g.setAttribute('transform','rotate('+rot+') scale('+s+')')}},
+{name:'D · Le fil',sub:'Un fil de tekhelet fait le tour',
+build(g){const ring=mk('circle',{r:R,fill:'none',stroke:'var(--tk)','stroke-width':1.5,opacity:0},g);const b=mk('path',{d:HEX,...line,'stroke-opacity':0},g),c=mk('path',{d:HEX,...line},g);return{ring,b,c,L:c.getTotalLength()}},
+draw(e,g,ph,p,lt,dn){const L=e.L;let rot=0,s=1,f=0,bo=0.2;e.ring.setAttribute('opacity',0);
+if(ph==='pull'){rot=(p-1)*60;s=0.6+0.4*p;bo=0;e.c.style.strokeDasharray=L;e.c.style.strokeDashoffset=L*(1-p)}
+else{const a=ph==='loading'?L-0.7*L*ease(cl(lt/0.3)):L*(0.3+0.7*ease(cl(dn/0.35)));e.c.style.strokeDasharray=a+' '+(L-a);e.c.style.strokeDashoffset=-(ph==='loading'?lt:LOAD)*1.25*L;
+if(ph==='done'){s=pop(dn);f=0.85*Math.sin(Math.PI*dn);bo=0.2*(1-dn);e.ring.setAttribute('r',R+22*ease(dn));e.ring.setAttribute('opacity',(0.6*(1-dn)).toFixed(2))}}
+e.b.setAttribute('stroke-opacity',bo);e.c.setAttribute('fill-opacity',f);g.setAttribute('transform','rotate('+rot+') scale('+s+')')}}
+];
+const grid=document.getElementById('grid'),slow=document.getElementById('slow');
+const rows='<div class="row"><div class="av"></div><div style="flex:1"><div class="l" style="width:70%"></div><div class="l" style="width:45%"></div></div></div>';
+const phone='<div class="phone"><div class="screen">'
++'<div class="island"></div>'
++'<div class="status"><span class="time">9:41</span><span class="icons"><span class="sig"><i></i><i></i><i></i><i></i></span><span class="wifi"></span><span class="batt"></span></span></div>'
++'<div class="pane"><div class="list"><p class="title">Messages</p>'+rows.repeat(8)+'</div></div>'
++'<div class="home"></div></div></div>';
+const cards=V.map(v=>{const card=document.createElement('div');card.className=v.chosen?'card chosen':'card';
+card.innerHTML=(v.chosen?'<span class="badge">Retenue · 2026-10-27</span>':'')+phone+'<div class="caption"><p class="name">'+v.name+'</p><p class="sub">'+v.sub+'</p></div>';
+grid.appendChild(card);const scr=card.querySelector('.screen'),pane=card.querySelector('.pane'),svg=mk('svg',{class:'star',width:56,height:56,viewBox:'-28 -28 56 56'},pane),g=mk('g',{},svg);
+const c={v,svg,g,list:card.querySelector('.list'),d:0,ph:'idle',lt:0,dn:0,at:0,fromDone:false};c.e=v.build(g);
+scr.addEventListener('pointerdown',ev=>{if(c.ph!=='idle'&&!(c.ph==='back'&&!c.fromDone))return;c.ph='drag';c.y0=ev.clientY;scr.setPointerCapture(ev.pointerId)});
+scr.addEventListener('pointermove',ev=>{if(c.ph!=='drag')return;const raw=ev.clientY-c.y0;c.d=raw<=0?0:MAX*(1-Math.exp(-raw/MAX))});
+const up=()=>{if(c.ph!=='drag')return;if(c.d>=TH){c.ph='loading';c.lt=0}else c.ph='back'};
+scr.addEventListener('pointerup',up);scr.addEventListener('pointercancel',up);return c});
+function auto(c,delay){setTimeout(()=>{if(c.ph==='idle'){c.ph='auto';c.at=0}},delay)}
+document.getElementById('replay').onclick=()=>cards.forEach((c,i)=>auto(c,i*180));
+function step(c,dt){
+if(c.ph==='auto'){c.at+=dt;c.d=84*ease(cl(c.at/0.7));if(c.at>=0.8){c.ph='loading';c.lt=0}}
+else if(c.ph==='loading'){c.lt=Math.min(LOAD,c.lt+dt);c.d+=(HOLD-c.d)*(1-Math.exp(-dt*14));if(c.lt>=LOAD){c.ph='done';c.dn=0}}
+else if(c.ph==='done'){c.dn+=dt/0.6;if(c.dn>=1){c.dn=1;c.ph='back';c.fromDone=true}}
+else if(c.ph==='back'){c.d+=(0-c.d)*(1-Math.exp(-dt*10));if(c.d<0.4){c.d=0;c.ph='idle';c.fromDone=false}}
+let ph='pull';if(c.ph==='loading')ph='loading';else if(c.ph==='done'||(c.ph==='back'&&c.fromDone))ph='done';
+c.v.draw(c.e,c.g,ph,cl(c.d/TH),c.lt,c.ph==='done'?c.dn:1);
+c.list.style.transform='translateY('+c.d+'px)';c.svg.style.top=(c.d/2-28)+'px';c.svg.style.opacity=cl(c.d/26)}
+let last=performance.now();
+function frame(now){const dt=Math.min(0.05,(now-last)/1000)*(slow.checked?0.3:1);last=now;cards.forEach(c=>step(c,dt));requestAnimationFrame(frame)}
+requestAnimationFrame(frame);cards.forEach((c,i)=>auto(c,400+i*250));
+</script>
+</body>
+</html>

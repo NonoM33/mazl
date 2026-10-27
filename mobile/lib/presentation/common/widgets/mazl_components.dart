@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import 'like_fill/like_fill.dart';
+import 'rolling_count/rolling_count.dart';
 
 /// Le mot-symbole « mazl. », point en tekhelet.
 class MazlWordmark extends StatelessWidget {
@@ -35,15 +37,23 @@ class MazlWordmark extends StatelessWidget {
 
 /// Étiquette de section en Geist Mono capitales.
 class SectionLabel extends StatelessWidget {
-  const SectionLabel(this.text, {super.key, this.color});
+  const SectionLabel(this.text, {super.key, this.color, this.count});
 
   final String text;
   final Color? color;
 
+  /// The number inside [text], when it is a live count: its digits roll as it
+  /// changes instead of jumping.
+  final int? count;
+
   @override
   Widget build(BuildContext context) {
     final muted = color ?? Theme.of(context).colorScheme.onSurfaceVariant;
-    return Text(text.toUpperCase(), style: AppTypography.eyebrow(muted));
+    final style = AppTypography.eyebrow(muted);
+    final shown = text.toUpperCase();
+    final live = count;
+    if (live == null) return Text(shown, style: style);
+    return RollingCount(value: live, sentence: shown, style: style);
   }
 }
 
@@ -163,6 +173,7 @@ class RoundIconButton extends StatelessWidget {
     this.size = 44,
     this.iconSize = 20,
     this.style = RoundButtonStyle.outline,
+    this.fillsFromTouch = false,
   });
 
   final IconData icon;
@@ -171,6 +182,9 @@ class RoundIconButton extends StatelessWidget {
   final double size;
   final double iconSize;
   final RoundButtonStyle style;
+
+  /// A heart button: a disc grows from the exact touch point (see [LikeFill]).
+  final bool fillsFromTouch;
 
   @override
   Widget build(BuildContext context) {
@@ -192,6 +206,34 @@ class RoundIconButton extends StatelessWidget {
         BorderSide.none,
       ),
     };
+    final onPressed = this.onPressed;
+    if (fillsFromTouch && onPressed != null) {
+      return Semantics(
+        button: true,
+        label: tooltip,
+        child: LikeFill(
+          onTap: onPressed,
+          background: bg,
+          // On the accent fill the disc is a deeper tekhelet; elsewhere the
+          // accent itself. The icon turns to the colour that reads on it.
+          fillColor: style == RoundButtonStyle.accent
+              ? Color.lerp(scheme.primaryContainer, scheme.shadow, 0.4)!
+              : scheme.primary,
+          shape: CircleBorder(side: side),
+          size: Size.square(size),
+          minHitSize: size >= kMinTapTarget ? null : kMinTapTarget,
+          builder: (context, fill) => Center(
+            child: Icon(
+              icon,
+              size: iconSize,
+              color: style == RoundButtonStyle.accent
+                  ? fg
+                  : Color.lerp(fg, scheme.onPrimary, fill),
+            ),
+          ),
+        ),
+      );
+    }
     final circle = SizedBox.square(
       dimension: size,
       child: Material(

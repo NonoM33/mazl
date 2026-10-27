@@ -15,6 +15,7 @@ import '../l10n/couple_feed_labels.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
 import '../../../common/widgets/fold_pages.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 class CoupleEventsScreen extends StatefulWidget {
   const CoupleEventsScreen({super.key, this.apiService});
@@ -193,7 +194,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     }
 
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
+    return StarRefresh(
       onRefresh: _loadEvents,
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(24, 16, 24, bottom + 24),

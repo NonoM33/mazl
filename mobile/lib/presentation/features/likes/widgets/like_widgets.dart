@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../common/widgets/rolling_count/rolling_count.dart';
 
 /// Carte d'un like visible (compte premium) : photo, « Prénom, âge » en bas à
 /// gauche et, si fournies, les actions passer / aimer sous la photo.
@@ -120,6 +121,7 @@ class LikeCard extends StatelessWidget {
                 icon: LucideIcons.heart,
                 tooltip: context.l10n.likesCardLike(name),
                 style: RoundButtonStyle.accent,
+                fillsFromTouch: true,
                 onPressed: onLike,
               ),
             ],
@@ -176,6 +178,7 @@ class MazlPlusPill extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
+    this.count,
   });
 
   static const _brand = 'mazl+';
@@ -186,13 +189,16 @@ class MazlPlusPill extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
 
-  /// [label] with the brand in bold and its « + » in tekhelet.
-  TextSpan _spans(ColorScheme scheme) {
-    final at = label.indexOf(_brand);
-    if (at < 0) return TextSpan(text: label);
-    final after = label.substring(at + _brand.length);
+  /// The number inside [label] when it is a live count: its digits roll.
+  final int? count;
+
+  /// [text] with the brand in bold and its « + » in tekhelet.
+  TextSpan _spans(String text, ColorScheme scheme) {
+    final at = text.indexOf(_brand);
+    if (at < 0) return TextSpan(text: text);
+    final after = text.substring(at + _brand.length);
     return TextSpan(
-      text: label.substring(0, at),
+      text: text.substring(0, at),
       children: [
         const TextSpan(
           text: 'mazl',
@@ -210,6 +216,7 @@ class MazlPlusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final live = count;
     return Semantics(
       button: true,
       label: label,
@@ -219,7 +226,14 @@ class MazlPlusPill extends StatelessWidget {
         width: double.infinity,
         child: OutlinedButton(
           onPressed: onPressed,
-          child: Text.rich(_spans(scheme), textAlign: TextAlign.center),
+          child: live == null
+              ? Text.rich(_spans(label, scheme), textAlign: TextAlign.center)
+              : RollingCount(
+                  value: live,
+                  sentence: label,
+                  textAlign: TextAlign.center,
+                  markup: (text) => _spans(text, scheme),
+                ),
         ),
       ),
     );

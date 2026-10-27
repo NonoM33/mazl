@@ -41,7 +41,6 @@ dependencies:
   rive: ^0.13.8
   flutter_animate: ^4.5.0
   animations: ^2.0.11
-  shimmer: ^3.0.0
 
   # Image Handling
   cached_network_image: ^3.3.1

@@ -196,6 +196,7 @@ class _DiscoverCardState extends State<DiscoverCard> {
           size: DiscoverCard._actionSize,
           iconSize: 26,
           style: RoundButtonStyle.accent,
+          fillsFromTouch: true,
           onPressed: widget.onLike,
         ),
       ),
