@@ -1474,6 +1474,29 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo guardar tu solicitud. Inténtalo de nuevo.';
 
   @override
+  String get eventsMapOpenInMaps => 'Abrir en Mapas';
+
+  @override
+  String get eventsMapArea => 'Zona aproximada';
+
+  @override
+  String get eventsMapExplore => 'Toca para explorar';
+
+  @override
+  String get eventsMapDone => 'Listo';
+
+  @override
+  String get eventsMapSemantics => 'Mapa del barrio del evento';
+
+  @override
+  String eventsTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get eventsShareError => 'No se puede compartir ahora.';
+
+  @override
   String get genreLookingForRequired => 'Indica a quién buscas';
 
   @override

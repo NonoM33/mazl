@@ -1478,6 +1478,29 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible d\'enregistrer votre demande. Réessayez.';
 
   @override
+  String get eventsMapOpenInMaps => 'Ouvrir dans Plans';
+
+  @override
+  String get eventsMapArea => 'Zone approximative';
+
+  @override
+  String get eventsMapExplore => 'Touchez pour explorer';
+
+  @override
+  String get eventsMapDone => 'Terminé';
+
+  @override
+  String get eventsMapSemantics => 'Carte du quartier de l\'événement';
+
+  @override
+  String eventsTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get eventsShareError => 'Impossible de partager pour le moment.';
+
+  @override
   String get genreLookingForRequired => 'Indiquez ce que vous recherchez';
 
   @override

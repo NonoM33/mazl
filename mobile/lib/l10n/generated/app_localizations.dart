@@ -2556,6 +2556,48 @@ abstract class AppLocalizations {
   /// **'Impossible d\'enregistrer votre demande. Réessayez.'**
   String get eventsNotifyError;
 
+  /// Bouton sous la carte d'un événement : ouvre l'app Plans d'Apple sur ce lieu. « Plans » est le nom français de l'app Apple Maps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir dans Plans'**
+  String get eventsMapOpenInMaps;
+
+  /// Pastille sur la carte d'un événement dont l'adresse n'est pas encore communiquée : le cercle montre le quartier, pas le lieu exact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Zone approximative'**
+  String get eventsMapArea;
+
+  /// Indication sur la carte d'un événement : un appui rend la carte manipulable (déplacement, zoom) au lieu de laisser la page défiler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez pour explorer'**
+  String get eventsMapExplore;
+
+  /// Bouton sur la carte d'un événement manipulable : rend le défilement à la page.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get eventsMapDone;
+
+  /// Description vocale (VoiceOver) de la carte d'un événement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte du quartier de l\'événement'**
+  String get eventsMapSemantics;
+
+  /// Plage horaire d'un événement : l'heure de début, un tiret demi-cadratin, l'heure de fin. Les heures sont déjà écrites, par exemple « 20 h 00 » et « 22 h 30 ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{start} – {end}'**
+  String eventsTimeRange(String start, String end);
+
+  /// Message bref quand la feuille de partage n'a pas pu s'ouvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de partager pour le moment.'**
+  String get eventsShareError;
+
   /// Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit.
   ///
   /// In fr, this message translates to:
