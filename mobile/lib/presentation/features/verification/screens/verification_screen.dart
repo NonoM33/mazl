@@ -9,9 +9,9 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/verification_api.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
-import '../identity/identity_parts.dart';
 import '../providers/verification_providers.dart';
 import '../verification_reasons.dart';
+import 'verification_header.dart';
 import 'verification_sections.dart';
 import '../../../common/widgets/fold_pages.dart';
 import 'package:mazl/core/layout/bar_navigation.dart';
@@ -161,10 +161,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
               buttons: [back()],
               inline: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: back(),
-                ),
+                child: Align(alignment: AlignmentDirectional.centerStart, child: back()),
               ),
             ),
             Expanded(child: _body(context)),
@@ -172,6 +169,26 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
         ),
       ),
     );
+  }
+
+  /// The two levels, the one still to do first when level 1 is done: on a
+  /// small window the next action stays in view, the finished level below.
+  List<Widget> _levels(VerificationStatus status, bool busy) {
+    final photo = PhotoLevel(
+      step: status.photo,
+      nextAttempt: status.nextAttemptTime,
+      busy: busy,
+      refused: _problem != null,
+      onVerify: _verifyPhoto,
+    );
+    final identity = IdentityLevel(
+      step: status.identity,
+      enabled: !busy,
+      primary: status.photo.verified,
+      onVerify: _verifyIdentity,
+    );
+    final identityFirst = status.photo.verified && !status.identity.verified;
+    return [if (identityFirst) identity else photo, const SizedBox(height: 16), if (identityFirst) photo else identity];
   }
 
   Widget _body(BuildContext context) {
@@ -182,26 +199,30 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       return VerificationRetry(message: (_loadError ?? const _Reason(null)).text(l10n), onRetry: _loadStatus);
     }
     final busy = _stage == _Stage.working;
-    // Held like a book: the title and the photo level on the page where the
-    // reading starts, the identity level on the other. Flat, one list.
+    final overview = VerificationOverview(
+      verifiedLevels: (status.photo.verified ? 1 : 0) + (status.identity.verified ? 1 : 0),
+      busy: busy,
+    );
+    // Held like a book: the state of the profile on the page where the
+    // reading starts, the two levels on the other. Flat, one list.
     return FoldSpread(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+      wideFrom: 560,
       start: [
-        SectionLabel(l10n.verificationProfileEyebrow),
-        const SizedBox(height: 10),
-        IdentityHeadline(l10n.verificationTitle, size: 34),
-        const SizedBox(height: 24),
+        VerificationHeader(overview: overview),
+        const SizedBox(height: 28),
+      ],
+      end: [
         if (_problem != null) VerificationNotice(text: _problem!.text(l10n), error: true),
         if (_mismatches > 0) VerificationNotice(text: l10n.verificationPhotosMismatch(_mismatches), error: false),
-        PhotoLevel(
-          step: status.photo,
-          nextAttempt: status.nextAttemptTime,
-          busy: busy,
-          onVerify: _verifyPhoto,
-          onRemove: _removeVerification,
-        ),
+        ..._levels(status, busy),
+        if (status.photo.verified) ...[
+          const SizedBox(height: 12),
+          RemoveVerificationButton(onPressed: busy ? null : _removeVerification),
+        ],
+        const SizedBox(height: 20),
+        const VerificationPrivacyNote(),
       ],
-      end: [IdentityLevel(step: status.identity, enabled: !busy, onVerify: _verifyIdentity)],
     );
   }
 }

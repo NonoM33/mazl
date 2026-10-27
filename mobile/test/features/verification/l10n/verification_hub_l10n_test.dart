@@ -102,6 +102,8 @@ Future<void> _pump(
     const VerificationScreen(),
     locale: locale,
     brightness: brightness,
+    // Tall: the page is a lazy list, and these tests read all of it.
+    size: const Size(360, 2400),
     overrides: [
       verificationApiProvider.overrideWithValue(api),
       livenessCaptureProvider.overrideWithValue(_Capture()),
@@ -119,12 +121,14 @@ void main() {
     ) async {
       await _pump(tester, _Api(_status()), locale: const Locale('en'));
 
-      expect(find.text('YOUR PROFILE'), findsOneWidget);
-      expect(find.text('Verification'), findsOneWidget);
+      expect(find.text('VERIFICATION'), findsOneWidget);
+      expect(find.text('Verify your profile'), findsOneWidget);
+      expect(find.text('0 of 2 levels verified'), findsOneWidget);
       expect(find.text('LEVEL 1'), findsOneWidget);
-      expect(find.text('Photo verified'), findsOneWidget);
+      expect(find.text('Photo verification'), findsOneWidget);
       expect(find.text('LEVEL 2'), findsOneWidget);
-      expect(find.text('Identity verified'), findsOneWidget);
+      expect(find.text('Identity verification'), findsOneWidget);
+      expect(find.text('To do'), findsNWidgets(2));
       expect(find.text(l10nFor('en').verificationConsent), findsOneWidget);
       expect(
         find.widgetWithText(ElevatedButton, 'Verify my photo'),
@@ -147,10 +151,10 @@ void main() {
         );
 
         expect(find.text('Verified'), findsNWidgets(2));
-        expect(find.text('Verified on 10/20/2026.'), findsOneWidget);
-        expect(find.text('Checked on 10/21/2026.'), findsOneWidget);
+        expect(find.text('On October 20, 2026'), findsOneWidget);
+        expect(find.text('On October 21, 2026'), findsOneWidget);
         expect(
-          find.widgetWithText(OutlinedButton, 'Remove my verification'),
+          find.widgetWithText(TextButton, 'Remove my verification'),
           findsOneWidget,
         );
       },
@@ -289,11 +293,11 @@ void main() {
     ) async {
       await _pump(tester, _Api(_status()), locale: const Locale('he'));
 
-      final title = find.text('אימות');
+      final title = find.text('לאמת את הפרופיל שלך');
       expect(title, findsOneWidget);
       expect(textDirectionAt(tester, title), TextDirection.rtl);
-      expect(find.text('תמונה מאומתת'), findsOneWidget);
-      expect(find.text('זהות מאומתת'), findsOneWidget);
+      expect(find.text('אימות התמונה'), findsOneWidget);
+      expect(find.text('אימות הזהות'), findsOneWidget);
       expect(find.text(l10nFor('he').verificationConsent), findsOneWidget);
     });
 
@@ -343,10 +347,10 @@ void main() {
       final strings = l10nFor('he');
       expect(find.text('מאומתת'), findsNWidgets(2));
       expect(
-        find.text(strings.verificationPhotoVerifiedOn(DateTime(2026, 10, 20))),
+        find.text(strings.verificationVerifiedOnDate(DateTime(2026, 10, 20))),
         findsOneWidget,
       );
-      expect(find.text('אומת בתאריך 20.10.2026.'), findsOneWidget);
+      expect(find.text('בתאריך 20 באוקטובר 2026'), findsOneWidget);
     });
   });
 

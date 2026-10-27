@@ -4003,9 +4003,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'El icono de la app cambia en las fiestas. iOS muestra un aviso cada vez que cambia.';
 
   @override
-  String get verificationProfileEyebrow => 'Tu perfil';
-
-  @override
   String get verificationTitle => 'Verificación';
 
   @override
@@ -4013,12 +4010,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get verificationLevel2 => 'Nivel 2';
-
-  @override
-  String get verificationPhotoTitle => 'Foto verificada';
-
-  @override
-  String get verificationIdentityTitle => 'Identidad verificada';
 
   @override
   String get verificationVerifiedPill => 'Verificada';
@@ -4030,14 +4021,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get verificationPhotoVerifiedLine =>
       'Tu rostro coincide con tus fotos.';
-
-  @override
-  String verificationPhotoVerifiedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Verificada el $dateString.';
-  }
 
   @override
   String get verificationRemoveAction => 'Quitar mi verificación';
@@ -4069,14 +4052,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get verificationIdentityCheckedNoDate =>
       'Documento comprobado mediante su chip.';
-
-  @override
-  String verificationIdentityCheckedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Comprobada el $dateString.';
-  }
 
   @override
   String get verificationIdentityPitch =>
@@ -4605,6 +4580,86 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get verificationNfcAlertDone => 'Terminado.';
+
+  @override
+  String get verificationStateNoneTitle => 'Verifica tu perfil';
+
+  @override
+  String get verificationStatePartialTitle => 'Verificación en curso';
+
+  @override
+  String get verificationStateDoneTitle => 'Perfil totalmente verificado';
+
+  @override
+  String get verificationStateNoneBody =>
+      'Demuestra que tus fotos son tuyas. Una insignia aparece en tu perfil y tranquiliza a los demás miembros.';
+
+  @override
+  String get verificationStatePartialBody =>
+      'Tu insignia ya es visible en tu perfil. Completa el otro nivel para inspirar aún más confianza.';
+
+  @override
+  String get verificationStateDoneBody =>
+      'Los demás miembros ven tu insignia y saben que eres la persona de tus fotos.';
+
+  @override
+  String verificationProgress(int done) {
+    return '$done de 2 niveles verificados';
+  }
+
+  @override
+  String get verificationPhotoCardTitle => 'Verificación de la foto';
+
+  @override
+  String get verificationIdentityCardTitle => 'Verificación de identidad';
+
+  @override
+  String get verificationPillTodo => 'Pendiente';
+
+  @override
+  String get verificationPillBusy => 'En curso';
+
+  @override
+  String get verificationPillRefused => 'Rechazada';
+
+  @override
+  String get verificationPillBlocked => 'Límite alcanzado';
+
+  @override
+  String get verificationPhotoPitch =>
+      'Un selfie en directo se compara con tus fotos de perfil.';
+
+  @override
+  String get verificationPhotoBenefitBadge =>
+      'Una insignia de confianza en tu perfil';
+
+  @override
+  String get verificationPhotoBenefitProof =>
+      'La prueba de que tus fotos son tuyas';
+
+  @override
+  String get verificationPhotoBenefitQuick =>
+      'Unos segundos y tres movimientos de cabeza';
+
+  @override
+  String get verificationIdentityBenefitBadge =>
+      'Un nivel más de confianza en tu insignia';
+
+  @override
+  String get verificationIdentityBenefitChip =>
+      'Lectura sin contacto del chip de tu documento';
+
+  @override
+  String get verificationIdentityBenefitNeeds =>
+      'Se necesita un pasaporte o un documento de identidad con chip';
+
+  @override
+  String verificationVerifiedOnDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'El $dateString';
+  }
 
   @override
   String get webSessionsTitle => 'Ordenadores conectados';

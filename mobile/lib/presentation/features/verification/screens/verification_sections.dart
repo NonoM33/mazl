@@ -4,49 +4,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/models/verification.dart';
 import '../../../../l10n/l10n.dart';
-import '../../../common/widgets/mazl_components.dart';
 import '../identity/identity_parts.dart';
 import '../../../common/widgets/fold_pages.dart';
-
-/// Un niveau de vérification : étiquette, titre, état, texte, action. Les
-/// niveaux sont séparés par un filet, sans carte.
-class _Level extends StatelessWidget {
-  const _Level({required this.eyebrow, required this.title, required this.verified, required this.children});
-
-  final String eyebrow;
-  final String title;
-  final bool verified;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: scheme.outlineVariant)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SectionLabel(eyebrow),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(child: IdentityHeadline(title, size: 24)),
-              if (verified) ...[
-                const SizedBox(width: 12),
-                TagPill(context.l10n.verificationVerifiedPill, icon: LucideIcons.check),
-              ],
-            ],
-          ),
-          const SizedBox(height: 12),
-          ...children,
-        ],
-      ),
-    );
-  }
-}
+import 'verification_level_card.dart';
 
 /// Niveau 1 : le selfie en direct, comparé aux photos du profil.
 class PhotoLevel extends StatelessWidget {
@@ -55,15 +15,17 @@ class PhotoLevel extends StatelessWidget {
     required this.step,
     required this.nextAttempt,
     required this.busy,
+    required this.refused,
     required this.onVerify,
-    required this.onRemove,
   });
 
   final VerificationStep step;
   final DateTime? nextAttempt;
   final bool busy;
+
+  /// The last attempt was turned down.
+  final bool refused;
   final VoidCallback onVerify;
-  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -71,35 +33,36 @@ class PhotoLevel extends StatelessWidget {
     final blockedUntil = nextAttempt;
     final blocked = !step.verified && blockedUntil != null && blockedUntil.isAfter(DateTime.now());
     final verifiedAt = step.verifiedAt;
-    return _Level(
+    final state = step.verified
+        ? LevelState.verified
+        : busy
+        ? LevelState.inProgress
+        : blocked
+        ? LevelState.blocked
+        : refused
+        ? LevelState.refused
+        : LevelState.todo;
+    return LevelCard(
       eyebrow: l10n.verificationLevel1,
-      title: l10n.verificationPhotoTitle,
-      verified: step.verified,
-      children: [
-        if (step.verified) ...[
-          IdentityParagraph(
-            verifiedAt == null
-                ? l10n.verificationPhotoVerifiedLine
-                : l10n.verificationPhotoVerifiedOn(verifiedAt.toLocal()),
-            size: 15,
-          ),
-          const SizedBox(height: 20),
-          IdentityOutlineButton(l10n.verificationRemoveAction, onPressed: busy ? null : onRemove),
-        ] else ...[
-          IdentityParagraph(l10n.verificationConsent, size: 15),
-          const SizedBox(height: 20),
-          FoldSafeActions(
-            child: ElevatedButton(
-              onPressed: busy || blocked ? null : onVerify,
-              child: busy ? const _BusyDot() : Text(l10n.verificationVerifyPhotoAction),
-            ),
-          ),
-          if (blocked) ...[
-            const SizedBox(height: 10),
-            Text(_blockedText(l10n, blockedUntil), style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ],
+      title: l10n.verificationPhotoCardTitle,
+      icon: LucideIcons.scanFace,
+      state: state,
+      verifiedOn: step.verified && verifiedAt != null ? l10n.verificationVerifiedOnDate(verifiedAt.toLocal()) : null,
+      description: step.verified ? l10n.verificationPhotoVerifiedLine : l10n.verificationPhotoPitch,
+      benefits: [
+        LevelBenefit(LucideIcons.badgeCheck, l10n.verificationPhotoBenefitBadge),
+        LevelBenefit(LucideIcons.images, l10n.verificationPhotoBenefitProof),
+        LevelBenefit(LucideIcons.timer, l10n.verificationPhotoBenefitQuick),
       ],
+      action: step.verified
+          ? null
+          : FoldSafeActions(
+              child: ElevatedButton(
+                onPressed: busy || blocked ? null : onVerify,
+                child: busy ? const _BusyDot() : Text(l10n.verificationVerifyPhotoAction),
+              ),
+            ),
+      footnote: blocked ? _blockedText(l10n, blockedUntil) : null,
     );
   }
 
@@ -113,31 +76,98 @@ class PhotoLevel extends StatelessWidget {
 
 /// Niveau 2 : l'identité lue sur la puce du passeport ou de la carte.
 class IdentityLevel extends StatelessWidget {
-  const IdentityLevel({super.key, required this.step, required this.enabled, required this.onVerify});
+  const IdentityLevel({
+    super.key,
+    required this.step,
+    required this.enabled,
+    required this.onVerify,
+    required this.primary,
+  });
 
   final VerificationStep step;
   final bool enabled;
   final VoidCallback onVerify;
 
+  /// Its button is the main action of the page (level 1 is done).
+  final bool primary;
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final at = step.verifiedAt;
-    return _Level(
+    final label = Text(l10n.verificationVerifyIdentityAction);
+    return LevelCard(
       eyebrow: l10n.verificationLevel2,
-      title: l10n.verificationIdentityTitle,
-      verified: step.verified,
-      children: [
-        IdentityParagraph(
-          step.verified
-              ? (at == null ? l10n.verificationIdentityCheckedNoDate : l10n.verificationIdentityCheckedOn(at.toLocal()))
-              : l10n.verificationIdentityPitch,
-          size: 15,
+      title: l10n.verificationIdentityCardTitle,
+      icon: LucideIcons.idCard,
+      state: step.verified ? LevelState.verified : LevelState.todo,
+      verifiedOn: step.verified && at != null ? l10n.verificationVerifiedOnDate(at.toLocal()) : null,
+      description: step.verified ? l10n.verificationIdentityCheckedNoDate : l10n.verificationIdentityPitch,
+      benefits: [
+        LevelBenefit(LucideIcons.shieldCheck, l10n.verificationIdentityBenefitBadge),
+        LevelBenefit(LucideIcons.nfc, l10n.verificationIdentityBenefitChip),
+        LevelBenefit(LucideIcons.contactRound, l10n.verificationIdentityBenefitNeeds),
+      ],
+      action: step.verified
+          ? null
+          : FoldSafeActions(
+              child: primary
+                  ? ElevatedButton(onPressed: enabled ? onVerify : null, child: label)
+                  : OutlinedButton(onPressed: enabled ? onVerify : null, child: label),
+            ),
+    );
+  }
+}
+
+/// « Retirer ma vérification » : une action discrète, en couleur d'erreur.
+class RemoveVerificationButton extends StatelessWidget {
+  const RemoveVerificationButton({super.key, required this.onPressed});
+
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          foregroundColor: scheme.error,
+          minimumSize: const Size(44, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
         ),
-        if (!step.verified) ...[
-          const SizedBox(height: 20),
-          IdentityOutlineButton(l10n.verificationVerifyIdentityAction, onPressed: enabled ? onVerify : null),
-        ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ExcludeSemantics(child: Icon(LucideIcons.trash2, size: 18)),
+            const SizedBox(width: 8),
+            Flexible(child: Text(context.l10n.verificationRemoveAction)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Ce qui est comparé et ce qui est gardé, avec un cadenas.
+class VerificationPrivacyNote extends StatelessWidget {
+  const VerificationPrivacyNote({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ExcludeSemantics(child: Icon(LucideIcons.lock, size: 18, color: scheme.onSurfaceVariant)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            context.l10n.verificationConsent,
+            style: TextStyle(fontSize: 13, height: 1.45, color: scheme.onSurfaceVariant),
+          ),
+        ),
       ],
     );
   }
@@ -196,9 +226,7 @@ class VerificationRetry extends StatelessWidget {
         const SizedBox(height: 22),
         IdentityParagraph(message),
       ],
-      rest: [
-        IdentityOutlineButton(context.l10n.commonRetry, onPressed: onRetry),
-      ],
+      rest: [IdentityOutlineButton(context.l10n.commonRetry, onPressed: onRetry)],
     );
   }
 }

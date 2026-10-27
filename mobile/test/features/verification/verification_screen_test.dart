@@ -97,6 +97,10 @@ final _frames = [
 ];
 
 Future<void> _pump(WidgetTester tester, FakeVerificationApi api, FakeCapture capture) async {
+  // Tall: the page is a lazy list, and these tests read all of it.
+  tester.view.physicalSize = const Size(400, 2400);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
   await tester.pumpWidget(ProviderScope(
     overrides: [
       verificationApiProvider.overrideWithValue(api),
@@ -167,7 +171,7 @@ void main() {
       expect(capture.asked, [FaceChallenge.front, FaceChallenge.left, FaceChallenge.right]);
       expect(api.submittedSession, 'sess-1');
       expect(api.submittedFrames, _frames);
-      expect(find.text('Vérifiée le 20/10/2026.'), findsOneWidget);
+      expect(find.text('Le 20 octobre 2026'), findsOneWidget);
       expect(find.text('Retirer ma vérification'), findsOneWidget);
       expect(find.text('Une de vos photos ne vous ressemble pas : elle ne compte pas.'), findsOneWidget);
       expect(find.text('Vérifier ma photo'), findsNothing);
@@ -257,7 +261,7 @@ void main() {
 
       final button = tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Vérifier ma photo'));
       expect(button.onPressed, isNull);
-      expect(find.textContaining('Limite atteinte'), findsOneWidget);
+      expect(find.textContaining('Limite atteinte, nouvel essai'), findsOneWidget);
     });
 
     testWidgets('removing the verification asks for confirmation first', (tester) async {
