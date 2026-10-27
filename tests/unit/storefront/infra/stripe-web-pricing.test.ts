@@ -182,3 +182,19 @@ describe("stripeProductName", () => {
     expect(stripeProductName("com.mazl.app.superlikes.15")).toBe("15 Super Likes");
   });
 });
+
+describe("createWebPricing host", () => {
+  // The integration harness points STRIPE_API_BASE at a fake Stripe; the storefront adapter used
+  // to ignore it and called the real api.stripe.com from the tests.
+  test("follows STRIPE_API_BASE like billing-web", async () => {
+    const hits: string[] = [];
+    const fake = Bun.serve({ port: 0, fetch: (req) => { hits.push(new URL(req.url).pathname); return Response.json({ id: "price_x", object: "price", unit_amount: 1999, currency: "eur" }); } });
+    try {
+      const pricing = createWebPricing({ STRIPE_SECRET_KEY: "sk_test_abc", STRIPE_API_BASE: `http://localhost:${fake.port}` });
+      await pricing?.currentPrice("price_x");
+      expect(hits).toEqual(["/v1/prices/price_x"]);
+    } finally {
+      await fake.stop(true);
+    }
+  });
+});

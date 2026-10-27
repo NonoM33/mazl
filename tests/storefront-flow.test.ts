@@ -99,9 +99,11 @@ describe("who can call what", () => {
     }
   });
 
-  test("a super-admin passes the guard of the store writes (the stores are not configured here)", async () => {
+  test("a super-admin passes the guard of the store writes (App Store Connect is not configured here)", async () => {
+    // Stripe is configured against the harness's fake Stripe (STRIPE_API_BASE), never the real one:
+    // the write goes past the role guard and reaches the fake.
     const price = await send("superAdmin", "POST", `/products/${PLUS_3M}/web-price`, { amountCents: 2699, currency: "eur" });
-    expect([price.status, (await read(price)).error]).toEqual([503, "store_not_configured"]);
+    expect([401, 403]).not.toContain(price.status);
     const points = await send("superAdmin", "GET", `/products/${PLUS_3M}/apple-price-points`);
     expect([points.status, (await read(points)).error]).toEqual([503, "store_not_configured"]);
   });

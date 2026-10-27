@@ -41,7 +41,7 @@ function origin(env: Env): string {
   }
 }
 
-function apiBase(env: Env): URL | undefined {
+export function readStripeApiBase(env: Env): URL | undefined {
   const raw = env.STRIPE_API_BASE?.trim();
   if (raw === undefined || raw === "") return undefined;
   if (env.NODE_ENV === "production") throw new BillingConfigError("STRIPE_API_BASE is refused in production");
@@ -74,7 +74,7 @@ export function readBillingConfig(env: Env = process.env): BillingConfig {
     available: true,
     secretKey,
     webhookSecret,
-    apiBase: apiBase(env),
+    apiBase: readStripeApiBase(env),
     settings: {
       prices: prices(env),
       successUrl: `${base}/app/premium?checkout=success`,
