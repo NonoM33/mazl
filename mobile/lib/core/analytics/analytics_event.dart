@@ -46,6 +46,19 @@ class AnalyticsEvent {
       ? AnalyticsEvent._('paywall_viewed', {'source': source})
       : null;
 
+  /// The mazl+ offer appeared by itself at [moment] (the name of a
+  /// `PurchaseMoment`, `dailyLikeLimit`).
+  static AnalyticsEvent? purchaseMomentShown(String moment) =>
+      _moment('purchase_moment_shown', moment);
+
+  /// The member chose to discover mazl+ from the offer of [moment].
+  static AnalyticsEvent? purchaseMomentAccepted(String moment) =>
+      _moment('purchase_moment_accepted', moment);
+
+  /// The member answered « Plus tard » (or closed) the offer of [moment].
+  static AnalyticsEvent? purchaseMomentDismissed(String moment) =>
+      _moment('purchase_moment_dismissed', moment);
+
   static AnalyticsEvent? purchaseStarted(String productId) =>
       _product('purchase_started', productId);
 
@@ -57,6 +70,9 @@ class AnalyticsEvent {
       const AnalyticsEvent._('analytics_consent_granted');
 
   static bool _isIdentifier(String value) => _identifier.hasMatch(value);
+
+  static AnalyticsEvent? _moment(String name, String moment) =>
+      _isIdentifier(moment) ? AnalyticsEvent._(name, {'moment': moment}) : null;
 
   static AnalyticsEvent? _product(String name, String productId) =>
       _productId.hasMatch(productId)
