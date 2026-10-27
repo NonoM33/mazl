@@ -34,8 +34,10 @@ describe("garde de permissions", () => {
     expect(visibleSections(me).map((s) => s.id)).toContain("verification");
   });
   test("le super-administrateur voit tout, l'administrateur tout sauf l'équipe", () => {
-    expect(visibleSections({ permissions: ROLE_PERMISSIONS.super_admin })).toHaveLength(SECTIONS.length);
-    expect(visibleSections({ permissions: ROLE_PERMISSIONS.admin }).map((s) => s.id)).not.toContain("equipe");
+    // `concierge.manage` est accordée par le lot serveur de la conciergerie ; on la fournit ici pour ne pas dépendre de son ordre de fusion.
+    const withConcierge = (permissions: readonly string[]): typeof ROLE_PERMISSIONS.admin => [...new Set([...permissions, "concierge.manage"])] as unknown as typeof ROLE_PERMISSIONS.admin;
+    expect(visibleSections({ permissions: withConcierge(ROLE_PERMISSIONS.super_admin) })).toHaveLength(SECTIONS.length);
+    expect(visibleSections({ permissions: withConcierge(ROLE_PERMISSIONS.admin) }).map((s) => s.id)).not.toContain("equipe");
   });
   test("aucune permission : aucune section", () => {
     expect(firstAccessible({ permissions: [] })).toBeNull();

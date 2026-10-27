@@ -13,6 +13,7 @@ import { buildConsole } from "../../src/features/console/console.bundle";
 import { registerConsoleRoutes } from "../../src/features/console/console.routes";
 import { ROLE_LABELS, ROLE_PERMISSIONS, type StaffRole } from "../../src/features/staff/domain/roles";
 import type { MeDto, Priority, ReportStatus } from "../src/shared/api/contracts";
+import { registerConciergeMock } from "./mock-concierge";
 import { registerMatchingMock } from "./mock-matching";
 import { registerStorefrontMock } from "./mock-storefront";
 import { conversationFor, dashboard, memberFile, members, memberRef, reportDetail, reports, silhouetteSvg, type MockReport } from "./mock-data";
@@ -34,7 +35,10 @@ const fail = (error: string, message?: string): { success: false; error: string;
 
 function meFor(email: string, mfa: boolean): MeDto {
   const role: StaffRole = ACCOUNTS[email] ?? "support";
-  return { email, role, roleLabel: ROLE_LABELS[role], permissions: ROLE_PERMISSIONS[role], mfa, mfaEnrolled: mfa, mfaRequired: true };
+  // `concierge.manage` (admin et super-admin) est ajoutée au serveur par le lot conciergerie ; la maquette la porte déjà.
+  const concierge = role === "admin" || role === "super_admin" ? ["concierge.manage"] : [];
+  const permissions = [...new Set<string>([...ROLE_PERMISSIONS[role], ...concierge])] as MeDto["permissions"];
+  return { email, role, roleLabel: ROLE_LABELS[role], permissions, mfa, mfaEnrolled: mfa, mfaRequired: true };
 }
 
 const app = new Hono();
@@ -151,6 +155,7 @@ api.post("/members/:id/sanctions", (c) => c.json(ok({ reference: "EXP-2026-0001"
 
 registerMatchingMock(api, meOf);
 registerStorefrontMock(api, meOf);
+registerConciergeMock(api, meOf);
 
 app.route("/api/backoffice", api);
 app.get("/mock/photos/:name", (c) => {

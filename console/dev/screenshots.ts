@@ -41,11 +41,13 @@ async function launch(): Promise<Browser> {
 
 const browser = await launch();
 
-// CAPTURES_ONLY=vitrine : ne réécrit que les captures de la vitrine (numéros 27 et suivants).
-const ONLY_STOREFRONT = process.env["CAPTURES_ONLY"] === "vitrine";
+// CAPTURES_ONLY=vitrine : ne réécrit que les captures de la vitrine (numéros 27 et suivants) ;
+// CAPTURES_ONLY=conciergerie : seulement celles de la conciergerie (numéros 38 et suivants).
+const ONLY = process.env["CAPTURES_ONLY"];
+const FIRST_NUMBER = ONLY === "vitrine" ? 27 : ONLY === "conciergerie" ? 38 : 0;
 
 async function shot(page: Page, name: string): Promise<void> {
-  if (ONLY_STOREFRONT && Number(name.slice(0, 2)) < 27) return;
+  if (Number(name.slice(0, 2)) < FIRST_NUMBER) return;
   await page.waitForTimeout(350);
   await page.screenshot({ path: join(OUT, `maquette-${name}.png`) });
   console.log(`maquette-${name}.png`);
@@ -259,6 +261,40 @@ try {
   await page.getByRole("dialog", { name: /Noël/ }).waitFor();
   await page.waitForSelector(".paywall");
   await shot(page, "37-campagne-fiche-sombre");
+  await page.keyboard.press("Escape");
+
+  // Conciergerie : file triée par urgence, détail avec conversation, confirmation, onglets, clair et sombre.
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto(`${BASE}/console#/conciergerie`);
+  await page.reload();
+  await page.getByRole("heading", { name: "Conciergerie", level: 1 }).waitFor();
+  await page.waitForSelector("table.table tbody tr");
+  await shot(page, "38-conciergerie-a-traiter");
+  await page.locator("table.table tbody tr", { hasText: "Surprise pour les 5 ans" }).first().click();
+  await page.getByRole("dialog", { name: /Surprise pour les 5 ans/ }).waitFor();
+  await page.waitForSelector(".chat");
+  await shot(page, "39-conciergerie-detail");
+  await page.getByLabel("Écrire au couple", { exact: true }).fill("Bonne nouvelle : l'atelier est possible vendredi à 19 h, nous gardons le secret.");
+  await page.getByRole("button", { name: "Envoyer au couple" }).click();
+  await page.getByRole("dialog", { name: "Écrire au couple" }).waitFor();
+  await shot(page, "40-conciergerie-confirmation-message");
+  await page.getByRole("button", { name: "Pas maintenant" }).click();
+  await page.getByRole("button", { name: "Marquer réservé" }).click();
+  await page.getByRole("dialog", { name: "Marquer comme réservé" }).waitFor();
+  await shot(page, "41-conciergerie-confirmation-reserve");
+  await page.getByRole("button", { name: "Marquer réservé" }).last().click();
+  await page.getByText("Demande marquée comme réservée.").waitFor();
+  await page.keyboard.press("Escape");
+  await page.goto(`${BASE}/console#/conciergerie?onglet=ongoing`);
+  await page.waitForSelector("table.table tbody tr");
+  await shot(page, "42-conciergerie-en-cours");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto(`${BASE}/console#/conciergerie`);
+  await page.waitForSelector("table.table tbody tr");
+  await page.locator("table.table tbody tr", { hasText: "Table casher" }).first().click();
+  await page.getByRole("dialog", { name: /Table casher/ }).waitFor();
+  await page.waitForSelector(".chat");
+  await shot(page, "43-conciergerie-detail-sombre");
   await page.keyboard.press("Escape");
 
   const second = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: "fr-FR", colorScheme: "light" });

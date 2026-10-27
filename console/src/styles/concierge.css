@@ -1,0 +1,18 @@
+/* Conciergerie */
+.filters-single { grid-template-columns: minmax(0, 260px); }
+.urgent-flag { font-size: 12px; font-weight: 600; color: var(--error-text); }
+.urgent-flag::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: 1px; }
+.status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: 1px; }
+.steps { list-style: none; margin: 4px 0 2px; padding: 0; display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--text-2); }
+.step { display: inline-flex; align-items: center; gap: 8px; }
+.step.is-done { color: var(--text); font-weight: 500; }
+.step-dot { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); font-size: 12px; font-family: var(--font-mono); }
+.step.is-done .step-dot { background: var(--accent); border-color: var(--accent); color: #fff; }
+.options { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.option { display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--r-m); font-size: 13.5px; line-height: 1.4; }
+.option.is-chosen { border-color: var(--accent); background: var(--accent-soft); }
+.option-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bubble-assistant { background: var(--card); }
+.is-right .bubble-assistant { background: var(--card); border-radius: 14px 14px 4px 14px; }
+.is-right .bubble-staff { background: var(--accent); color: #fff; }
+.is-right .bubble-staff .bubble-meta { color: rgba(255, 255, 255, 0.8); }
