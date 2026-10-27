@@ -29,7 +29,7 @@
   "chatMatchStart": "Match · {date}",
   "chatNewMessages": "{count, plural, =1{1 mensaje nuevo} other{{count} mensajes nuevos}}",
   "chatTypingSemantics": "Tu match está escribiendo",
-  "chatSeenAt": "Visto a las {time}",
+  "chatSeenAt": "Leído a las {time}",
   "chatFailedRetry": "Error · Reintentar",
   "chatMenuReply": "Responder",
   "chatMenuCopy": "Copiar",

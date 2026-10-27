@@ -97,7 +97,7 @@ void main() {
     });
 
     testWidgets(
-      'conversation : bulles, heures et « Vu à » (${brightness.name})',
+      'conversation : bulles, heures et « Lu à » (${brightness.name})',
       (tester) async {
         final messages = [
           msg(1, other, 'Salut, tu es libre ce soir ?', at: today(10, 0)),

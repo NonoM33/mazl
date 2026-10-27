@@ -75,12 +75,16 @@ ChatRealtimeEvent? parseChatEnvelope(String type, Map<String, dynamic> payload) 
         final userId = parseIntSafe(payload['user_id']);
         final upToId = parseIntSafe(payload['up_to_id']);
         if (conversationId == null || userId == null || upToId == null) return null;
+        // No `read_at`: the server keeps the read time from this sender (not a
+        // mazl+ member, or the reader's receipts are off). Nothing to show,
+        // and no time is made up (docs/premium/MONETISATION.md §4).
         final readAt = payload['read_at'];
+        if (readAt is! String) return null;
         return ChatReadUpTo(
           conversationId: conversationId,
           userId: userId,
           upToId: upToId,
-          readAt: readAt is String ? DateTime.parse(readAt) : DateTime.now(),
+          readAt: DateTime.parse(readAt),
         );
     }
   } on Object {

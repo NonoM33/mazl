@@ -29,7 +29,7 @@
   "chatMatchStart": "Мэтч · {date}",
   "chatNewMessages": "{count, plural, one{{count} новое сообщение} few{{count} новых сообщения} many{{count} новых сообщений} other{{count} нового сообщения}}",
   "chatTypingSemantics": "Ваш собеседник печатает",
-  "chatSeenAt": "Просмотрено в {time}",
+  "chatSeenAt": "Прочитано в {time}",
   "chatFailedRetry": "Не отправлено · Повторить",
   "chatMenuReply": "Ответить",
   "chatMenuCopy": "Копировать",

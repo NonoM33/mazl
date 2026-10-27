@@ -139,7 +139,7 @@
   "@chatTypingSemantics": {
     "description": "Chat : phrase lue par le lecteur d'écran pour la bulle aux trois points (l'autre membre écrit)."
   },
-  "chatSeenAt": "Vu à {time}",
+  "chatSeenAt": "Lu à {time}",
   "@chatSeenAt": {
     "description": "Chat : sous le dernier message envoyé et lu. {time} est l'heure de lecture déjà mise en forme (« 21:42 »).",
     "placeholders": {

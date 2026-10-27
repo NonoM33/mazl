@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:mazl/core/models/chat_message.dart';
 import 'package:mazl/l10n/l10n.dart';
 import 'package:mazl/presentation/features/chat/logic/chat_dates.dart';
 import 'package:mazl/presentation/features/chat/logic/chat_items.dart';
@@ -106,32 +107,62 @@ void main() {
     );
   });
 
-  group('« Vu »', () {
-    test(
-      'only the last sent message that was read carries it, with the read time',
-      () {
-        final items = _messages(
-          buildChatItems(
-            chatState([
-              msg(1, me, 'a', readAt: today(20, 47)),
-              msg(2, me, 'b', readAt: today(20, 47)),
-              msg(3, other, 'c'),
-              msg(4, me, 'd'),
-            ]),
-          ),
-        );
-        expect(
-          [for (final i in items) i.seenAt],
-          [null, today(20, 47), null, null],
-        );
-      },
-    );
+  group('« Lu à » (confirmation de lecture)', () {
+    test('only my LAST message carries it, with the server read time', () {
+      final items = _messages(
+        buildChatItems(
+          chatState([
+            msg(1, me, 'a', readAt: today(20, 46)),
+            msg(2, me, 'b', readAt: today(20, 47)),
+            msg(3, other, 'c'),
+          ]),
+        ),
+      );
+      expect(
+        [for (final i in items) i.seenAt],
+        [null, today(20, 47), null],
+      );
+    });
+
+    test('nothing when my last message has no read_at, even if an older one was read', () {
+      final items = _messages(
+        buildChatItems(
+          chatState([
+            msg(1, me, 'a', readAt: today(20, 47)),
+            msg(2, other, 'c'),
+            msg(3, me, 'd'),
+          ]),
+        ),
+      );
+      expect(items.every((i) => i.seenAt == null), isTrue);
+    });
+
+    test('a message marked seen without a read_at invents no time', () {
+      final items = _messages(
+        buildChatItems(
+          chatState([msg(1, me, 'a', status: MessageStatus.seen)]),
+        ),
+      );
+      expect(items.single.seenAt, isNull);
+    });
 
     test('nothing is shown when nothing was read', () {
       final items = _messages(
         buildChatItems(chatState([msg(1, me, 'a'), msg(2, me, 'b')])),
       );
       expect(items.every((i) => i.seenAt == null), isTrue);
+    });
+
+    test('a message still being sent is not the last one to carry it', () {
+      final items = _messages(
+        buildChatItems(
+          chatState([
+            msg(1, me, 'a', readAt: today(20, 47)),
+            msg(-1, me, 'en cours', status: MessageStatus.sending),
+          ]),
+        ),
+      );
+      expect(items.first.seenAt, today(20, 47));
     });
   });
 

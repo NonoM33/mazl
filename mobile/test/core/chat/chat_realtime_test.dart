@@ -68,6 +68,19 @@ void main() {
       expect(read.readAt, DateTime.utc(2026, 10, 22, 20, 47));
     });
 
+    test('a chat:read without read_at tells nothing: no time is invented', () {
+      // The server leaves read_at out when the sender is not a mazl+ member or
+      // the reader keeps their receipts off (docs/premium/MONETISATION.md §4).
+      expect(
+        parseChatEnvelope('chat:read', {'conversation_id': 40, 'user_id': 45, 'up_to_id': 812}),
+        isNull,
+      );
+      expect(
+        parseChatEnvelope('chat:read', {'conversation_id': 40, 'user_id': 45, 'up_to_id': 812, 'read_at': null}),
+        isNull,
+      );
+    });
+
     test('a legacy chat:read without up_to_id is not a contract event', () {
       expect(parseChatEnvelope('chat:read', {'conversationId': 40, 'userId': 45}), isNull);
     });
