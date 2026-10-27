@@ -177,6 +177,16 @@ refusé dans `lib/` par `test/core/motion_single_source_test.dart`.
   gonfle pas ; elle reste entière pendant le chargement, son remplissage s'efface en 150 ms
   (`reducedFade`) et la liste remonte en 120 ms (`reducedReturn`).
 
+## 7ter. Chargements : le fil qui passe
+
+Depuis le 2026-10-27, les squelettes de chargement (`mobile/lib/presentation/widgets/skeletons.dart`)
+n'utilisent plus le reflet gris du paquet `shimmer`, retiré du projet. Les blocs sont des aplats
+`surfaceContainer`. Un seul fil d'accent de 2 points (`loadingThreadWidth`) les traverse dans le sens
+de lecture (de droite à gauche en hébreu), en 2,4 s (`loadingThreadPeriod`, `loadingThreadCurve`),
+estompé à ses extrémités et aux bords de sa course. Il n'apparaît que sur les blocs
+(`LoadingThread`). Il n'y a qu'un fil par liste, donc un seul ticker. Animations réduites : ni fil, ni
+ticker. En pose livre, le squelette des événements tient dans la première page.
+
 ## 8. Ce que les tests doivent prouver
 
 - Chaque geste (paquet de Découvrir, paquet du couple, visionneuse, réponse glissée) lit ses valeurs

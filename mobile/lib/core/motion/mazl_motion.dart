@@ -177,6 +177,23 @@ abstract final class MazlMotion {
   /// under reduced motion.
   static const typingThreadKnotFormed = 0.5;
 
+  // --- Loading thread (skeletons) -------------------------------------------
+  // The skeleton blocks stay flat and calm; one accent thread runs over them.
+
+  /// One pass of the thread across the skeleton, in reading direction.
+  static const loadingThreadPeriod = Duration(milliseconds: 2400);
+  static const loadingThreadCurve = Curves.easeInOutSine;
+
+  /// Width of the thread, in logical pixels.
+  static const loadingThreadWidth = 2.0;
+
+  /// Share of the height at each end of the thread where it fades out.
+  static const loadingThreadEndFade = 0.2;
+
+  /// Share of the pass, at each edge, where the whole thread fades in or out
+  /// so it never appears or vanishes abruptly.
+  static const loadingThreadEdgeFade = 0.12;
+
   // --- Match sheet ---------------------------------------------------------
 
   /// The two photos slide toward each other until they touch.

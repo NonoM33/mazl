@@ -97,18 +97,4 @@ abstract class AppColors {
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [gradientStart, gradientEnd],
   );
-
-  static const LinearGradient shimmerGradient = LinearGradient(
-    colors: [mist, Color(0xFFFAFAFB), mist],
-    stops: [0.0, 0.5, 1.0],
-    begin: Alignment(-1.0, -0.3),
-    end: Alignment(1.0, 0.3),
-  );
-
-  static const LinearGradient shimmerGradientDark = LinearGradient(
-    colors: [cardDark, Color(0xFF26262C), cardDark],
-    stops: [0.0, 0.5, 1.0],
-    begin: Alignment(-1.0, -0.3),
-    end: Alignment(1.0, 0.3),
-  );
 }

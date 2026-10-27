@@ -314,15 +314,6 @@ const _allowed = <String, _Allowed>{
       _Allowed('cadre blanc de visee sur le flux camera', [
         ('color: Colors.white,', 1),
       ]),
-  'lib/presentation/widgets/skeletons.dart': _Allowed(
-    'masque du shimmer : seule la forme compte, les couleurs de base et de reflet viennent du theme',
-    [
-      ('baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,', 1),
-      ('highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,', 1),
-      ('color: Colors.white,', 4),
-      ('color: Colors.grey[300],', 3),
-    ],
-  ),
 };
 
 Map<String, Map<String, int>> _scan() {
