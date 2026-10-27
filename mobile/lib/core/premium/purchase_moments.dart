@@ -40,6 +40,12 @@ enum PurchaseMoment {
 abstract final class PurchaseMoments {
   static const _keyPrefix = 'purchase_moment.last_shown.';
 
+  static const _thirdLikeKey = 'purchase_moment.third_like_done';
+  static const _firstMatchKey = 'purchase_moment.first_match_done';
+
+  /// The once-for-good moments already done, in this session.
+  static final Set<String> _done = {};
+
   /// Day (« 2026-10-27 ») each moment was claimed in this session.
   static final Map<PurchaseMoment, String> _claimed = {};
 
@@ -54,12 +60,16 @@ abstract final class PurchaseMoments {
 
   /// Forgets the session (the stored days stay), as after a restart.
   @visibleForTesting
-  static void forgetMemoryForTest() => _claimed.clear();
+  static void forgetMemoryForTest() {
+    _claimed.clear();
+    _done.clear();
+  }
 
   /// Back to the real clock and storage, nothing claimed.
   @visibleForTesting
   static void resetForTest() {
     _claimed.clear();
+    _done.clear();
     clock = DateTime.now;
     preferences = SharedPreferences.getInstance;
   }
@@ -88,6 +98,35 @@ abstract final class PurchaseMoments {
       unawaited(context.push<bool>(RoutePaths.premium));
     }
     return true;
+  }
+
+  /// The member received [receivedLikes] likes without mazl+: from the third
+  /// on, the offer of [PurchaseMoment.thirdLikeReceived], once for good.
+  static Future<bool> offerThirdLike(
+    BuildContext context, {
+    required int receivedLikes,
+  }) async {
+    if (receivedLikes < 3) return false;
+    if (await _alreadyDone(_thirdLikeKey)) return false;
+    if (!context.mounted) return false;
+    final shown = await offer(context, PurchaseMoment.thirdLikeReceived);
+    if (shown) await _markDone(_thirdLikeKey);
+    return shown;
+  }
+
+  /// The match sheet was closed. The first one this phone ever shows is the
+  /// member's first match: unless they went on to the chat, that is the offer
+  /// of [PurchaseMoment.firstMatch]. Later matches never offer anything.
+  static Future<bool> afterMatchSheet(
+    BuildContext context, {
+    required bool openedChat,
+  }) async {
+    if (PremiumGate.isPremium || await _alreadyDone(_firstMatchKey)) {
+      return false;
+    }
+    await _markDone(_firstMatchKey);
+    if (openedChat || !context.mounted) return false;
+    return offer(context, PurchaseMoment.firstMatch);
   }
 
   /// For an offer that already has its own sheet (the daily likes limit):
@@ -138,6 +177,28 @@ abstract final class PurchaseMoments {
       return true;
     }
     return true;
+  }
+
+  static Future<bool> _alreadyDone(String key) async {
+    if (_done.contains(key)) return true;
+    try {
+      if ((await preferences()).getBool(key) ?? false) {
+        _done.add(key);
+        return true;
+      }
+    } on Object catch (e) {
+      debugPrint('PurchaseMoments: storage unreadable (${e.runtimeType})');
+    }
+    return false;
+  }
+
+  static Future<void> _markDone(String key) async {
+    _done.add(key);
+    try {
+      await (await preferences()).setBool(key, true);
+    } on Object catch (e) {
+      debugPrint('PurchaseMoments: storage unwritable (${e.runtimeType})');
+    }
   }
 
   static Future<void> _remember(PurchaseMoment moment) async {

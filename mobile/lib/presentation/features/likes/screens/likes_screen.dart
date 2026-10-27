@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -5,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_grid.dart';
 import '../../../../core/models/swipe_result.dart';
+import '../../../../core/premium/purchase_moments.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../l10n/l10n.dart';
@@ -56,6 +59,7 @@ class _LikesScreenState extends State<LikesScreen> {
         _isLoading = false;
         if (result.success && result.data != null) {
           _likesData = result.data;
+          _offerThirdLike(result.data!);
         } else {
           _loadFailed = true;
         }
@@ -70,6 +74,14 @@ class _LikesScreenState extends State<LikesScreen> {
     if (count <= 50) return (label: '25+');
     if (count <= 99) return (label: '50+');
     return (label: '99+');
+  }
+
+  /// From the third like received, a member without mazl+ is offered it once.
+  void _offerThirdLike(LikesData data) {
+    if (data.isPremium) return;
+    unawaited(
+      PurchaseMoments.offerThirdLike(context, receivedLikes: data.count),
+    );
   }
 
   Future<void> _handleLike(LikeProfile profile) async {

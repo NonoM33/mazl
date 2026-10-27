@@ -5,11 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:mazl/core/premium/purchase_moments.dart';
 import 'package:mazl/core/router/route_names.dart';
 import 'package:mazl/core/services/api_service.dart';
+import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/presentation/features/likes/screens/likes_screen.dart';
 import 'package:mazl/presentation/features/likes/widgets/blurred_like_tile.dart';
 import 'package:mazl/presentation/features/likes/widgets/like_widgets.dart';
+import 'package:mazl/presentation/features/premium/widgets/purchase_moment_sheet.dart';
 import 'package:mazl/presentation/features/matching/screens/matches_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,6 +58,28 @@ const _freeBody = {
       'liked_at': '2026-10-24T18:30:00.000Z',
       'blurredPhotoUrl': 'https://example.com/media/photos/blur?exp=1&sig=x',
       'is_super_like': true,
+    },
+    {
+      'display_name': 'Noa Exemple',
+      'is_verified': false,
+      'liked_at': '2026-10-23T09:00:00.000Z',
+      'blurredPhotoUrl': null,
+      'is_super_like': false,
+    },
+  ],
+};
+
+const _twoLikesBody = {
+  'success': true,
+  'count': 2,
+  'is_premium': false,
+  'likes': [
+    {
+      'display_name': 'Jeanne Exemple',
+      'is_verified': true,
+      'liked_at': '2026-10-24T18:30:00.000Z',
+      'blurredPhotoUrl': null,
+      'is_super_like': false,
     },
     {
       'display_name': 'Noa Exemple',
@@ -141,7 +166,11 @@ Future<void> _pumpMatches(WidgetTester tester, LikesData likes) async {
 }
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    PurchaseMoments.resetForTest();
+    PremiumGate.resetForTest();
+  });
 
   group('le modèle lit is_premium à la racine de la réponse', () {
     test('un abonné : is_premium vrai, les likes complets', () async {
@@ -289,7 +318,45 @@ void main() {
       expect(find.text('Ton profil m\'a fait sourire.'), findsOneWidget);
     });
 
+    testWidgets(
+      'sans mazl+ et 3 likes ou plus : l\'offre du 3e like, une fois',
+      (tester) async {
+        await _pumpLikes(tester, await _received(_freeBody));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PurchaseMomentSheet), findsOneWidget);
+        expect(find.text('Plusieurs personnes vous ont aimé.'), findsOneWidget);
+        await tester.tap(find.text('Plus tard'));
+        await tester.pumpAndSettle();
+
+        // Pulling to refresh does not bring it back.
+        await tester.fling(find.byType(ListView), const Offset(0, 400), 1000);
+        await tester.pumpAndSettle();
+        expect(find.byType(PurchaseMomentSheet), findsNothing);
+      },
+    );
+
+    testWidgets('sans mazl+ mais moins de 3 likes : pas d\'offre', (
+      tester,
+    ) async {
+      await _pumpLikes(tester, await _received(_twoLikesBody));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PurchaseMomentSheet), findsNothing);
+    });
+
+    testWidgets('un abonné n\'a jamais l\'offre', (tester) async {
+      await _pumpLikes(tester, await _received(_subscriberBody));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PurchaseMomentSheet), findsNothing);
+    });
+
     testWidgets('un appui sur une tuile floue ouvre mazl+', (tester) async {
+      // The offer of the 3rd like was already made: it does not cover the grid.
+      SharedPreferences.setMockInitialValues({
+        'purchase_moment.third_like_done': true,
+      });
       tester.view.physicalSize = const Size(390, 1200);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -326,6 +393,23 @@ void main() {
   });
 
   group('l\'écran Matchs', () {
+    testWidgets(
+      'sans mazl+ et 3 likes ou plus : l\'offre du 3e like, une fois',
+      (tester) async {
+        await _pumpMatches(tester, await _received(_freeBody));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PurchaseMomentSheet), findsOneWidget);
+        await tester.tap(find.text('Plus tard'));
+        await tester.pumpAndSettle();
+
+        // Made here, so the Likes screen does not make it again.
+        await _pumpLikes(tester, await _received(_freeBody));
+        await tester.pumpAndSettle();
+        expect(find.byType(PurchaseMomentSheet), findsNothing);
+      },
+    );
+
     testWidgets(
       'un abonné voit les cartes des likes, aucune tuile verrouillée',
       (tester) async {

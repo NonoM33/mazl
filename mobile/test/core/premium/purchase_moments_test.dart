@@ -382,6 +382,120 @@ void main() {
     });
   });
 
+  group('third like received', () {
+    Future<void> pumpWith(WidgetTester tester, int likes) => _pump(
+      tester,
+      action: (context) async => _results.add(
+        await PurchaseMoments.offerThirdLike(context, receivedLikes: likes),
+      ),
+    );
+
+    testWidgets('under three likes: nothing', (tester) async {
+      await pumpWith(tester, 2);
+      await _trigger(tester);
+
+      expect(_results, [false]);
+      expect(find.byType(PlusCtaButton), findsNothing);
+    });
+
+    testWidgets('at three likes: the offer of its moment, once for good', (
+      tester,
+    ) async {
+      await pumpWith(tester, 3);
+      await _trigger(tester);
+      expect(find.text('Plusieurs personnes vous ont aimé.'), findsOneWidget);
+      await tester.tap(_later);
+      await tester.pumpAndSettle();
+
+      // Not the next day either, nor with more likes: « une fois ».
+      _today = DateTime(2026, 10, 29, 9);
+      await _trigger(tester);
+      expect(_results, [true, false]);
+      expect(_analytics.events.first.properties, {
+        'moment': 'thirdLikeReceived',
+      });
+    });
+
+    testWidgets('remembered after a restart too', (tester) async {
+      await pumpWith(tester, 5);
+      await _trigger(tester);
+      await tester.tap(_later);
+      await tester.pumpAndSettle();
+
+      PurchaseMoments.forgetMemoryForTest();
+      _today = DateTime(2026, 11, 3);
+      await _trigger(tester);
+
+      expect(_results, [true, false]);
+    });
+
+    testWidgets('a subscriber is never offered it', (tester) async {
+      PremiumGate.debugPremiumOverride = true;
+      await pumpWith(tester, 9);
+      await _trigger(tester);
+
+      expect(_results, [false]);
+    });
+  });
+
+  group('first match', () {
+    Future<void> pumpWith(WidgetTester tester, {required bool openedChat}) =>
+        _pump(
+          tester,
+          action: (context) async => _results.add(
+            await PurchaseMoments.afterMatchSheet(
+              context,
+              openedChat: openedChat,
+            ),
+          ),
+        );
+
+    testWidgets('the first match, back to Discover: the offer', (tester) async {
+      await pumpWith(tester, openedChat: false);
+      await _trigger(tester);
+      expect(find.text('Votre premier match.'), findsOneWidget);
+      await tester.tap(_later);
+      await tester.pumpAndSettle();
+
+      expect(_results, [true]);
+      expect(_analytics.events.first.properties, {'moment': 'firstMatch'});
+    });
+
+    testWidgets('only the first match counts, later ones never', (
+      tester,
+    ) async {
+      await pumpWith(tester, openedChat: false);
+      await _trigger(tester);
+      await tester.tap(_later);
+      await tester.pumpAndSettle();
+
+      _today = DateTime(2026, 10, 30);
+      await _trigger(tester);
+
+      expect(_results, [true, false]);
+    });
+
+    testWidgets('going to the chat: no offer on the way, and the first match '
+        'is used up', (tester) async {
+      await pumpWith(tester, openedChat: true);
+      await _trigger(tester);
+      expect(_results, [false]);
+      expect(find.byType(PlusCtaButton), findsNothing);
+
+      await pumpWith(tester, openedChat: false);
+      await _trigger(tester);
+      expect(_results, [false, false]);
+    });
+
+    testWidgets('a subscriber is never offered it', (tester) async {
+      PremiumGate.debugPremiumOverride = true;
+      await pumpWith(tester, openedChat: false);
+      await _trigger(tester);
+
+      expect(_results, [false]);
+    });
+  });
+
   for (final locale in AppLocalizations.supportedLocales) {
     for (final moment in PurchaseMoment.values) {
       testWidgets('${locale.languageCode} ${moment.name}: fits a small phone', (

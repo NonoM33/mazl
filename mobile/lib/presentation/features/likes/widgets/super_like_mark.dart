@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../core/theme/app_colors.dart';
-
 /// The small « Super Like » mark laid over the tile of a like that is one.
 class SuperLikeMark extends StatelessWidget {
   const SuperLikeMark({super.key, required this.label});
@@ -11,26 +9,27 @@ class SuperLikeMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.tekhelet,
+        color: scheme.primary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(LucideIcons.star, size: 12, color: AppColors.paper),
+          Icon(LucideIcons.star, size: 12, color: scheme.onPrimary),
           const SizedBox(width: 4),
           Flexible(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.paper,
+                color: scheme.onPrimary,
               ),
             ),
           ),
