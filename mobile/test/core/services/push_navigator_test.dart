@@ -64,7 +64,7 @@ void main() {
 
       ready = true;
       await tester.pump(const Duration(seconds: 1));
-      expect(opened, ['/couple/space']);
+      expect(opened, ['/couple/today']);
     });
 
     testWidgets('un type ancien ou inconnu ne navigue pas et n\'attend pas', (

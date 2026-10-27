@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/services/couple_api_service.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_space_screen.dart';
+import 'package:mazl/presentation/features/couple/screens/couple_us_screen.dart';
 import 'package:mazl/presentation/features/couple/screens/couple_space_sheets.dart';
 
 import '../../../helpers/l10n_helpers.dart';
@@ -68,7 +68,7 @@ Future<void> _pumpSpace(
 }) async {
   await pumpLocalized(
     tester,
-    CoupleSpaceScreen(apiService: CoupleApiService(transport: transport)),
+    CoupleUsScreen(apiService: CoupleApiService(transport: transport)),
     locale: locale,
     brightness: brightness,
     size: _tallPhone,

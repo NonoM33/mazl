@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/models/couple_space.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/services/couple_service.dart';
@@ -19,17 +20,17 @@ import '../widgets/couple_message_view.dart';
 import 'couple_space_sheets.dart';
 import '../../../common/widgets/fold_pages.dart';
 
-class CoupleSpaceScreen extends StatefulWidget {
-  const CoupleSpaceScreen({super.key, this.apiService});
+class CoupleUsScreen extends StatefulWidget {
+  const CoupleUsScreen({super.key, this.apiService});
 
   /// Injected by tests; the app uses the real service.
   final CoupleApiService? apiService;
 
   @override
-  State<CoupleSpaceScreen> createState() => _CoupleSpaceScreenState();
+  State<CoupleUsScreen> createState() => _CoupleUsScreenState();
 }
 
-class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
+class _CoupleUsScreenState extends State<CoupleUsScreen> {
   late final CoupleApiService _apiService =
       widget.apiService ?? CoupleApiService();
 
@@ -128,7 +129,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           RoundIconButton(
             icon: LucideIcons.settings,
             tooltip: context.l10n.coupleSpaceSettingsTooltip,
-            onPressed: () => context.push('/couple/space/settings'),
+            onPressed: () => context.push(RoutePaths.coupleUsSettings),
           ),
         ],
       ),
@@ -370,7 +371,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           children: [
             Expanded(child: SectionLabel(l10n.coupleSpaceDatesTitle)),
             TextButton(
-              onPressed: () => context.go('/couple/calendar'),
+              onPressed: () => context.go(RoutePaths.coupleAgenda),
               child: Text(l10n.coupleSpaceSeeAll),
             ),
           ],

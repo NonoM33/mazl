@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/services/couple_api_service.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_events_screen.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_space_screen.dart';
+import 'package:mazl/presentation/features/couple/screens/couple_us_screen.dart';
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
@@ -35,127 +34,8 @@ Future<FakeCoupleTransport> _pump(
 }
 
 void main() {
-  group('events list', () {
-    const upcoming = 'GET /api/couple/events?limit=50&offset=0';
-    const registered = 'GET /api/couple/events/registered';
-    Widget screen(CoupleApiService api) => CoupleEventsScreen(apiService: api);
-
-    testWidgets('a failing load shows an error, not "Aucun événement"', (
-      tester,
-    ) async {
-      final transport = await _pump(
-        tester,
-        screen,
-        setUp: (t) {
-          t.fail(upcoming, const SocketException('down'));
-          t.reply(registered, ok({'events': []}));
-        },
-      );
-
-      expect(find.text('Chargement impossible'), findsOneWidget);
-      expect(find.text('Aucun événement disponible'), findsNothing);
-
-      transport.reply(
-        upcoming,
-        ok({
-          'events': [eventRow(id: 3, title: 'Dîner de Shabbat')],
-        }),
-      );
-      await tester.tap(find.text('Réessayer'));
-      await tester.pump();
-      await tester.pump();
-
-      expect(find.text('Dîner de Shabbat'), findsOneWidget);
-    });
-
-    testWidgets('registering posts to the server and reloads the lists', (
-      tester,
-    ) async {
-      final transport = await _pump(
-        tester,
-        screen,
-        setUp: (t) {
-          t.reply(
-            upcoming,
-            ok({
-              'events': [eventRow(id: 3, title: 'Dîner de Shabbat')],
-            }),
-          );
-          t.reply(registered, ok({'events': []}));
-          t.reply(
-            'POST /api/couple/events/3/register',
-            ok({'registration': {}}),
-          );
-        },
-      );
-
-      await tester.tap(find.text('S\'inscrire'));
-      await tester.pump();
-      await tester.pump();
-
-      expect(transport.calls, contains('POST /api/couple/events/3/register'));
-      expect(transport.count(upcoming), 2);
-    });
-
-    testWidgets('a refused registration says so', (tester) async {
-      await _pump(
-        tester,
-        screen,
-        setUp: (t) {
-          t.reply(
-            upcoming,
-            ok({
-              'events': [eventRow(id: 3)],
-            }),
-          );
-          t.reply(registered, ok({'events': []}));
-          t.reply('POST /api/couple/events/3/register', error('Event is full'));
-        },
-      );
-
-      await tester.tap(find.text('S\'inscrire'));
-      await tester.pump();
-      await tester.pump();
-
-      expect(find.text('Cet événement est complet.'), findsOneWidget);
-    });
-
-    testWidgets('a refused cancellation says so', (tester) async {
-      await _pump(
-        tester,
-        screen,
-        setUp: (t) {
-          t.reply(
-            upcoming,
-            ok({
-              'events': [eventRow(id: 3)],
-            }),
-          );
-          t.reply(
-            registered,
-            ok({
-              'events': [registeredEventRow(id: 3)],
-            }),
-          );
-          t.fail(
-            'DELETE /api/couple/events/3/register',
-            const SocketException('down'),
-          );
-        },
-      );
-
-      await tester.tap(find.text('Annuler'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Oui, annuler'));
-      await tester.pump();
-      await tester.pump();
-
-      expect(find.textContaining('Impossible d\'annuler'), findsOneWidget);
-    });
-  });
-
   group('couple space', () {
-    Widget screen(CoupleApiService api) => CoupleSpaceScreen(apiService: api);
+    Widget screen(CoupleApiService api) => CoupleUsScreen(apiService: api);
 
     void space(
       FakeCoupleTransport t, {

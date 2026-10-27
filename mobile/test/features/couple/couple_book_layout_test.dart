@@ -6,8 +6,7 @@ import 'package:mazl/core/services/couple_service.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/couple/screens/couple_mode_setup_screen.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_space_screen.dart';
-import 'package:mazl/presentation/features/couple/screens/jewish_calendar_screen.dart';
+import 'package:mazl/presentation/features/couple/screens/couple_us_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/duo_poses.dart';
@@ -125,7 +124,7 @@ void main() {
     }) => _pump(
       tester,
       DuoPose.halfOpenBook,
-      CoupleSpaceScreen(
+      CoupleUsScreen(
         apiService: CoupleApiService(transport: _spaceTransport()),
       ),
       locale: locale,
@@ -161,7 +160,7 @@ void main() {
       await _pump(
         tester,
         DuoPose.openPortrait,
-        CoupleSpaceScreen(
+        CoupleUsScreen(
           apiService: CoupleApiService(transport: _spaceTransport()),
         ),
       );
@@ -263,30 +262,6 @@ void main() {
       _onSecondPage(tester, find.text(l10n.coupleSpaceSetupGotIt));
       _nothingInTheCurve(tester, DuoPose.halfOpenBook);
       await service.cancelCoupleRequest();
-    });
-  });
-
-  group('calendar', () {
-    testWidgets('book: the month on the first page (no day in the curve), '
-        'Shabbat and the holidays on the other', (tester) async {
-      await _pump(tester, DuoPose.halfOpenBook, const JewishCalendarScreen());
-      final l10n = _l10n();
-      _onFirstPage(tester, find.text(l10n.coupleSpaceCalendarTitle));
-      final cells = find.byWidgetPredicate(
-        (w) =>
-            w.key is ValueKey<String> &&
-            (w.key! as ValueKey<String>).value.startsWith('calendar-cell-'),
-      );
-      expect(cells.evaluate().length, greaterThanOrEqualTo(28));
-      for (final cell in cells.evaluate()) {
-        _onFirstPage(tester, find.byElementPredicate((e) => e == cell));
-      }
-      _onSecondPage(
-        tester,
-        find.text(l10n.jewishCalendarShabbatTitle.toUpperCase()),
-      );
-      _onSecondPage(tester, find.text(l10n.coupleSpaceCalendarShabbatIdeas));
-      _nothingInTheCurve(tester, DuoPose.halfOpenBook);
     });
   });
 }

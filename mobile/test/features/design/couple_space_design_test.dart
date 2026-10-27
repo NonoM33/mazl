@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/services/couple_api_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_space_screen.dart';
+import 'package:mazl/presentation/features/couple/screens/couple_us_screen.dart';
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
@@ -82,7 +82,7 @@ Future<void> _pumpSpace(
       supportedLocales: AppLocalizations.supportedLocales,
       locale: kTestLocale,
       theme: theme ?? AppTheme.lightTheme,
-      home: CoupleSpaceScreen(
+      home: CoupleUsScreen(
         apiService: CoupleApiService(transport: _transport(filled: filled)),
       ),
     ),
