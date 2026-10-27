@@ -74,4 +74,16 @@ describe("testEventDate", () => {
     if (shabbat === undefined) throw new Error("missing");
     expect(testEventDate(shabbat, new Date("2026-10-26T08:00:00Z"))).toBe("2026-11-06");
   });
+
+  test("each event has its own Unsplash photo and the coordinates of a place in France", () => {
+    const photo = /^https:\/\/images\.unsplash\.com\/photo-[0-9a-f]+-[0-9a-f]+\?w=1600&q=80&auto=format&fit=crop$/;
+    for (const event of TEST_EVENTS) {
+      expect(event.imageUrl).toMatch(photo);
+      expect(event.latitude).toBeGreaterThan(41);
+      expect(event.latitude).toBeLessThan(51.5);
+      expect(event.longitude).toBeGreaterThan(-5);
+      expect(event.longitude).toBeLessThan(9.6);
+    }
+    expect(new Set(TEST_EVENTS.map((event) => event.imageUrl)).size).toBe(TEST_EVENTS.length);
+  });
 });
