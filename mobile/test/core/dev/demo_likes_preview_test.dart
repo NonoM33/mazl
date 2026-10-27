@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mazl/core/dev/demo_http_client.dart';
 import 'package:mazl/core/dev/demo_routes.dart';
 
 // The demo member has no subscription: the demo serves the likes the way the
