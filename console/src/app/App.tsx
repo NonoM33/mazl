@@ -7,6 +7,8 @@ import { AlgorithmScreen } from "../matching/AlgorithmScreen";
 import { tabFromParam } from "../matching/tabs";
 import { MemberFileScreen } from "../members/MemberFileScreen";
 import { MembersScreen } from "../members/MembersScreen";
+import { ConciergeScreen } from "../concierge/ConciergeScreen";
+import { tabFromParam as conciergeTab } from "../concierge/status";
 import { CampaignsScreen } from "../storefront/CampaignsScreen";
 import { OffersScreen } from "../storefront/OffersScreen";
 import { ReportsScreen } from "../reports/ReportsScreen";
@@ -58,6 +60,8 @@ function Screen({ route }: { readonly route: Route }): ReactElement {
       return <OffersScreen />;
     case "campagnes":
       return <CampaignsScreen selectedId={route.id} year={route.params["annee"]} />;
+    case "conciergerie":
+      return <ConciergeScreen selectedId={route.id} tab={conciergeTab(route.params["onglet"])} />;
     default:
       return <ComingSoon section={section} />;
   }
