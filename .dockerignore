@@ -29,6 +29,8 @@ Dockerfile
 .cursor/
 tests/
 docs/
+# ...except the themes the server reads at run time (src/features/storefront/domain/themes.ts).
+!docs/storefront/themes.json
 *.md
 landing-server.ts
 Jenkinsfile
