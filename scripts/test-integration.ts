@@ -80,13 +80,14 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
 
 async function main(): Promise<number> {
   await mkdir(logDir, { recursive: true });
-  for (const log of ["server.log", "stripe.log", "openpanel.log", "integ.log"]) await Bun.write(join(logDir, log), "");
+  for (const log of ["server.log", "stripe.log", "openpanel.log", "anthropic.log", "integ.log"]) await Bun.write(join(logDir, log), "");
 
   const container = `mazl-it-${hex(4)}`;
   const pgPort = await freePort();
   const apiPort = await freePort();
   const stripePort = await freePort();
   const openPanelPort = await freePort();
+  const anthropicPort = await freePort();
   const apiUrl = `http://127.0.0.1:${apiPort}`;
   const databaseUrl = `postgres://postgres:it@127.0.0.1:${pgPort}/mazl`;
 
@@ -125,6 +126,19 @@ async function main(): Promise<number> {
   const openPanelUrl = `http://127.0.0.1:${openPanelPort}`;
   await waitFor("fake OpenPanel", 60, async () => (await fetch(`${openPanelUrl}/__test/requests`)).ok);
 
+  const anthropic = Bun.spawn(["bun", "tests/support/run-fake-anthropic.ts"], {
+    cwd: root,
+    env: { ...process.env, FAKE_ANTHROPIC_PORT: String(anthropicPort) },
+    stdout: Bun.file(join(logDir, "anthropic.log")),
+    stderr: Bun.file(join(logDir, "anthropic.log")),
+  });
+  cleanups.push(async () => {
+    anthropic.kill();
+    await anthropic.exited;
+  });
+  const anthropicUrl = `http://127.0.0.1:${anthropicPort}`;
+  await waitFor("fake Anthropic", 60, async () => (await fetch(`${anthropicUrl}/__test/requests`)).ok);
+
   // The server and the suites share this environment. Nothing real is reachable:
   // no Resend, OneSignal, Apple or Stripe key, a fake Stripe, a throwaway database.
   const env: Record<string, string> = {
@@ -159,6 +173,10 @@ async function main(): Promise<number> {
     ANALYTICS_ID_KEY: hex(),
     ANALYTICS_ENV: "test",
     FAKE_OPENPANEL_URL: openPanelUrl,
+    // The concierge assistant talks to a fake Anthropic: nothing real is reachable.
+    ANTHROPIC_API_KEY: `fake-${hex(8)}`,
+    ANTHROPIC_API_URL: `${anthropicUrl}/v1/messages`,
+    FAKE_ANTHROPIC_URL: anthropicUrl,
   };
   for (const name of ["RESEND_API_KEY", "ONESIGNAL_REST_API_KEY"]) delete env[name];
 
@@ -187,7 +205,7 @@ async function main(): Promise<number> {
   await Promise.all([pump(run.stdout), pump(run.stderr)]);
   await log.end();
   const code = await run.exited;
-  console.log(`\nlogs: ${logDir}/ (server.log, stripe.log, integ.log)`);
+  console.log(`\nlogs: ${logDir}/ (server.log, stripe.log, anthropic.log, integ.log)`);
   return code;
 }
 

@@ -26,9 +26,6 @@ import {
   updateCoupleStatus,
   updateRelationshipStatus,
   deleteCouple,
-  getDailyQuestion,
-  answerDailyQuestion,
-  getCoupleQuestionHistory,
   recordMilestone,
   getCoupleMilestones,
   checkAndRecordMilestones,
@@ -119,6 +116,7 @@ import { registerMediaRoutes } from "./features/media/presentation/media.routes"
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
 import { createPushModule } from "./features/push/push.module";
+import { createCoupleSpace } from "./features/couple/couple-space.module";
 import { assertKeysConfigured } from "./shared/crypto/keys";
 import { isDevelopmentEnvironment } from "./shared/runtime/development-environment";
 import { createObjectStore, readStorageConfig } from "./shared/storage";
@@ -364,6 +362,16 @@ registerPrivacy(app, createPrivacyModule(sql, (userId, purpose) => {
 }));
 registerAnalytics(app, analytics, requireAuth);
 
+// The daily couple space: Today, rituals and reminders, outings, the daily question,
+// the check-in and the concierge (docs/couple/ESPACE-COUPLE.md). Without
+// ANTHROPIC_API_KEY the concierge assistant is absent and requests go to the team.
+const coupleSpace = createCoupleSpace({
+  sql,
+  env: process.env,
+  transport: memberPushTransport,
+  fetch: (url, init) => fetch(url, init),
+});
+
 // ============ STAFF BACK-OFFICE ============
 // /api/backoffice/* (staff roles + TOTP, audit journal, trust & safety,
 // matching tuning), the public appeal route and the /console front:
@@ -377,6 +385,7 @@ const backoffice = createBackoffice({
   // "store_not_configured".
   appStore: createAppStorePricing(process.env) ?? appStoreNotConfigured,
   webPricing: createWebPricing(process.env) ?? webPricingNotConfigured,
+  coupleSpace,
 });
 backoffice.register(app);
 
@@ -736,7 +745,7 @@ app.get("/api/dev/reset-swipes/:email", async (c) => {
 // All `/api/couple/*` endpoints live in src/features/couple/*. They are
 // registered here — at their original location in the route table — preserving
 // the exact declaration order (literals before parameterised routes).
-registerCoupleRoutes(app);
+registerCoupleRoutes(app, coupleSpace);
 
 
 
@@ -817,6 +826,7 @@ await ensurePrivacySchema(sql);
 await ensureLikeAllowanceSchema(sql);
 await push.ensureSchema();
 push.followBoostEndings();
+coupleSpace.followReminders();
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);

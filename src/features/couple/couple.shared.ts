@@ -109,11 +109,6 @@ export const relationshipStatusBodySchema = z
   .object({ relationshipStatus: z.enum(RELATIONSHIP_STATUSES) })
   .passthrough();
 
-// POST /api/couple/:coupleId/question/:questionId/answer body.
-export const dailyAnswerBodySchema = z
-  .object({ answer: z.string().trim().min(1).max(2000) })
-  .passthrough();
-
 // A picture link: https only (javascript:, data:, http: and relative links are refused).
 const httpsUrlSchema = z
   .string()

@@ -1,6 +1,7 @@
 import type { Sql } from "postgres";
 import { eraseUserRows } from "../../db";
 import { COUPLE_ACTIVITY_SEEDS, COUPLE_EVENT_SEEDS } from "./couple-catalogue";
+import { presentTestCoupleOutings, type TestOutingRow } from "./couple-outings";
 import { presentTestEvents, type TestEventRow } from "./test-events";
 
 // Removal of the sample data that releases before the v1 created in every
@@ -40,6 +41,8 @@ export interface SeedPurgePlan {
   readonly eventsToRemove: readonly CatalogueEntry[];
   readonly eventsKept: readonly CatalogueEntry[];
   readonly testEvents: readonly TestEventRow[];
+  // The fake activities and couple events of the TestFlight phase (fixture_key).
+  readonly testCoupleOutings: readonly TestOutingRow[];
 }
 
 // Condition on a row aliased `r` that carries a couple_id: the couple has no seed
@@ -102,7 +105,7 @@ async function events(db: Db): Promise<CatalogueEntry[]> {
 }
 
 export async function planSeedPurge(db: Db): Promise<SeedPurgePlan> {
-  const [accountList, activityList, eventList, testEvents] = [await seedAccounts(db), await activities(db), await events(db), await presentTestEvents(db)];
+  const [accountList, activityList, eventList, testEvents, testCoupleOutings] = [await seedAccounts(db), await activities(db), await events(db), await presentTestEvents(db), await presentTestCoupleOutings(db)];
   return {
     accounts: accountList,
     activitiesToRemove: activityList.filter((entry) => entry.references === 0),
@@ -110,6 +113,7 @@ export async function planSeedPurge(db: Db): Promise<SeedPurgePlan> {
     eventsToRemove: eventList.filter((entry) => entry.references === 0),
     eventsKept: eventList.filter((entry) => entry.references > 0),
     testEvents,
+    testCoupleOutings,
   };
 }
 
@@ -127,6 +131,13 @@ export async function applySeedPurge(db: Db): Promise<SeedPurgePlan> {
     // Their registrations, alerts, photos and check-ins cascade.
     const testEventIds = plan.testEvents.map((entry) => entry.id);
     if (testEventIds.length > 0) await tx`DELETE FROM events WHERE id IN ${tx(testEventIds)}`;
+    // Their saves, passes and registrations cascade; a booking does not, and goes first.
+    const fakeActivityIds = plan.testCoupleOutings.filter((entry) => entry.kind === "activity").map((entry) => entry.id);
+    const fakeEventIds = plan.testCoupleOutings.filter((entry) => entry.kind === "event").map((entry) => entry.id);
+    if (fakeActivityIds.length > 0) await tx`DELETE FROM couple_bookings WHERE activity_id IN ${tx(fakeActivityIds)}`;
+    if (fakeEventIds.length > 0) await tx`DELETE FROM couple_bookings WHERE event_id IN ${tx(fakeEventIds)}`;
+    if (fakeActivityIds.length > 0) await tx`DELETE FROM couple_activities WHERE id IN ${tx(fakeActivityIds)}`;
+    if (fakeEventIds.length > 0) await tx`DELETE FROM couple_events WHERE id IN ${tx(fakeEventIds)}`;
     return plan;
   })) as SeedPurgePlan;
 }
