@@ -139,12 +139,6 @@ const _allowed = <String, _Allowed>{
     'icone sur teinte pastel de photo (paire fixe)',
     [('color: AppColors.textTertiaryLight,', 1)],
   ),
-  'lib/presentation/features/duo_tutorial/screens/duo_tutorial_screen.dart':
-      _Allowed('tutoriel toujours sur papier blanc (theme clair force)', [
-        ('backgroundColor: AppColors.paper,', 1),
-        ('color: AppColors.muted,', 1),
-        ('style: TextButton.styleFrom(foregroundColor: AppColors.muted),', 1),
-      ]),
   'lib/presentation/features/duo_tutorial/widgets/duo_check.dart': _Allowed(
     'tutoriel toujours sur papier blanc (theme clair force)',
     [('..color = AppColors.paper', 1)],

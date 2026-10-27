@@ -222,7 +222,9 @@ class _TextPanel extends StatelessWidget {
                             step.body(l10n),
                             textAlign: textAlign,
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: AppColors.muted,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -293,7 +295,9 @@ class _Buttons extends StatelessWidget {
         if (!last)
           TextButton(
             onPressed: controller.skip,
-            style: TextButton.styleFrom(foregroundColor: AppColors.muted),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             child: Text(l10n.duoTutorialSkip),
           ),
         FilledButton(
