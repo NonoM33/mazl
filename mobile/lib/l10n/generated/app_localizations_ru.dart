@@ -159,6 +159,76 @@ class AppLocalizationsRu extends AppLocalizations {
   String get boostUpsellBody => 'Используйте буст без ограничений с mazl+';
 
   @override
+  String boostMoment(String day, String hour) {
+    return '$day в $hour';
+  }
+
+  @override
+  String boostBestTimeLine(String moment) {
+    return 'Лучшее время: $moment';
+  }
+
+  @override
+  String boostBestTimeLineAfterShabbat(String moment) {
+    return 'Лучшее время: $moment, после шаббата';
+  }
+
+  @override
+  String boostBestTimeBasis(String city) {
+    return 'По измеренной активности в городе $city.';
+  }
+
+  @override
+  String get boostBestTimeBasisNoCity =>
+      'По измеренной активности в вашем городе.';
+
+  @override
+  String get boostBestTimeNoData =>
+      'Пока недостаточно данных по вашему городу.';
+
+  @override
+  String get boostBestTimeLoadFailed => 'Не удалось загрузить лучшее время.';
+
+  @override
+  String get boostScheduleAction => 'Запланировать на это время';
+
+  @override
+  String get boostScheduleNote =>
+      'В это время будет использован один из ваших бустов, и вы получите уведомление о старте.';
+
+  @override
+  String boostScheduledFor(String moment) {
+    return 'Запланировано на $moment';
+  }
+
+  @override
+  String get boostScheduleCancel => 'Отменить запланированный запуск';
+
+  @override
+  String get boostScheduleCancelled => 'Запланированный запуск отменён.';
+
+  @override
+  String get boostScheduledDone => 'Буст запланирован.';
+
+  @override
+  String get boostScheduleAlready => 'Буст уже запланирован.';
+
+  @override
+  String get boostScheduleInvalidTime =>
+      'Это время больше недоступно: оно должно быть в ближайшие 7 дней.';
+
+  @override
+  String get boostScheduleFailed =>
+      'Не удалось запланировать буст. Попробуйте ещё раз.';
+
+  @override
+  String get boostScheduleCancelFailed =>
+      'Не удалось отменить запуск. Попробуйте ещё раз.';
+
+  @override
+  String get boostBestTimeTitle => 'Лучшее время';
+
+  @override
   String get chatListTitle => 'Сообщения';
 
   @override
@@ -269,7 +339,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String chatSeenAt(String time) {
-    return 'Просмотрено в $time';
+    return 'Прочитано в $time';
   }
 
   @override
@@ -477,6 +547,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chatErrorLoadFailed => 'Не удалось загрузить беседу.';
+
+  @override
+  String get readReceiptsTitle => 'Отправлять уведомления о прочтении';
+
+  @override
+  String get readReceiptsSubtitle =>
+      'Участники mazl+ видят, когда вы прочли их сообщение. Если выключить, не увидит никто.';
+
+  @override
+  String get readReceiptsLoadFailed =>
+      'Настройка сейчас недоступна. Нажмите, чтобы повторить.';
+
+  @override
+  String get readReceiptsSaveFailed =>
+      'Не удалось изменить настройку. Попробуйте ещё раз.';
 
   @override
   String get commonCancel => 'Отмена';
@@ -1245,6 +1330,162 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get passportTitle => 'Паспорт';
+
+  @override
+  String get passportHeadline => 'Откройте другой город';
+
+  @override
+  String get passportIntro =>
+      'Выберите город, чтобы увидеть его анкеты в разделе «Поиск», перед поездкой или алиёй. Город в вашем профиле не изменится; другие лишь увидят, что вы проездом.';
+
+  @override
+  String passportCurrent(String city) {
+    return 'Ваш паспорт: $city';
+  }
+
+  @override
+  String get passportInactive => 'Вы смотрите анкеты своего города.';
+
+  @override
+  String get passportBackHome => 'Вернуться в мой город';
+
+  @override
+  String get passportSearchLabel => 'Найти город';
+
+  @override
+  String get passportSearchNone => 'Город не найден.';
+
+  @override
+  String get passportSuggestedTitle => 'Рекомендуемые города';
+
+  @override
+  String get passportResultsTitle => 'Результаты';
+
+  @override
+  String get passportCityTelAviv => 'Тель-Авив';
+
+  @override
+  String get passportCityJerusalem => 'Иерусалим';
+
+  @override
+  String get passportCityNewYork => 'Нью-Йорк';
+
+  @override
+  String get passportCityLondon => 'Лондон';
+
+  @override
+  String get passportCityMontreal => 'Монреаль';
+
+  @override
+  String get passportCityParis => 'Париж';
+
+  @override
+  String get passportCityMarseille => 'Марсель';
+
+  @override
+  String get passportCityLyon => 'Лион';
+
+  @override
+  String get passportCityNice => 'Ницца';
+
+  @override
+  String get passportPlusOnly => 'Паспорт доступен подписчикам mazl+.';
+
+  @override
+  String get passportSeePlus => 'Узнать о mazl+';
+
+  @override
+  String get passportSaveFailed => 'Сейчас не удалось сменить город.';
+
+  @override
+  String get passportLoadFailed => 'Не удалось загрузить ваш паспорт.';
+
+  @override
+  String passportActivated(String city) {
+    return 'Теперь вы смотрите анкеты: $city.';
+  }
+
+  @override
+  String get passportDeactivated => 'Вы снова смотрите анкеты своего города.';
+
+  @override
+  String get plusPrivacyIncognitoTitle => 'Скрытный режим';
+
+  @override
+  String get plusPrivacyIncognitoSubtitle =>
+      'В разделе «Поиск» вас видят только те, кому вы поставили лайк.';
+
+  @override
+  String get plusPrivacyLocked => 'Для подписчиков mazl+';
+
+  @override
+  String get plusPrivacyLoading => 'Загрузка…';
+
+  @override
+  String get plusPrivacyLoadFailed =>
+      'Не удалось прочитать настройку. Нажмите, чтобы повторить.';
+
+  @override
+  String get plusPrivacySaveFailed =>
+      'Настройка не изменена. Повторите попытку.';
+
+  @override
+  String get superLikeNoteTitle => 'Добавить пару слов к суперлайку?';
+
+  @override
+  String get superLikeNoteBody =>
+      'Необязательно: человек прочитает это вместе с вашим суперлайком.';
+
+  @override
+  String get superLikeNoteHint => 'Ваше сообщение (не более 140 символов)';
+
+  @override
+  String superLikeNoteCounter(int count, int max) {
+    return '$count/$max';
+  }
+
+  @override
+  String get superLikeNoteSend => 'Отправить с этим сообщением';
+
+  @override
+  String get superLikeNoteSendWithout => 'Отправить без сообщения';
+
+  @override
+  String get superLikeNoteRefused =>
+      'Сообщение не принято (не более 140 символов, без ссылок и контактов). Суперлайк не отправлен.';
+
+  @override
+  String discoverCardTraveling(String city) {
+    return 'Проездом: $city';
+  }
+
+  @override
+  String get discoverCardSuperLiked => 'Вам отправили суперлайк';
+
+  @override
+  String discoverCardSuperLikeNote(String note) {
+    return '«$note»';
+  }
+
+  @override
+  String get discoverUndo => 'Отменить последний выбор';
+
+  @override
+  String get discoverUndoNothing => 'Сейчас нечего отменять.';
+
+  @override
+  String get discoverUndoNotPossible =>
+      'Этот выбор нельзя отменить (суперлайк, уже созданная пара или слишком давний выбор).';
+
+  @override
+  String get discoverUndoLimit =>
+      'Бесплатная отмена на сегодня использована. С mazl+ она без ограничений.';
+
+  @override
+  String get discoverUndoFailed => 'Сейчас не удалось отменить.';
+
+  @override
   String get duoTutorialWelcomeTitle => 'MAZL создан для Duo';
 
   @override
@@ -1494,6 +1735,26 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get eventsShareError => 'Сейчас не удаётся поделиться.';
+
+  @override
+  String eventsMemberPrice(String price) {
+    return 'Цена для участников: $price';
+  }
+
+  @override
+  String eventsMemberPricePlus(String price) {
+    return 'mazl+: $price';
+  }
+
+  @override
+  String eventsMemberPricePlusHint(String price) {
+    return 'С mazl+ это событие стоит $price. Посмотреть предложение.';
+  }
+
+  @override
+  String eventsPriceRegular(String price) {
+    return 'Обычная цена: $price';
+  }
 
   @override
   String get genreLookingForRequired => 'Укажите, кого Вы ищете';
@@ -1908,19 +2169,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String likesWaiting(int count, String label) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$label человека ждут Вашего ответа.',
-      many: '$label человек ждут Вашего ответа.',
-      few: '$label человека ждут Вашего ответа.',
-      one: '$label человек ждёт Вашего ответа.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get likesSeeWhoWithPlus => 'Узнать, кто Вас лайкнул, с mazl+';
 
   @override
@@ -1937,13 +2185,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get likesEmptyAction => 'Смотреть профили';
-
-  @override
-  String get likesPremiumBody =>
-      'Узнайте, кто Вас лайкнул, и сразу устройте мэтч с теми, кто Вам нравится.';
-
-  @override
-  String get likesPremiumOffers => 'Посмотреть тарифы';
 
   @override
   String likesCardOpen(String title) {
@@ -1969,6 +2210,64 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String likesDistance(int km) {
     return '$km км';
+  }
+
+  @override
+  String likesBlurredHeadline(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count человека Вас лайкнули',
+      many: '$count человек Вас лайкнули',
+      few: '$count человека Вас лайкнули',
+      one: '$count человек Вас лайкнул',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get likesAnonymousName => 'Кто-то';
+
+  @override
+  String likesBlurredLabel(String ago) {
+    return 'Кто-то Вас лайкнул, $ago';
+  }
+
+  @override
+  String get likesBlurredHint => 'Нажмите, чтобы узнать о mazl+';
+
+  @override
+  String get likesSuperLikeBadge => 'Суперлайк';
+
+  @override
+  String get likesAgoJustNow => 'Только что';
+
+  @override
+  String likesAgoMinutes(int count) {
+    return '$count мин назад';
+  }
+
+  @override
+  String likesAgoHours(int count) {
+    return '$count ч назад';
+  }
+
+  @override
+  String likesAgoDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дня назад',
+      many: '$count дней назад',
+      few: '$count дня назад',
+      one: '$count день назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String likesNoteLabel(String name) {
+    return 'Записка от $name';
   }
 
   @override
@@ -2750,6 +3049,38 @@ class AppLocalizationsRu extends AppLocalizations {
   String plusSettingsSemanticsUpgrade(String detail) {
     return 'Перейти на mazl+. $detail';
   }
+
+  @override
+  String get momentsThirdLikeTitle => 'Вас лайкнули несколько человек.';
+
+  @override
+  String get momentsThirdLikeBody =>
+      'С mazl+ Вы увидите, кто это, и сможете сразу ответить.';
+
+  @override
+  String get momentsUndoTitle => 'Одна отмена в день.';
+
+  @override
+  String get momentsUndoBody =>
+      'Сегодняшняя уже использована. С mazl+ можно отменять сколько угодно раз.';
+
+  @override
+  String get momentsPassportTitle => 'Паспорт доступен с mazl+.';
+
+  @override
+  String get momentsPassportBody =>
+      'Смотрите анкеты в другом городе перед поездкой или алией, не меняя город в своём профиле.';
+
+  @override
+  String get momentsFirstMatchTitle => 'Ваш первый мэтч.';
+
+  @override
+  String get momentsFirstMatchBody =>
+      'С mazl+ можно не считать лайки и каждый день выделяться суперлайками.';
+
+  @override
+  String get momentsPriceNote =>
+      'Цена показывается до любой покупки. Отменить можно в любой момент.';
 
   @override
   String get privacyGateUnverifiable =>

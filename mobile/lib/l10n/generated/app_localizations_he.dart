@@ -162,6 +162,72 @@ class AppLocalizationsHe extends AppLocalizations {
   String get boostUpsellBody => 'אפשר להשתמש בבוסט ללא הגבלה עם mazl+‎';
 
   @override
+  String boostMoment(String day, String hour) {
+    return '$day ב־$hour';
+  }
+
+  @override
+  String boostBestTimeLine(String moment) {
+    return 'הזמן הטוב ביותר: $moment';
+  }
+
+  @override
+  String boostBestTimeLineAfterShabbat(String moment) {
+    return 'הזמן הטוב ביותר: $moment, אחרי השבת';
+  }
+
+  @override
+  String boostBestTimeBasis(String city) {
+    return 'לפי הפעילות שנמדדה ב$city.';
+  }
+
+  @override
+  String get boostBestTimeBasisNoCity => 'לפי הפעילות שנמדדה בעיר שלכם.';
+
+  @override
+  String get boostBestTimeNoData => 'עדיין אין מספיק נתונים עבור העיר שלכם.';
+
+  @override
+  String get boostBestTimeLoadFailed => 'לא ניתן לטעון את הזמן הטוב ביותר.';
+
+  @override
+  String get boostScheduleAction => 'תזמון לזמן הזה';
+
+  @override
+  String get boostScheduleNote =>
+      'אחד מהבוסטים שלכם ינוצל באותו זמן, ותקבלו הודעה כשהוא יתחיל.';
+
+  @override
+  String boostScheduledFor(String moment) {
+    return 'מתוזמן ל$moment';
+  }
+
+  @override
+  String get boostScheduleCancel => 'ביטול התזמון';
+
+  @override
+  String get boostScheduleCancelled => 'התזמון בוטל.';
+
+  @override
+  String get boostScheduledDone => 'הבוסט תוזמן.';
+
+  @override
+  String get boostScheduleAlready => 'כבר יש בוסט מתוזמן.';
+
+  @override
+  String get boostScheduleInvalidTime =>
+      'הזמן הזה כבר לא אפשרי: הוא חייב להיות בשבעת הימים הקרובים.';
+
+  @override
+  String get boostScheduleFailed => 'לא ניתן לתזמן את הבוסט. נסו שוב.';
+
+  @override
+  String get boostScheduleCancelFailed => 'לא ניתן לבטל את התזמון. נסו שוב.';
+
+  @override
+  String get boostBestTimeTitle => 'הזמן הטוב ביותר';
+
+  @override
   String get chatListTitle => 'הודעות';
 
   @override
@@ -469,6 +535,20 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get chatErrorLoadFailed => 'לא ניתן לטעון את השיחה.';
+
+  @override
+  String get readReceiptsTitle => 'שליחת אישורי קריאה';
+
+  @override
+  String get readReceiptsSubtitle =>
+      'חברי mazl+‎ רואים מתי קראתם את ההודעה שלהם. כשההגדרה כבויה, אף אחד לא רואה.';
+
+  @override
+  String get readReceiptsLoadFailed =>
+      'ההגדרה אינה זמינה כרגע. הקישו כדי לנסות שוב.';
+
+  @override
+  String get readReceiptsSaveFailed => 'לא ניתן לשנות את ההגדרה. נסו שוב.';
 
   @override
   String get commonCancel => 'ביטול';
@@ -1219,6 +1299,161 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get passportTitle => 'דרכון';
+
+  @override
+  String get passportHeadline => 'גלו עיר אחרת';
+
+  @override
+  String get passportIntro =>
+      'בחרו עיר כדי לראות את הפרופילים שלה בגילוי, לפני טיול או עלייה. העיר בפרופיל שלכם לא משתנה; אחרים רק רואים שאתם בביקור.';
+
+  @override
+  String passportCurrent(String city) {
+    return 'הדרכון שלכם: $city';
+  }
+
+  @override
+  String get passportInactive => 'אתם מגלים את העיר שלכם.';
+
+  @override
+  String get passportBackHome => 'חזרה לעיר שלי';
+
+  @override
+  String get passportSearchLabel => 'חיפוש עיר';
+
+  @override
+  String get passportSearchNone => 'לא נמצאה עיר.';
+
+  @override
+  String get passportSuggestedTitle => 'ערים מומלצות';
+
+  @override
+  String get passportResultsTitle => 'תוצאות';
+
+  @override
+  String get passportCityTelAviv => 'תל אביב';
+
+  @override
+  String get passportCityJerusalem => 'ירושלים';
+
+  @override
+  String get passportCityNewYork => 'ניו יורק';
+
+  @override
+  String get passportCityLondon => 'לונדון';
+
+  @override
+  String get passportCityMontreal => 'מונטריאול';
+
+  @override
+  String get passportCityParis => 'פריז';
+
+  @override
+  String get passportCityMarseille => 'מרסיי';
+
+  @override
+  String get passportCityLyon => 'ליון';
+
+  @override
+  String get passportCityNice => 'ניס';
+
+  @override
+  String get passportPlusOnly => 'הדרכון זמין למנויי mazl+.';
+
+  @override
+  String get passportSeePlus => 'גלו את mazl+';
+
+  @override
+  String get passportSaveFailed => 'לא ניתן להחליף עיר כרגע.';
+
+  @override
+  String get passportLoadFailed => 'לא ניתן לטעון את הדרכון.';
+
+  @override
+  String passportActivated(String city) {
+    return 'עכשיו אתם מגלים את $city.';
+  }
+
+  @override
+  String get passportDeactivated => 'אתם שוב מגלים את העיר שלכם.';
+
+  @override
+  String get plusPrivacyIncognitoTitle => 'מצב דיסקרטי';
+
+  @override
+  String get plusPrivacyIncognitoSubtitle =>
+      'רק אנשים שסימנתם בלייק יכולים לראות אתכם בגילוי.';
+
+  @override
+  String get plusPrivacyLocked => 'למנויי mazl+ בלבד';
+
+  @override
+  String get plusPrivacyLoading => 'טוען…';
+
+  @override
+  String get plusPrivacyLoadFailed =>
+      'לא ניתן לקרוא את ההגדרה. הקישו כדי לנסות שוב.';
+
+  @override
+  String get plusPrivacySaveFailed => 'ההגדרה לא שונתה. נסו שוב.';
+
+  @override
+  String get superLikeNoteTitle => 'להוסיף כמה מילים לסופר לייק?';
+
+  @override
+  String get superLikeNoteBody =>
+      'אופציונלי: האדם יקרא זאת יחד עם הסופר לייק שלכם.';
+
+  @override
+  String get superLikeNoteHint => 'המילים שלכם (עד 140 תווים)';
+
+  @override
+  String superLikeNoteCounter(int count, int max) {
+    return '$count/$max';
+  }
+
+  @override
+  String get superLikeNoteSend => 'שליחה עם ההודעה';
+
+  @override
+  String get superLikeNoteSendWithout => 'שליחה בלי הודעה';
+
+  @override
+  String get superLikeNoteRefused =>
+      'ההודעה לא התקבלה (עד 140 תווים, בלי קישורים או פרטי קשר). הסופר לייק לא נשלח.';
+
+  @override
+  String discoverCardTraveling(String city) {
+    return 'בביקור ב$city';
+  }
+
+  @override
+  String get discoverCardSuperLiked => 'סופר לייק בשבילכם';
+
+  @override
+  String discoverCardSuperLikeNote(String note) {
+    return '“$note”';
+  }
+
+  @override
+  String get discoverUndo => 'ביטול הבחירה האחרונה';
+
+  @override
+  String get discoverUndoNothing => 'אין מה לבטל כרגע.';
+
+  @override
+  String get discoverUndoNotPossible =>
+      'אי אפשר לבטל את הבחירה הזו (סופר לייק, התאמה שכבר נוצרה, או בחירה ישנה מדי).';
+
+  @override
+  String get discoverUndoLimit =>
+      'ניצלתם את הביטול החינמי של היום. עם mazl+ הוא ללא הגבלה.';
+
+  @override
+  String get discoverUndoFailed => 'לא ניתן לבטל כרגע.';
+
+  @override
   String get duoTutorialWelcomeTitle => 'MAZL בנוי בשביל ה־Duo';
 
   @override
@@ -1469,6 +1704,26 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get eventsShareError => 'לא ניתן לשתף כרגע.';
+
+  @override
+  String eventsMemberPrice(String price) {
+    return 'מחיר לחברים: $price';
+  }
+
+  @override
+  String eventsMemberPricePlus(String price) {
+    return 'mazl+‎: $price';
+  }
+
+  @override
+  String eventsMemberPricePlusHint(String price) {
+    return 'עם mazl+‎ האירוע עולה $price. לצפייה בהצעה.';
+  }
+
+  @override
+  String eventsPriceRegular(String price) {
+    return 'מחיר רגיל: $price';
+  }
 
   @override
   String get genreLookingForRequired => 'יש לבחור את מי מחפשים';
@@ -1875,18 +2130,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String likesWaiting(int count, String label) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$label אנשים ממתינים לתשובה שלך.',
-      two: 'שני אנשים ממתינים לתשובה שלך.',
-      one: 'אדם אחד ממתין לתשובה שלך.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get likesSeeWhoWithPlus => 'לראות מי אהב אותך עם mazl+‎';
 
   @override
@@ -1903,13 +2146,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get likesEmptyAction => 'לגלות פרופילים';
-
-  @override
-  String get likesPremiumBody =>
-      'אפשר לגלות מי אהב אותך וליצור מאץ\' מיד עם מי שמוצא חן בעיניך.';
-
-  @override
-  String get likesPremiumOffers => 'לצפייה במסלולים';
 
   @override
   String likesCardOpen(String title) {
@@ -1935,6 +2171,62 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String likesDistance(int km) {
     return '$km ק״מ';
+  }
+
+  @override
+  String likesBlurredHeadline(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count אנשים אהבו אותך',
+      two: 'שני אנשים אהבו אותך',
+      one: 'אדם אחד אהב אותך',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get likesAnonymousName => 'מישהו';
+
+  @override
+  String likesBlurredLabel(String ago) {
+    return 'מישהו אהב אותך, $ago';
+  }
+
+  @override
+  String get likesBlurredHint => 'אפשר ללחוץ כדי לגלות את mazl+‎';
+
+  @override
+  String get likesSuperLikeBadge => 'סופר לייק';
+
+  @override
+  String get likesAgoJustNow => 'הרגע';
+
+  @override
+  String likesAgoMinutes(int count) {
+    return 'לפני $count דק׳';
+  }
+
+  @override
+  String likesAgoHours(int count) {
+    return 'לפני $count שע׳';
+  }
+
+  @override
+  String likesAgoDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'לפני $count ימים',
+      two: 'לפני יומיים',
+      one: 'לפני יום',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String likesNoteLabel(String name) {
+    return 'הודעה מ$name';
   }
 
   @override
@@ -2704,6 +2996,37 @@ class AppLocalizationsHe extends AppLocalizations {
   String plusSettingsSemanticsUpgrade(String detail) {
     return 'לשדרג ל-mazl+‎. $detail';
   }
+
+  @override
+  String get momentsThirdLikeTitle => 'כמה אנשים כבר אהבו אותך.';
+
+  @override
+  String get momentsThirdLikeBody =>
+      'עם mazl+‎ אפשר לראות מי הם ולענות להם מיד.';
+
+  @override
+  String get momentsUndoTitle => 'ביטול אחד ביום.';
+
+  @override
+  String get momentsUndoBody =>
+      'כבר ניצלת את זה של היום. עם mazl+‎ אפשר לבטל כמה פעמים שרוצים.';
+
+  @override
+  String get momentsPassportTitle => 'הדרכון שמור ל-mazl+‎';
+
+  @override
+  String get momentsPassportBody =>
+      'אפשר לגלות פרופילים בעיר אחרת לפני טיול או עלייה, בלי לשנות את העיר שמוצגת בפרופיל.';
+
+  @override
+  String get momentsFirstMatchTitle => 'המאץ\' הראשון שלך.';
+
+  @override
+  String get momentsFirstMatchBody =>
+      'עם mazl+‎ אפשר להפסיק לספור לייקים ולבלוט עם סופר לייקים בכל יום.';
+
+  @override
+  String get momentsPriceNote => 'המחיר מוצג לפני כל רכישה. אפשר לבטל בכל עת.';
 
   @override
   String get privacyGateUnverifiable =>
