@@ -59,7 +59,7 @@ export const COUPLE_ACTIVITY_FIXTURES: readonly CoupleActivityFixture[] = [
     description: "Une parenthèse à deux : bain bouillonnant, hammam puis massage relaxant côte à côte. Peignoirs et tisane fournis.",
     city: "Paris", location: "Spa du Passage, Paris 9e", latitude: 48.8772, longitude: 2.3376,
     priceCents: 16000, durationMinutes: 120, isKosher: false, tags: ["spa", "duo", "détente", "massage"],
-    imageUrl: "https://images.unsplash.com/photo-1779103281097-ec2d0408f5fe?w=1600&q=80&auto=format&fit=crop",
+    imageUrl: "https://images.unsplash.com/photo-1620733723572-11c53f73a416?w=1600&q=80&auto=format&fit=crop",
   },
   // Photo: https://unsplash.com/photos/46B9jBPhoUo by Tómas Rekstad (Unsplash License).
   {
@@ -186,7 +186,7 @@ export const COUPLE_EVENT_FIXTURES: readonly CoupleEventFixture[] = [
     city: "Nice", location: "Nice, quartier Libération", latitude: 43.7058, longitude: 7.265,
     priceCents: 2800, maxCouples: 16, isKosher: true, whatIncluded: "Brunch, boissons chaudes et jus pressés",
     isFeatured: false, weeksAhead: 4, weekday: SUNDAY, time: "11:00", endTime: "14:00",
-    imageUrl: "https://images.unsplash.com/photo-1782177261793-823b94aa0555?w=1600&q=80&auto=format&fit=crop",
+    imageUrl: "https://images.unsplash.com/photo-1624462965565-9b3682640389?w=1600&q=80&auto=format&fit=crop",
   },
   // Photo: https://unsplash.com/photos/_VyvWmlvxH0 by Joao Vitor Marcilio (Unsplash License).
   {
