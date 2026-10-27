@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 import pathops
@@ -25,7 +26,13 @@ from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 from PIL import Image, ImageChops, ImageDraw
 
+import glyph_shapes
+
 MOBILE = Path(__file__).resolve().parents[2]
+REPO = MOBILE.parent
+THEMES_JSON = REPO / "docs/storefront/themes.json"
+ASSETS = MOBILE / "ios/Runner/Assets.xcassets"
+GLYPH_DIRS = (MOBILE / "assets/storefront/glyphs", REPO / "console/src/storefront/glyphs")
 FONT = MOBILE / "assets/fonts/Geist-700.ttf"
 GRID = 1024
 FONT_SIZE = 620
@@ -35,6 +42,18 @@ BASELINE = 690
 DOT_CENTRE = (812, 638)
 DOT_RADIUS = 62
 SUPERSAMPLE = 4
+
+# Seasonal glyph: replaces the dot, bottom on the dot's bottom edge (the
+# baseline plus its overshoot), horizontally on the dot's axis. One 24-box unit
+# is GLYPH_UNIT px, so a glyph fits the circle of about r = 70 around the dot.
+GLYPH_UNIT = 6.6
+GLYPH_BOTTOM = DOT_CENTRE[1] + DOT_RADIUS
+# Optical balance: thin or open glyphs carry less weight than the dot and get
+# a larger unit; compact solid ones stay close to the dot's footprint.
+GLYPH_UNITS = {
+    "heart": 7.4, "two_hearts": 8.0, "pomegranate": 7.4, "flame": 7.4, "fir": 7.0, "sparkle": 8.6,
+    "mask": 8.0, "matzah": 6.8, "flower": 7.4, "sun": 8.0, "bolt": 8.2,
+}
 
 INK = "#0B0B0F"
 WHITE = "#FFFFFF"
@@ -290,6 +309,77 @@ BACKGROUND_COLOUR_XML = (
     "</resources>\n"
 )
 
+def _mix(colour: str, other: str, amount: float) -> str:
+    mixed = (round(a + (b - a) * amount) for a, b in zip(_hex(colour), _hex(other)))
+    return "#" + "".join(f"{c:02X}" for c in mixed)
+
+
+def theme_palettes(accent: str, theme_id: str) -> tuple[Palette, Palette, Palette]:
+    """(light, dark, tinted) palettes of a theme: the glyph takes the accent.
+
+    Dark lifts the accent toward white, as TEKHELET_DARK does for the default.
+    black_friday is the one exception: white ground, ink « m », ink glyph; its
+    dark variant is the ink ground with white letter and glyph.
+    """
+    if theme_id == "black_friday":
+        return Palette(WHITE, INK, INK), Palette(INK, WHITE, WHITE), TINTED
+    return Palette(INK, WHITE, accent), Palette(INK, WHITE, _mix(accent, WHITE, 0.18)), TINTED
+
+
+@lru_cache(maxsize=1)
+def _letter_mask() -> Image.Image:
+    return _motif_mask(GRID, lambda p: p, DOT_RADIUS)[0]
+
+
+def _glyph_mask(glyph: str, size: int) -> Image.Image:
+    big = size * SUPERSAMPLE
+    ratio = big / GRID
+    unit = GLYPH_UNITS.get(glyph, GLYPH_UNIT)
+    top = GLYPH_BOTTOM - glyph_shapes.height(glyph) * unit
+
+    def place(p: Point) -> Point:
+        return (
+            (DOT_CENTRE[0] + (p[0] - glyph_shapes.BOX / 2) * unit) * ratio,
+            (top + (p[1] - (glyph_shapes.BOX - glyph_shapes.height(glyph)) / 2) * unit) * ratio,
+        )
+
+    mask = Image.new("1", (big, big), 0)
+    for contour in glyph_shapes.contours(glyph, place):
+        layer = Image.new("1", (big, big), 0)
+        ImageDraw.Draw(layer).polygon(contour, fill=1)
+        mask = ImageChops.logical_xor(mask, layer)
+    return mask.convert("L").resize((size, size), Image.Resampling.LANCZOS)
+
+
+def render_themed_square(glyph: str, palette: Palette, size: int = GRID) -> Image.Image:
+    """The « m » with the seasonal glyph where the dot sits."""
+    image = Image.new("RGB", (size, size), _hex(palette.background))
+    letter = _letter_mask() if size == GRID else _motif_mask(size, lambda p: p, DOT_RADIUS)[0]
+    image.paste(_hex(palette.letter), (0, 0), letter)
+    image.paste(_hex(palette.dot), (0, 0), _glyph_mask(glyph, size))
+    return image
+
+
+def load_themes() -> list[dict[str, object]]:
+    return json.loads(THEMES_JSON.read_text())["themes"]
+
+
+def write_theme_icons() -> None:
+    for theme in load_themes():
+        theme_id, glyph, accent = str(theme["id"]), str(theme["glyph"]), str(theme["accent"])
+        folder = ASSETS / f"AppIcon-{theme_id}.appiconset"
+        folder.mkdir(exist_ok=True)
+        for old in folder.glob("*.png"):
+            old.unlink()
+        for (filename, _), palette in zip(IOS_ICONS.items(), theme_palettes(accent, theme_id)):
+            render_themed_square(glyph, palette).save(folder / filename.replace("AppIcon", f"AppIcon-{theme_id}"), optimize=True)
+        (folder / "Contents.json").write_text(ios_contents_json(f"AppIcon-{theme_id}"))
+    for target in GLYPH_DIRS:
+        target.mkdir(parents=True, exist_ok=True)
+        for glyph in {str(t["glyph"]) for t in load_themes()}:
+            (target / f"{glyph}.svg").write_text(glyph_shapes.svg(glyph))
+
+
 IOS_ICONS = {
     "AppIcon-1024.png": DEFAULT,
     "AppIcon-1024-dark.png": DARK,
@@ -299,7 +389,7 @@ IOS_ICONS = {
 LEGACY_DENSITIES = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
 
 
-def ios_contents_json() -> str:
+def ios_contents_json(prefix: str = "AppIcon") -> str:
     def entry(filename: str, appearance: str | None) -> dict[str, object]:
         item: dict[str, object] = {"filename": filename, "idiom": "universal", "platform": "ios", "size": "1024x1024"}
         if appearance is not None:
@@ -308,9 +398,9 @@ def ios_contents_json() -> str:
 
     contents = {
         "images": [
-            entry("AppIcon-1024.png", None),
-            entry("AppIcon-1024-dark.png", "dark"),
-            entry("AppIcon-1024-tinted.png", "tinted"),
+            entry(f"{prefix}-1024.png", None),
+            entry(f"{prefix}-1024-dark.png", "dark"),
+            entry(f"{prefix}-1024-tinted.png", "tinted"),
         ],
         "info": {"author": "xcode", "version": 1},
     }
@@ -339,6 +429,7 @@ def main() -> None:
         folder = res / f"mipmap-{density}"
         render_legacy_android(size, round_shape=False).save(folder / "ic_launcher.png", optimize=True)
         render_legacy_android(size, round_shape=True).save(folder / "ic_launcher_round.png", optimize=True)
+    write_theme_icons()
 
 
 if __name__ == "__main__":
