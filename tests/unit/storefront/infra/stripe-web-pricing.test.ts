@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import Stripe from "stripe";
 import { createWebPricing, StripeWebPricing, WebPricingError } from "../../../../src/features/storefront/infra/stripe";
+import { stripeProductName } from "../../../../src/features/storefront/infra/stripe/stripe-web-pricing";
 
 // A fake Stripe API behind the real SDK: it answers only the exact method + path + query/form body
 // it was told about, so the test checks what really goes on the wire (Stripe's documented parameters).
@@ -78,7 +79,7 @@ describe("createPrice", () => {
   test("creates the product when none carries the metadata, and a one-time price for a credit pack", async () => {
     const { pricing, unexpected } = fakeStripe([
       { ...listProducts, body: products([]) },
-      { method: "POST", path: "/v1/products", params: { name: "com.mazl.app.boost.1", "metadata[productId]": "com.mazl.app.boost.1" }, body: { id: "prod_boost", object: "product", metadata: {} } },
+      { method: "POST", path: "/v1/products", params: { name: "1 Boost", "metadata[productId]": "com.mazl.app.boost.1" }, body: { id: "prod_boost", object: "product", metadata: {} } },
       { method: "POST", path: "/v1/prices", params: { product: "prod_boost", unit_amount: "799", currency: "eur", "metadata[productId]": "com.mazl.app.boost.1" }, body: price({ id: "price_boost", unit_amount: 799, recurring: null }) },
     ]);
     expect((await pricing.createPrice("com.mazl.app.boost.1", 799, "eur", null)).amountCents).toBe(799);
@@ -167,5 +168,17 @@ describe("configuration", () => {
   test("builds an adapter from a test key and refuses something that is not a Stripe key", () => {
     expect(createWebPricing({ STRIPE_SECRET_KEY: "sk_test_abc123" })).not.toBeNull();
     expect(() => createWebPricing({ STRIPE_SECRET_KEY: "hunter2" })).toThrow(WebPricingError);
+  });
+});
+
+describe("stripeProductName", () => {
+  // A product created from the back-office shows its name on Stripe's checkout:
+  // the customer reads « mazl+ 3 mois », never « com.mazl.app.plus.3m ».
+  test("reads like the App Store names", () => {
+    expect(stripeProductName("com.mazl.app.plus.3m")).toBe("mazl+ 3 mois");
+    expect(stripeProductName("com.mazl.app.plus.12m")).toBe("mazl+ 12 mois");
+    expect(stripeProductName("com.mazl.app.boost.1")).toBe("1 Boost");
+    expect(stripeProductName("com.mazl.app.boost.3")).toBe("3 Boosts");
+    expect(stripeProductName("com.mazl.app.superlikes.15")).toBe("15 Super Likes");
   });
 });

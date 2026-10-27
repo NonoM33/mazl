@@ -70,7 +70,7 @@ export class StripeWebPricing implements WebPricing {
     for await (const product of this.stripe.products.list({ active: true, limit: 100 })) {
       if (product.metadata[PRODUCT_METADATA_KEY] === productId) return product.id;
     }
-    const created = await this.stripe.products.create({ name: productId, metadata: { [PRODUCT_METADATA_KEY]: productId } });
+    const created = await this.stripe.products.create({ name: stripeProductName(productId), metadata: { [PRODUCT_METADATA_KEY]: productId } });
     return created.id;
   }
 
@@ -86,4 +86,13 @@ export class StripeWebPricing implements WebPricing {
 function toWebPrice(price: Stripe.Price): WebPrice {
   if (price.unit_amount === null) throw new WebPricingError(`Stripe price ${price.id} has no unit_amount (tiered or custom price)`);
   return { priceId: price.id, amountCents: price.unit_amount, currency: price.currency.toUpperCase() };
+}
+
+// The name the customer reads on Stripe's checkout and receipts, never the technical id.
+export function stripeProductName(productId: string): string {
+  const plus = /^com\.mazl\.app\.plus\.(\d+)m$/.exec(productId);
+  if (plus) return `mazl+ ${plus[1]} mois`;
+  const pack = /^com\.mazl\.app\.(boost|superlikes)\.(\d+)$/.exec(productId);
+  if (pack) return pack[1] === "boost" ? `${pack[2]} Boost${pack[2] === "1" ? "" : "s"}` : `${pack[2]} Super Likes`;
+  return "mazl";
 }

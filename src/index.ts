@@ -112,6 +112,8 @@ import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./f
 import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
 import { createCheckoutOverrides } from "./features/storefront/storefront.module";
 import { appStoreNotConfigured, webPricingNotConfigured } from "./features/storefront/infra/not-configured";
+import { createAppStorePricing } from "./features/storefront/infra/app-store-connect";
+import { createWebPricing } from "./features/storefront/infra/stripe";
 import { createBillingWeb, ensureBillingWebSchema, registerBillingWeb, withStripeCancellation } from "./features/billing-web/billing-web.module";
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
@@ -370,10 +372,11 @@ const backoffice = createBackoffice({
   sql,
   env: process.env,
   closeConnections: (userId) => closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled"),
-  // Offers and campaigns (src/features/storefront): until the App Store Connect and Stripe adapters
-  // are wired here, writing a price or publishing a campaign answers "store_not_configured".
-  appStore: appStoreNotConfigured,
-  webPricing: webPricingNotConfigured,
+  // Offers and campaigns (src/features/storefront): without ASC_KEY_ID / ASC_ISSUER_ID /
+  // ASC_PRIVATE_KEY (or STRIPE_SECRET_KEY), writing a price or publishing a campaign answers
+  // "store_not_configured".
+  appStore: createAppStorePricing(process.env) ?? appStoreNotConfigured,
+  webPricing: createWebPricing(process.env) ?? webPricingNotConfigured,
 });
 backoffice.register(app);
 
