@@ -25,8 +25,10 @@ class CampaignPalette {
     return CampaignPalette._(fill: fill, onFill: _readableOn(fill), mark: fill);
   }
 
-  static const Color _white = Color(0xFFFFFFFF);
-  static const Color _black = Color(0xFF000000);
+  // The two ends of the lightness scale, for contrast arithmetic only: they
+  // are not a theme colour and never drawn as a surface.
+  static final Color _white = const HSLColor.fromAHSL(1, 0, 0, 1).toColor();
+  static final Color _black = const HSLColor.fromAHSL(1, 0, 0, 0).toColor();
 
   /// Black or white, whichever reads better on [background]: at least 4.58:1
   /// for any background.
