@@ -358,12 +358,13 @@ final List<DuoScreen> duoScreens = [
     session: DuoSession.couple,
     primary: () => _action('Répondre'),
   ),
-  const DuoScreen(
+  DuoScreen(
     id: '/couple/agenda',
     feature: 'couple',
     file: 'couple/screens/couple_agenda_screen.dart',
     path: '/couple/agenda',
     session: DuoSession.couple,
+    primary: () => _action('Ajouter un moment'),
   ),
   const DuoScreen(
     id: '/couple/outings',

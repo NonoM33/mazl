@@ -1,0 +1,260 @@
+{
+  "coupleAgendaTitle": "Agenda à deux",
+  "@coupleAgendaTitle": {
+    "description": "Gros titre de l'onglet Agenda de l'espace couple, sous le mois."
+  },
+  "coupleAgendaLegendDate": "Date importante",
+  "@coupleAgendaLegendDate": {
+    "description": "Légende de la grille du mois : point plein = date importante du couple. Court, une ligne."
+  },
+  "coupleAgendaLegendHoliday": "Fête",
+  "@coupleAgendaLegendHoliday": {
+    "description": "Légende de la grille du mois : point en anneau = fête juive. Court, une ligne."
+  },
+  "coupleAgendaLegendRitual": "Rituel",
+  "@coupleAgendaLegendRitual": {
+    "description": "Légende de la grille du mois : point d'encre = jour d'un rituel activé. Court, une ligne."
+  },
+  "coupleAgendaAddMoment": "Ajouter un moment",
+  "@coupleAgendaAddMoment": {
+    "description": "Bouton principal de l'agenda du couple : ajoute une date importante (anniversaire, rencontre...)."
+  },
+  "coupleAgendaNothing": "Rien ce jour-là",
+  "@coupleAgendaNothing": {
+    "description": "Sous la grille : le jour touché ne contient rien (ni date, ni fête, ni rituel)."
+  },
+  "coupleAgendaRitualsLabel": "Vos rituels",
+  "@coupleAgendaRitualsLabel": {
+    "description": "Titre de section (en capitales) : la liste des rituels du couple avec leur interrupteur."
+  },
+  "coupleAgendaDatesLabel": "Dates importantes",
+  "@coupleAgendaDatesLabel": {
+    "description": "Titre de section (en capitales) : les dates importantes du couple (anniversaires...)."
+  },
+  "coupleAgendaRitualsEmptyTitle": "Pas encore de rituel",
+  "@coupleAgendaRitualsEmptyTitle": {
+    "description": "Aucun rituel n'existe encore pour ce couple."
+  },
+  "coupleAgendaRitualsEmptyLine": "Un rendez-vous régulier à deux, comme Shabbat ou une soirée sans écran.",
+  "@coupleAgendaRitualsEmptyLine": {
+    "description": "Explique ce qu'est un rituel de couple, sous « Pas encore de rituel »."
+  },
+  "coupleAgendaAddRitual": "Ajouter un rituel",
+  "@coupleAgendaAddRitual": {
+    "description": "Bouton : ouvre le formulaire de création d'un rituel."
+  },
+  "coupleAgendaRitualsFailed": "Rituels indisponibles. {reason}",
+  "@coupleAgendaRitualsFailed": {
+    "description": "Les rituels n'ont pas pu être chargés (les dates, elles, ont pu l'être). {reason} est la cause, déjà rédigée.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaDatesFailed": "Dates indisponibles. {reason}",
+  "@coupleAgendaDatesFailed": {
+    "description": "Les dates importantes n'ont pas pu être chargées (les rituels, eux, ont pu l'être). {reason} est la cause, déjà rédigée.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaWeekly": "{day, select, sun{Chaque dimanche} mon{Chaque lundi} tue{Chaque mardi} wed{Chaque mercredi} thu{Chaque jeudi} fri{Chaque vendredi} sat{Chaque samedi} other{Chaque semaine}}",
+  "@coupleAgendaWeekly": {
+    "description": "Début de la ligne d'un rituel hebdomadaire. {day} vaut sun, mon, tue, wed, thu, fri ou sat. Écrire l'accord de chaque jour (russe : un/une).",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaNoDay": "Sans jour fixe",
+  "@coupleAgendaNoDay": {
+    "description": "Début de la ligne d'un rituel sans jour de la semaine fixé."
+  },
+  "coupleAgendaAtTime": "{when} à {time}",
+  "@coupleAgendaAtTime": {
+    "description": "Ajoute l'heure à la ligne d'un rituel : {when} = « Chaque mardi », {time} = l'heure déjà mise en forme (20:00).",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaRemindHours": "rappel {count, plural, =1{une heure} other{{count} heures}} avant",
+  "@coupleAgendaRemindHours": {
+    "description": "Rappel du rituel, en heures entières (le rappel est un push réservé à MAZL Couple).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaRemindMinutes": "rappel {count, plural, one{{count} minute} other{{count} minutes}} avant",
+  "@coupleAgendaRemindMinutes": {
+    "description": "Rappel du rituel, en minutes (moins d'une heure ou pas un nombre entier d'heures).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaRemindHoursCandles": "rappel {count, plural, =1{une heure} other{{count} heures}} avant les bougies",
+  "@coupleAgendaRemindHoursCandles": {
+    "description": "Rappel de Shabbat, en heures entières, avant l'allumage des bougies.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaRemindMinutesCandles": "rappel {count, plural, one{{count} minute} other{{count} minutes}} avant les bougies",
+  "@coupleAgendaRemindMinutesCandles": {
+    "description": "Rappel de Shabbat, en minutes, avant l'allumage des bougies.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaNoReminder": "sans rappel",
+  "@coupleAgendaNoReminder": {
+    "description": "Fin de la ligne d'un rituel dont le rappel est à zéro minute."
+  },
+  "coupleAgendaRitualMeta": "{when} · {reminder}",
+  "@coupleAgendaRitualMeta": {
+    "description": "Ligne de précision d'un rituel : {when} (Chaque vendredi) puis {reminder} (rappel une heure avant les bougies).",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "reminder": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaRitualSemantics": "{title}, {meta}",
+  "@coupleAgendaRitualSemantics": {
+    "description": "Lecteur d'écran : nom d'un rituel suivi de sa ligne de précision, sur l'interrupteur.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaToggleFailed": "Modification impossible. {reason}",
+  "@coupleAgendaToggleFailed": {
+    "description": "Message flottant : l'interrupteur d'un rituel n'a pas pu être changé (il revient à son état). {reason} est la cause.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaRemindersPremium": "Les rappels font partie de MAZL Couple",
+  "@coupleAgendaRemindersPremium": {
+    "description": "Ligne discrète sous les rituels : les rappels (push) sont réservés à l'abonnement MAZL Couple ; touchée, elle ouvre la page d'abonnement."
+  },
+  "coupleAgendaDatesEmptyTitle": "Aucune date importante",
+  "@coupleAgendaDatesEmptyTitle": {
+    "description": "Aucune date importante n'est enregistrée pour ce couple."
+  },
+  "coupleAgendaDatesEmptyLine": "Ajoutez un anniversaire ou une date qui compte avec « Ajouter un moment ».",
+  "@coupleAgendaDatesEmptyLine": {
+    "description": "Invite à ajouter une date, sous « Aucune date importante ». Cite le bouton « Ajouter un moment »."
+  },
+  "coupleAgendaDateWhen": "{date} · {relative}",
+  "@coupleAgendaDateWhen": {
+    "description": "Ligne sous le titre d'une date importante : {date} (9 novembre) puis {relative} (dans 12 jours).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "relative": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaDaysUntil": "{count, plural, =0{aujourd'hui} =1{demain} other{dans {count} jours}}",
+  "@coupleAgendaDaysUntil": {
+    "description": "Délai avant la prochaine occurrence d'une date importante.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaDateReminder": "Rappel {count, plural, one{{count} jour} other{{count} jours}} avant",
+  "@coupleAgendaDateReminder": {
+    "description": "Rappel d'une date importante, en jours avant la date (push réservé à MAZL Couple).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaDateTitle": "{title} · {date}",
+  "@coupleAgendaDateTitle": {
+    "description": "Titre de la carte de la date la plus proche : {title} (Un an de votre rencontre) puis {date} (9 novembre).",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaConciergeLine": "La conciergerie peut vous aider à préparer ce moment.",
+  "@coupleAgendaConciergeLine": {
+    "description": "Phrase de la carte de la date la plus proche, avant le bouton vers la conciergerie."
+  },
+  "coupleAgendaPrepare": "Préparer avec la conciergerie",
+  "@coupleAgendaPrepare": {
+    "description": "Bouton contour de la carte de la date la plus proche : ouvre la conciergerie."
+  },
+  "coupleAgendaAddRitualTitle": "Nouveau rituel",
+  "@coupleAgendaAddRitualTitle": {
+    "description": "Titre du formulaire de création d'un rituel."
+  },
+  "coupleAgendaRitualFieldTitle": "Nom du rituel",
+  "@coupleAgendaRitualFieldTitle": {
+    "description": "Champ du formulaire d'un rituel : son nom."
+  },
+  "coupleAgendaRitualFieldDay": "Jour de la semaine",
+  "@coupleAgendaRitualFieldDay": {
+    "description": "Intitulé du choix du jour de la semaine, dans le formulaire d'un rituel."
+  },
+  "coupleAgendaRitualFieldTime": "Heure (facultatif)",
+  "@coupleAgendaRitualFieldTime": {
+    "description": "Intitulé du choix facultatif de l'heure, dans le formulaire d'un rituel."
+  },
+  "coupleAgendaRitualPickTime": "Choisir une heure",
+  "@coupleAgendaRitualPickTime": {
+    "description": "Bouton du formulaire d'un rituel : choisir une heure (aucune heure choisie)."
+  },
+  "coupleAgendaRitualClearTime": "Retirer l'heure",
+  "@coupleAgendaRitualClearTime": {
+    "description": "Bouton du formulaire d'un rituel : retirer l'heure choisie."
+  },
+  "coupleAgendaDaySemantics": "{date}, {marks}",
+  "@coupleAgendaDaySemantics": {
+    "description": "Lecteur d'écran : un jour de la grille. {date} (6 novembre) puis {marks} : ce qu'il contient, déjà rédigé (Rituel).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "marks": {
+        "type": "String"
+      }
+    }
+  }
+}
