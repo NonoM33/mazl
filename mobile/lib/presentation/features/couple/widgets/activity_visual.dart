@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/images/mazl_network_image.dart';
 
 /// Icône Lucide d'une catégorie d'activité : jamais d'émoji.
 IconData activityCategoryIcon(String category) => switch (category) {
@@ -42,11 +42,10 @@ class ActivityVisual extends StatelessWidget {
     );
     final url = activity.imageUrl;
     if (url == null || url.isEmpty) return fallback;
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-      placeholder: (_, _) => ColoredBox(color: tint),
-      errorWidget: (_, _, _) => fallback,
+    return MazlNetworkImage(
+      url: url,
+      placeholder: (_) => ColoredBox(color: tint),
+      errorBuilder: (_) => fallback,
     );
   }
 }

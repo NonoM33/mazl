@@ -34,7 +34,7 @@ String? pushDestination(Map<String, dynamic> data) {
       return conversation == null
           ? RoutePaths.chat
           : _conversationPath(conversation);
-    case 'couple_request' || 'couple_accepted':
+    case 'couple_request' || 'couple_accepted' || 'couple_mood':
       return RoutePaths.coupleToday;
     case 'couple_reminder':
       return RoutePaths.coupleAgenda;

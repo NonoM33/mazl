@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -7,6 +6,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import 'couple_kit.dart';
 import 'event_category.dart';
+import '../../../../core/images/mazl_network_image.dart';
 
 /// « IDÉE POUR JEUDI »: a picture at the start, the outing proposed for
 /// today, and the way to its page.
@@ -74,11 +74,10 @@ class _Picture extends StatelessWidget {
     final fallback = EventImagePlaceholder(category: null, seed: outing.id);
     final url = outing.imageUrl;
     if (url == null || url.isEmpty) return fallback;
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-      placeholder: (_, _) => fallback,
-      errorWidget: (_, _, _) => fallback,
+    return MazlNetworkImage(
+      url: url,
+      placeholder: (_) => fallback,
+      errorBuilder: (_) => fallback,
     );
   }
 }

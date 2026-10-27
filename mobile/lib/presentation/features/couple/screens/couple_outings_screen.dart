@@ -15,6 +15,7 @@ import '../widgets/couple_kit.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/outing_featured_card.dart';
 import '../widgets/outing_tile.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 /// The « Sorties » tab: the outing put forward and the ideas picked for the
 /// two of them, filtered by one pill at a time.
@@ -128,7 +129,7 @@ class _CoupleOutingsScreenState extends State<CoupleOutingsScreen> {
   Widget build(BuildContext context) {
     final inset = MediaQuery.paddingOf(context);
     return Scaffold(
-      body: RefreshIndicator(
+      body: StarRefresh(
         onRefresh: () => _load(quiet: true),
         // A short page (an empty state) can still be pulled down to refresh.
         child: ScrollConfiguration(

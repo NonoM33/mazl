@@ -12,6 +12,7 @@ import 'package:mazl/core/services/push_destination.dart';
 //   couple_reminder  -> /couple/agenda
 //   couple_question  -> /couple/us
 //   couple_concierge -> /couple/concierge
+//   couple_mood      -> /couple/today
 //   new_like         -> /likes
 //   super_like       -> /likes
 //   boost_ended      -> /boost
@@ -162,6 +163,10 @@ void main() {
         pushDestination({'type': 'couple_concierge'}),
         '/couple/concierge',
       );
+    });
+
+    test('« on doit parler » ouvre Aujourd\'hui, où l\'humeur se voit', () {
+      expect(pushDestination({'type': 'couple_mood'}), '/couple/today');
     });
   });
 

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -17,6 +16,7 @@ import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
 import '../../../common/widgets/fold_pages.dart';
 import 'package:mazl/core/layout/bar_navigation.dart';
+import '../../../../core/images/mazl_network_image.dart';
 
 class CoupleEventDetailScreen extends StatefulWidget {
   const CoupleEventDetailScreen({
@@ -355,11 +355,10 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
               bottom: Radius.circular(28),
             ),
             child: event.imageUrl != null
-                ? CachedNetworkImage(
-                    imageUrl: event.imageUrl!,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => _placeholder(event),
-                    errorWidget: (_, _, _) => _placeholder(event),
+                ? MazlNetworkImage(
+                    url: event.imageUrl!,
+                    placeholder: (_) => _placeholder(event),
+                    errorBuilder: (_) => _placeholder(event),
                   )
                 : _placeholder(event),
           ),

@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_space.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/images/mazl_network_image.dart';
 
 /// Une tuile de chiffre : brume, icône accent, chiffre en encre.
 class UsStatCard extends StatelessWidget {
@@ -187,11 +187,10 @@ class UsMemoryTile extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: imageUrl != null
-          ? CachedNetworkImage(
-              imageUrl: imageUrl,
-              fit: BoxFit.cover,
+          ? SizedBox(
               width: 140,
               height: 140,
+              child: MazlNetworkImage(url: imageUrl),
             )
           : Column(
               mainAxisAlignment: MainAxisAlignment.center,

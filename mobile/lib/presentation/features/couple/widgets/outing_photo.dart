@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_daily.dart';
+import '../../../../core/images/mazl_network_image.dart';
 
 /// The photo of an outing. Without one (no address, or the picture does not
 /// load) a tinted block with the icon of its kind stands in: never an empty
@@ -18,11 +18,10 @@ class OutingPhoto extends StatelessWidget {
     final fallback = _Fallback(outing: outing, iconSize: iconSize);
     final url = outing.imageUrl;
     if (url == null || url.isEmpty) return fallback;
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-      placeholder: (_, _) => _Tint(seed: outing.id),
-      errorWidget: (_, _, _) => fallback,
+    return MazlNetworkImage(
+      url: url,
+      placeholder: (_) => _Tint(seed: outing.id),
+      errorBuilder: (_) => fallback,
     );
   }
 }

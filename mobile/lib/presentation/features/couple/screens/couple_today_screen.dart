@@ -23,6 +23,7 @@ import '../widgets/today_outing_card.dart';
 import '../widgets/today_question_card.dart';
 import '../widgets/today_shabbat_card.dart';
 import '../widgets/today_upcoming.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 /// The first tab of the couple space: the day of the two of them (the
 /// question, Shabbat, what is coming, an idea, how it goes between them).
@@ -158,7 +159,7 @@ class _CoupleTodayScreenState extends State<CoupleTodayScreen> {
 
   Widget _page(CoupleToday today) {
     final padding = MediaQuery.paddingOf(context);
-    return RefreshIndicator(
+    return StarRefresh(
       onRefresh: () => _load(quiet: true),
       // Held like a book: the greeting, the question and Shabbat on the first
       // page; what is coming, the idea and the mood on the other. Like a

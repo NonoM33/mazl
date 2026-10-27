@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +11,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/paired_avatars.dart';
 import '../widgets/book_pages.dart';
+import '../../../../core/images/mazl_network_image.dart';
 
 /// Beautiful celebration screen shown when couple mode is activated
 class MazelTovScreen extends StatefulWidget {
@@ -272,10 +272,9 @@ class _MazelTovContentState extends State<_MazelTovContent>
       padding: const EdgeInsets.all(3),
       child: ClipOval(
         child: picture != null
-            ? CachedNetworkImage(
-                imageUrl: picture,
-                fit: BoxFit.cover,
-                placeholder: (_, __) =>
+            ? MazlNetworkImage(
+                url: picture,
+                placeholder: (_) =>
                     const ColoredBox(color: AppColors.cardDark),
               )
             : ColoredBox(

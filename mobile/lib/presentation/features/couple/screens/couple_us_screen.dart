@@ -27,6 +27,7 @@ import '../widgets/us_section_error.dart';
 import '../widgets/us_settings_section.dart';
 import '../widgets/us_space_tiles.dart';
 import 'couple_space_sheets.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 /// « Nous deux », the fifth tab of the couple space: the couple, the
 /// question of the day, the monthly check-in, the memories, the goals and the
@@ -222,7 +223,7 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
     return Scaffold(
       body: ListenableBuilder(
         listenable: _couple,
-        builder: (context, _) => RefreshIndicator(
+        builder: (context, _) => StarRefresh(
           onRefresh: _reloadAll,
           child: FoldCutBuilder(
             minPaneExtent: 240,
