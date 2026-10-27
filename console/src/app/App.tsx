@@ -7,6 +7,8 @@ import { AlgorithmScreen } from "../matching/AlgorithmScreen";
 import { tabFromParam } from "../matching/tabs";
 import { MemberFileScreen } from "../members/MemberFileScreen";
 import { MembersScreen } from "../members/MembersScreen";
+import { CampaignsScreen } from "../storefront/CampaignsScreen";
+import { OffersScreen } from "../storefront/OffersScreen";
 import { ReportsScreen } from "../reports/ReportsScreen";
 import { EmptyState, Forbidden } from "../shared/ui/Feedback";
 import { PageHeader } from "../shared/ui/PageHeader";
@@ -52,6 +54,10 @@ function Screen({ route }: { readonly route: Route }): ReactElement {
       return route.id === null ? <MembersScreen initialQuery={route.params["q"] ?? ""} /> : <MemberFileScreen key={route.id} memberId={route.id} />;
     case "algorithme":
       return <AlgorithmScreen tab={tabFromParam(route.params["onglet"])} />;
+    case "offres":
+      return <OffersScreen />;
+    case "campagnes":
+      return <CampaignsScreen selectedId={route.id} year={route.params["annee"]} />;
     default:
       return <ComingSoon section={section} />;
   }
