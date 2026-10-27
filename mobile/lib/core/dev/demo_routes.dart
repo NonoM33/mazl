@@ -107,6 +107,54 @@ abstract final class DemoRoutes {
   }
 
   static DemoReply _json(Map<String, dynamic> body) => DemoReply(body);
+
+  static Map<String, dynamic> _demoStorefront() {
+    final now = DateTime.now().toUtc();
+    final ends = now.add(const Duration(days: 5));
+    return {
+      'success': true,
+      'data': {
+        'serverTime': now.toIso8601String(),
+        'products': [
+          for (final (i, id) in [
+            'com.mazl.app.plus.3m',
+            'com.mazl.app.plus.12m',
+            'com.mazl.app.plus.6m',
+            'com.mazl.app.plus.1m',
+          ].indexed)
+            {
+              'productId': id,
+              'visible': true,
+              'sortOrder': i,
+              'featured': i == 0,
+              'highlight': i == 0 ? 'Le plus choisi' : null,
+            },
+        ],
+        'campaign': {
+          'id': 1,
+          'themeId': 'valentine',
+          'accent': '#E5484D',
+          'glyph': 'heart',
+          'startsAt': now.subtract(const Duration(days: 2)).toIso8601String(),
+          'endsAt': ends.toIso8601String(),
+          'title': 'Saint-Valentin',
+          'subtitle': 'mazl+ à −30 % pour trouver la bonne personne.',
+          'cta': 'Profiter de l’offre',
+          'targets': [
+            {
+              'productId': 'com.mazl.app.plus.3m',
+              'discountPercent': 30,
+              'iosOfferCode': 'VALENTIN27',
+              'webPromotion': true,
+            },
+          ],
+        },
+        'appIcon': 'AppIcon-valentine',
+        'nextChangeAt': ends.toIso8601String(),
+      },
+    };
+  }
+
   static int _id(RegExpMatch m) => int.parse(m.group(1)!);
 
   /// Le `credits` du serveur (`GET /api/credits`), pour un membre gratuit.
@@ -178,6 +226,9 @@ abstract final class DemoRoutes {
   };
 
   static final List<DemoRoute> _routes = [
+    // --- Vitrine : une campagne Saint-Valentin en cours, pour voir le
+    // gabarit, le badge et l'icône des fêtes sans serveur ---
+    DemoRoute('GET', '/api/storefront', (r, m) => _json(_demoStorefront())),
     // --- Compte et profil ---
     DemoRoute(
       'GET',
