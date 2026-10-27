@@ -132,6 +132,24 @@ du couple.
 - Tirée au-delà du seuil puis relancée vers le haut (plus de 600 px/s), elle reste ouverte et
   revient au centre : la personne a changé d'avis.
 
+## 6 bis. Événement : la photo de la carte devient l'en-tête de la page
+
+Ouvrir un événement : la photo de la carte grandit jusqu'à devenir l'en-tête du détail ; le badge
+et le titre apparaissent en fondu quand elle est posée, puis chaque groupe (infos, carte du lieu,
+description, bouton) entre en fondu en montant de 14 pt, l'un après l'autre. Revenir : la photo
+repart vers sa carte, le même vol à l'envers. Valeurs : `MazlMotion.eventOpen` (460 ms),
+`eventClose` (340 ms), `eventOpenCurve`, `eventTextStart`, `eventTextStagger`, `eventTextRise`.
+
+- Un `Hero` ne vole pas entre deux navigateurs (la liste vit dans celui de son onglet, le détail
+  dans le navigateur racine) : la carte s'inscrit (`EventFlightSource`), la liste appelle
+  `EventFlights.prepare` avant d'ouvrir, et la page dessine la photo en vol dans la surcouche
+  racine, pilotée par l'animation de sa propre route (`EventFlightController`). La page connaît
+  déjà l'événement de la liste : elle s'affiche tout de suite, puis se rafraîchit.
+- Pas de vol (la page ne fait que se fondre, 150 ms) avec « Réduire les animations », ou quand la
+  carte n'est pas à l'écran, ou quand l'en-tête est déjà défilé au moment de revenir.
+- Un test rejoue l'ouverture et le retour (une photo en l'air entre la carte et l'en-tête), la
+  pose livre (elle se pose sur la page de gauche) et les animations réduites (rien en l'air).
+
 ## 7. Feuilles du bas, pages qui défilent
 
 - **Feuilles** (`showMazlSheet`) : élastique quand on les tire vers le haut ; la fermeture dépend

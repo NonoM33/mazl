@@ -21,6 +21,7 @@ import '../../presentation/features/navigation/screens/main_navigation_screen.da
 import '../../presentation/features/matching/screens/discover_screen.dart';
 import '../../presentation/features/matching/screens/matches_screen.dart';
 import '../../presentation/features/chat/screens/conversations_screen.dart';
+import '../motion/mazl_motion.dart';
 import '../../presentation/features/events/screens/events_list_screen.dart';
 import '../../presentation/features/events/screens/event_detail_screen.dart';
 import '../../presentation/features/profile/screens/profile_view_screen.dart';
@@ -525,10 +526,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: _rootNavigatorKey,
                     pageBuilder: (context, state) {
                       final eventId = state.pathParameters['eventId']!;
+                      final reduced = MazlMotion.reduced(context);
                       return CustomTransitionPage(
                         key: state.pageKey,
                         child: EventDetailScreen(eventId: eventId),
-                        transitionsBuilder: slideUpTransition,
+                        transitionDuration: reduced
+                            ? MazlMotion.reducedFade
+                            : MazlMotion.eventOpen,
+                        reverseTransitionDuration: reduced
+                            ? MazlMotion.reducedFade
+                            : MazlMotion.eventClose,
+                        transitionsBuilder: eventDetailTransition,
                       );
                     },
                   ),
