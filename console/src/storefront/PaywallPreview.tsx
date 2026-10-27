@@ -45,7 +45,6 @@ export function PaywallPreview({ themeId, texts, lang, onLang, endsAt, products,
               </span>
               <span className="paywall-offer-price">
                 {line.badge !== null ? <span className="paywall-badge">{line.badge}</span> : null}
-                {line.oldPrice !== null ? <s>{line.oldPrice}</s> : null}
                 <strong>{line.price}</strong>
               </span>
             </li>
@@ -55,7 +54,7 @@ export function PaywallPreview({ themeId, texts, lang, onLang, endsAt, products,
           {texts.cta}
         </span>
       </div>
-      <figcaption className="paywall-caption">Écran mazl+ pendant la campagne. Le prix vient d'Apple ; la remise s'applique par code d'offre, ici en aperçu.</figcaption>
+      <figcaption className="paywall-caption">Écran mazl+ pendant la campagne. Comme dans l'app : le prix affiché reste celui d'Apple, la remise s'obtient avec le bouton (code d'offre).</figcaption>
     </figure>
   );
 }

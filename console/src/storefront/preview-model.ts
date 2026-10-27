@@ -1,5 +1,4 @@
 // Données de l'aperçu « tel que l'app le montrera » : lignes de prix, fin de campagne, couleurs lisibles. Fonctions pures.
-import { discountedAmount } from "./campaign-form";
 import { PARIS, lastDayInstant } from "./paris-time";
 import { applePrice, formatMoney } from "./price-change";
 import { sortProducts } from "./offers-model";
@@ -36,10 +35,18 @@ export interface PaywallLine {
   readonly name: string;
   readonly highlight: string | null;
   readonly price: string;
-  /** Prix barré, présent seulement si une remise s'applique. */
-  readonly oldPrice: string | null;
   readonly badge: string | null;
 }
+
+// Same words as the app's « storefrontDiscountBadge »: the price shown stays Apple's full price, the
+// reduction only comes with the offer code, so the badge says « offer », never a bare percentage.
+const OFFER_BADGE: Readonly<Record<Lang, (percent: number) => string>> = {
+  fr: (percent) => `Offre -${percent} %`,
+  en: (percent) => `Offer -${percent}%`,
+  he: (percent) => `מבצע \u200E-${percent}%`,
+  es: (percent) => `Oferta -${percent} %`,
+  ru: (percent) => `Акция -${percent} %`,
+};
 
 /** Les offres visibles, dans l'ordre du serveur, avec la remise de la campagne sur celles qu'elle cible. */
 export function paywallLines(products: readonly ProductDto[], targets: readonly CampaignTarget[], lang: Lang): readonly PaywallLine[] {
@@ -51,14 +58,12 @@ export function paywallLines(products: readonly ProductDto[], targets: readonly 
       const amount = france === undefined ? null : Number(france.customerPrice);
       const highlight = product.featured && product.highlight !== null ? ((product.highlight[lang] ?? "").trim() === "" ? product.highlight.fr : (product.highlight[lang] ?? product.highlight.fr)) : null;
       const base = france === undefined || amount === null ? "—" : formatMoney(france.customerPrice, france.currency);
-      if (target === undefined || france === undefined || amount === null) return { productId: product.productId, name: offerName(product, lang), highlight, price: base, oldPrice: null, badge: null };
       return {
         productId: product.productId,
         name: offerName(product, lang),
         highlight,
-        price: formatMoney(discountedAmount(amount, target.discountPercent), france.currency),
-        oldPrice: base,
-        badge: `−${target.discountPercent} %`,
+        price: base,
+        badge: target === undefined ? null : OFFER_BADGE[lang](target.discountPercent),
       };
     });
 }

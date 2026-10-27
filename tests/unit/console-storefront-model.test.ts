@@ -243,13 +243,14 @@ describe("aperçu de l'écran mazl+", () => {
   });
   const offers = [priced("com.mazl.app.plus.3m", 3, "44.99", 1, { featured: true, highlight: { fr: "Le plus choisi", en: "Most popular", he: "הנבחר ביותר", es: "El más elegido", ru: "Самый популярный" } }), priced("com.mazl.app.plus.12m", 12, "99.99", 0), priced("com.mazl.app.plus.1m", 1, "19.99", 2, { visible: false })];
 
-  test("seules les offres visibles, dans l'ordre du serveur ; la remise barre l'ancien prix", () => {
+  test("seules les offres visibles, dans l'ordre du serveur ; le prix reste celui d'Apple, le badge nomme l'offre", () => {
     const lines = paywallLines(offers, [{ productId: "com.mazl.app.plus.3m", discountPercent: 30 }], "fr");
     expect(lines.map((line) => line.productId)).toEqual(["com.mazl.app.plus.12m", "com.mazl.app.plus.3m"]);
-    expect(lines[0]).toMatchObject({ oldPrice: null, badge: null });
-    expect(lines[1]?.badge).toBe("−30 %");
-    expect(lines[1]?.oldPrice).toContain("44,99");
-    expect(lines[1]?.price).toContain("31,49");
+    expect(lines[0]).toMatchObject({ badge: null });
+    // Like the app: the full Apple price, and a badge that names the offer (the code brings the reduction).
+    expect(lines[1]?.badge).toBe("Offre -30 %");
+    expect(lines[1]?.price).toContain("44,99");
+    expect(lines[1]?.price).not.toContain("31,49");
     expect(lines[1]?.highlight).toBe("Le plus choisi");
   });
   test("accroche et nom dans la langue de l'aperçu", () => {
