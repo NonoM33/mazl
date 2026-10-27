@@ -49,3 +49,6 @@ export function themeById(id: ThemeId): ThemeDef {
 
 /** Le thème « Black Friday » a une icône inversée (fond clair, « m » encre). */
 export const isInverseTheme = (id: ThemeId): boolean => id === "black_friday";
+
+/** Couleur d'accent à l'écran de la console : l'encre du Black Friday suit le thème clair ou sombre pour rester visible. */
+export const accentForConsole = (theme: Pick<ThemeDef, "accent">): string => (theme.accent.toUpperCase() === "#0B0B0F" ? "var(--text)" : theme.accent);

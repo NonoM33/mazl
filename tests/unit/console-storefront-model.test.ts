@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { defaultTargets, discountedAmount, formFromCampaign, newForm, parseDiscount, validateForm, type CampaignForm } from "../../console/src/storefront/campaign-form";
 import { groupProducts, reorder, validateHighlight, applyOrder, emptyHighlight } from "../../console/src/storefront/offers-model";
 import { changeLines, explainApplePlan, formatMoney, parseAmountToCents, planDirection, validateStartDate, validateWebPrice } from "../../console/src/storefront/price-change";
+import { contrastRatio, paywallLines, readableOn, untilLabel } from "../../console/src/storefront/preview-model";
+import { publishSummary } from "../../console/src/storefront/publish-summary";
 import { storefrontErrorMessage } from "../../console/src/storefront/errors";
 import { defaultTexts } from "../../console/src/storefront/theme-texts";
 import { THEMES, isInverseTheme } from "../../console/src/storefront/themes";
@@ -216,5 +218,80 @@ describe("erreurs du serveur", () => {
   });
   test("un code inconnu renvoie le message du serveur", () => {
     expect(storefrontErrorMessage({ code: "boom", message: "Quelque chose a cassé.", status: 500 })).toBe("Quelque chose a cassé.");
+  });
+});
+
+describe("aperçu de l'écran mazl+", () => {
+  const priced = (productId: string, months: number, amount: string, sortOrder: number, extra: Partial<ProductDto> = {}): ProductDto => ({
+    ...product(productId, "subscription", sortOrder),
+    label: `mazl+ ${months} mois`,
+    applePrices: [{ territory: "FRA", currency: "EUR", amount }],
+    ...extra,
+  });
+  const offers = [priced("com.mazl.app.plus.3m", 3, "44.99", 1, { featured: true, highlight: { fr: "Le plus choisi", en: "Most popular", he: "הנבחר ביותר", es: "El más elegido", ru: "Самый популярный" } }), priced("com.mazl.app.plus.12m", 12, "99.99", 0), priced("com.mazl.app.plus.1m", 1, "19.99", 2, { visible: false })];
+
+  test("seules les offres visibles, dans l'ordre du serveur ; la remise barre l'ancien prix", () => {
+    const lines = paywallLines(offers, [{ productId: "com.mazl.app.plus.3m", discountPercent: 30 }], "fr");
+    expect(lines.map((line) => line.productId)).toEqual(["com.mazl.app.plus.12m", "com.mazl.app.plus.3m"]);
+    expect(lines[0]).toMatchObject({ oldPrice: null, badge: null });
+    expect(lines[1]?.badge).toBe("−30 %");
+    expect(lines[1]?.oldPrice).toContain("44,99");
+    expect(lines[1]?.price).toContain("31,49");
+    expect(lines[1]?.highlight).toBe("Le plus choisi");
+  });
+  test("accroche et nom dans la langue de l'aperçu", () => {
+    const lines = paywallLines(offers, [], "en");
+    expect(lines[1]?.highlight).toBe("Most popular");
+    expect(lines[1]?.name).toBe("mazl+ 3 months");
+    expect(paywallLines(offers, [], "he")[1]?.name).toBe("mazl+ 3 חודשים");
+  });
+  test("« jusqu'au 14 février » : la fin à minuit pile du 15 désigne le 14", () => {
+    expect(untilLabel("2027-02-14T23:00:00Z", "fr")).toBe("jusqu'au 14 février");
+    expect(untilLabel("2027-02-14T23:00:00Z", "es")).toBe("hasta el 14 de febrero");
+    expect(untilLabel("2027-02-14T23:00:00Z", "en")).toContain("14");
+  });
+  test("texte lisible sur chaque accent de thème (contraste d'au moins 3 : seuil des grands textes)", () => {
+    for (const theme of THEMES) {
+      expect(contrastRatio(theme.accent, readableOn(theme.accent))).toBeGreaterThanOrEqual(3);
+    }
+    expect(readableOn("#E8A400")).toBe("#0B0B0F");
+    expect(readableOn("#2747F5")).toBe("#FFFFFF");
+  });
+});
+
+describe("ce que « Programmer » crée", () => {
+  const web = { priceId: "price_example", amountCents: 4499, currency: "EUR" };
+  const catalog: readonly ProductDto[] = [
+    { ...product("com.mazl.app.plus.3m", "subscription", 0), label: "mazl+ 3 mois", web },
+    { ...product("com.mazl.app.plus.1m", "subscription", 1), label: "mazl+ 1 mois", web },
+    { ...product("com.mazl.app.boost.1", "boost", 2), label: "1 Boost" },
+  ];
+  const campaign = { themeId: "valentine" as const, startsAt: "2027-02-06T23:00:00Z", endsAt: "2027-02-14T23:00:00Z", changeAppIcon: true };
+  test("un code d'offre Apple par abonnement, un coupon Stripe par remise distincte, jamais un changement du prix de base", () => {
+    const summary = publishSummary({ ...campaign, targets: [{ productId: "com.mazl.app.plus.3m", discountPercent: 30 }, { productId: "com.mazl.app.plus.1m", discountPercent: 30 }] }, catalog);
+    expect(summary.apple).toHaveLength(2);
+    expect(summary.apple[0]).toContain("code d'offre à −30 %");
+    expect(summary.apple[0]).toContain("jusqu'au 14 février");
+    expect(summary.apple[0]).toContain("prix de base ne bouge pas");
+    expect(summary.stripe).toHaveLength(1);
+    expect(summary.stripe[0]).toContain("mazl+ 3 mois, mazl+ 1 mois");
+  });
+  test("deux remises différentes = deux coupons", () => {
+    const summary = publishSummary({ ...campaign, targets: [{ productId: "com.mazl.app.plus.3m", discountPercent: 30 }, { productId: "com.mazl.app.plus.1m", discountPercent: 20 }] }, catalog);
+    expect(summary.stripe).toHaveLength(2);
+  });
+  test("un consommable passe par le calendrier de prix, sans Stripe s'il n'est pas vendu sur le web", () => {
+    const summary = publishSummary({ ...campaign, targets: [{ productId: "com.mazl.app.boost.1", discountPercent: 25 }] }, catalog);
+    expect(summary.apple[0]).toContain("calendrier de prix d'Apple");
+    expect(summary.stripe).toEqual(["Rien ne sera créé chez Stripe."]);
+  });
+  test("sans remise : rien chez Apple ni Stripe ; l'icône est annoncée avec l'alerte iOS, ou son absence", () => {
+    const none = publishSummary({ ...campaign, targets: [], changeAppIcon: false }, catalog);
+    expect(none.apple).toEqual(["Aucune remise ciblée : rien ne sera créé chez Apple."]);
+    expect(none.app[1]).toBe("L'icône de l'app ne change pas.");
+    const icon = publishSummary({ ...campaign, targets: [] }, catalog);
+    expect(icon.app[1]).toContain("AppIcon-valentine");
+    expect(icon.app[1]).toContain("alerte");
+    expect(icon.app[0]).toContain("7 févr. 2027");
   });
 });

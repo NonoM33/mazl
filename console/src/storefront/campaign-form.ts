@@ -125,3 +125,8 @@ export const hasErrors = (errors: FormErrors): boolean => Object.keys(errors).le
 export function discountedAmount(amount: number, percent: number): number {
   return Math.round((Math.round(amount * 100) * (100 - percent)) / 100) / 100;
 }
+
+/** Tous les messages d'erreur du formulaire, à plat (pour un résumé ou un rapport). */
+export function errorMessages(errors: FormErrors): readonly string[] {
+  return [errors.name, errors.startsLocal, errors.endsLocal, errors.range, ...Object.values(errors.texts ?? {}), ...Object.values(errors.targets ?? {})].filter((message): message is string => message !== undefined);
+}
