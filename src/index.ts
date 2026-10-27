@@ -110,6 +110,8 @@ import { createBackoffice } from "./backoffice";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
 import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
+import { createCheckoutOverrides } from "./features/storefront/storefront.module";
+import { appStoreNotConfigured, webPricingNotConfigured } from "./features/storefront/infra/not-configured";
 import { createBillingWeb, ensureBillingWebSchema, registerBillingWeb, withStripeCancellation } from "./features/billing-web/billing-web.module";
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
@@ -344,7 +346,7 @@ const userErasure = {
   },
 };
 // Web payments: a member's Stripe subscription is cancelled before their erasure.
-const billingWeb = createBillingWeb({ sql, authenticate: requireAuth });
+const billingWeb = createBillingWeb({ sql, authenticate: requireAuth, overrides: createCheckoutOverrides(sql) });
 const erasureWithBilling = withStripeCancellation(userErasure, billingWeb);
 // Sign in with Apple: a deleted member's Apple authorization is revoked (App Store 5.1.1(v)).
 const appleSignIn = createAppleSignIn({ env: process.env, store: new PgAppleTokenStore(sql) });
@@ -368,6 +370,10 @@ const backoffice = createBackoffice({
   sql,
   env: process.env,
   closeConnections: (userId) => closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled"),
+  // Offers and campaigns (src/features/storefront): until the App Store Connect and Stripe adapters
+  // are wired here, writing a price or publishing a campaign answers "store_not_configured".
+  appStore: appStoreNotConfigured,
+  webPricing: webPricingNotConfigured,
 });
 backoffice.register(app);
 
