@@ -1,0 +1,23 @@
+{
+  "coupleQuestionTitle": "שאלת היום",
+  "coupleQuestionEyebrow": "שאלת היום · {day}",
+  "coupleQuestionEmptyTitle": "שאלת היום תגיע בקרוב",
+  "coupleQuestionEmptyLine": "בכל יום, שאלה לשאול זה את זה. כדאי לחזור קצת יותר מאוחר.",
+  "coupleQuestionPartnerFallback": "בן או בת הזוג",
+  "coupleQuestionPartnerAnsweredTitle": "{name} ענה/ענתה",
+  "coupleQuestionPartnerAnsweredLine": "ענו גם אתם כדי לקרוא את התשובה.",
+  "coupleQuestionPartnerPendingTitle": "{name} עוד לא ענה/ענתה",
+  "coupleQuestionPartnerPendingLine": "תוכלו לקרוא את התשובה כששניכם תענו.",
+  "coupleQuestionHiddenTitle": "התשובה מוסתרת",
+  "coupleQuestionHiddenLine": "היא תוצג ברגע שתענו.",
+  "coupleQuestionYourAnswer": "התשובה שלכם",
+  "coupleQuestionHint": "כתבו את מה שעולה בדעתכם…",
+  "coupleQuestionCounter": "‎{count} / {max}",
+  "coupleQuestionSendTo": "שליחה אל {name}",
+  "coupleQuestionSend": "שליחה",
+  "coupleQuestionSending": "שולח",
+  "coupleQuestionSendFailed": "התשובה לא נשלחה. היא נשארה בשדה, אפשר לנסות שוב.",
+  "coupleQuestionPartnerAnswerTitle": "התשובה של {name}",
+  "coupleQuestionPartnerWaiting": "{name} עוד לא ענה/ענתה. חזרו מאוחר יותר לקרוא את התשובה.",
+  "coupleQuestionHistory": "התשובות הקודמות שלכם"
+}

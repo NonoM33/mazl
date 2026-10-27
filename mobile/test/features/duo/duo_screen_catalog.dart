@@ -403,12 +403,13 @@ final List<DuoScreen> duoScreens = [
     path: '/couple/us/settings',
     session: DuoSession.couple,
   ),
-  const DuoScreen(
+  DuoScreen(
     id: '/couple/question',
     feature: 'couple',
     file: 'couple/screens/couple_question_screen.dart',
     path: '/couple/question',
     session: DuoSession.couple,
+    primary: () => _action('Envoyer à Noémie'),
   ),
   const DuoScreen(
     id: '/couple/questions',
@@ -417,12 +418,13 @@ final List<DuoScreen> duoScreens = [
     path: '/couple/questions',
     session: DuoSession.couple,
   ),
-  const DuoScreen(
+  DuoScreen(
     id: '/couple/checkin',
     feature: 'couple',
     file: 'couple/screens/couple_checkin_screen.dart',
     path: '/couple/checkin',
     session: DuoSession.couple,
+    primary: () => _action('Envoyer'),
   ),
   const DuoScreen(
     id: '/couple/premium',

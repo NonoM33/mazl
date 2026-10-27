@@ -1,0 +1,124 @@
+{
+  "coupleQuestionTitle": "Question du jour",
+  "@coupleQuestionTitle": {
+    "description": "Titre de la page de la question du jour du couple (barre du haut) et début de l'étiquette en capitales au-dessus de la question."
+  },
+  "coupleQuestionEyebrow": "Question du jour · {day}",
+  "@coupleQuestionEyebrow": {
+    "description": "Étiquette en capitales au-dessus de la question du jour. {day} est le numéro du jour du couple (nombre de jours ensemble). Le texte sera mis en capitales par l'application.",
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleQuestionEmptyTitle": "La question du jour arrive bientôt",
+  "@coupleQuestionEmptyTitle": {
+    "description": "Titre de l'état vide de la question du jour : le serveur n'en propose pas encore (fonction pas encore déployée) ou le couple n'est pas formé."
+  },
+  "coupleQuestionEmptyLine": "Chaque jour, une question à se poser à deux. Revenez un peu plus tard.",
+  "@coupleQuestionEmptyLine": {
+    "description": "Phrase sous le titre de l'état vide de la question du jour."
+  },
+  "coupleQuestionPartnerFallback": "Votre partenaire",
+  "@coupleQuestionPartnerFallback": {
+    "description": "Nom affiché pour le partenaire quand son prénom est inconnu, en début de phrase."
+  },
+  "coupleQuestionPartnerAnsweredTitle": "{name} a répondu",
+  "@coupleQuestionPartnerAnsweredTitle": {
+    "description": "Bloc verrouillé de la question du jour, quand on sait que le partenaire a déjà répondu mais pas encore soi. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionPartnerAnsweredLine": "Répondez à votre tour pour lire sa réponse.",
+  "@coupleQuestionPartnerAnsweredLine": {
+    "description": "Phrase du bloc verrouillé : la réponse du partenaire n'est lisible qu'après avoir répondu soi-même."
+  },
+  "coupleQuestionPartnerPendingTitle": "{name} n'a pas encore répondu",
+  "@coupleQuestionPartnerPendingTitle": {
+    "description": "Bloc verrouillé de la question du jour, quand on sait que le partenaire n'a pas encore répondu. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionPartnerPendingLine": "Vous lirez sa réponse quand vous aurez chacun répondu.",
+  "@coupleQuestionPartnerPendingLine": {
+    "description": "Phrase du bloc verrouillé : on lit la réponse de l'autre quand chacun a répondu."
+  },
+  "coupleQuestionHiddenTitle": "Sa réponse est masquée",
+  "@coupleQuestionHiddenTitle": {
+    "description": "Bloc verrouillé de la question du jour quand on ignore si le partenaire a répondu."
+  },
+  "coupleQuestionHiddenLine": "Elle s'affichera dès que vous aurez répondu.",
+  "@coupleQuestionHiddenLine": {
+    "description": "Phrase du bloc verrouillé : la réponse du partenaire s'affiche après la sienne."
+  },
+  "coupleQuestionYourAnswer": "Votre réponse",
+  "@coupleQuestionYourAnswer": {
+    "description": "Étiquette du champ de réponse, et titre de la carte qui montre sa propre réponse."
+  },
+  "coupleQuestionHint": "Écrivez ce qui vous vient…",
+  "@coupleQuestionHint": {
+    "description": "Texte indicatif dans le champ de réponse de la question du jour."
+  },
+  "coupleQuestionCounter": "{count} / {max}",
+  "@coupleQuestionCounter": {
+    "description": "Compteur discret sous le champ de réponse, affiché quand on approche de la limite. {count} caractères écrits sur {max}.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleQuestionSendTo": "Envoyer à {name}",
+  "@coupleQuestionSendTo": {
+    "description": "Bouton qui envoie la réponse à la question du jour. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionSend": "Envoyer",
+  "@coupleQuestionSend": {
+    "description": "Bouton qui envoie la réponse à la question du jour quand le prénom du partenaire est inconnu."
+  },
+  "coupleQuestionSending": "Envoi en cours",
+  "@coupleQuestionSending": {
+    "description": "Description accessible du bouton d'envoi pendant l'envoi de la réponse."
+  },
+  "coupleQuestionSendFailed": "Votre réponse n'est pas partie. Elle reste dans le champ, vous pouvez réessayer.",
+  "@coupleQuestionSendFailed": {
+    "description": "Message d'erreur quand la réponse à la question du jour n'a pas pu être envoyée : le texte reste dans le champ."
+  },
+  "coupleQuestionPartnerAnswerTitle": "Réponse de {name}",
+  "@coupleQuestionPartnerAnswerTitle": {
+    "description": "Titre de la carte qui montre la réponse du partenaire, une fois qu'on a répondu. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionPartnerWaiting": "{name} n'a pas encore répondu. Revenez lire sa réponse plus tard.",
+  "@coupleQuestionPartnerWaiting": {
+    "description": "Carte de la question du jour quand on a répondu mais pas le partenaire. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionHistory": "Vos réponses précédentes",
+  "@coupleQuestionHistory": {
+    "description": "Lien en bas de la question du jour vers la liste des réponses des jours précédents."
+  }
+}
