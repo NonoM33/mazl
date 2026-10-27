@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Who is signed in when a screen is opened.
@@ -23,6 +24,7 @@ class DuoScreen {
     this.extra,
     this.primary,
     this.open,
+    this.providerOverrides,
     this.settleMillis = 3000,
   });
 
@@ -51,6 +53,10 @@ class DuoScreen {
 
   /// What the member does on the opened screen before it is measured.
   final Future<void> Function(WidgetTester tester)? open;
+
+  /// Providers replaced for this screen only (a campaign running, for
+  /// example), on top of the ones every screen of the crawl gets.
+  final List<Override> Function()? providerOverrides;
 
   /// How long the screen gets, in virtual time, to load before it is measured.
   final int settleMillis;

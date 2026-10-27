@@ -3923,6 +3923,31 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsRestoreNothing => 'לא נמצא מינוי.';
 
   @override
+  String storefrontCampaignUntil(String date) {
+    return 'עד $date';
+  }
+
+  @override
+  String storefrontDiscountBadge(int percent) {
+    return '‎-$percent%';
+  }
+
+  @override
+  String get storefrontCampaignDefaultCta => 'למימוש ההצעה';
+
+  @override
+  String storefrontPlanSemanticsHighlight(String plan, String highlight) {
+    return '$plan. $highlight';
+  }
+
+  @override
+  String get settingsFestiveIconTitle => 'סמל החגים';
+
+  @override
+  String get settingsFestiveIconSubtitle =>
+      'סמל האפליקציה מתחלף סביב החגים. ‏iOS מציגה התראה בכל החלפה.';
+
+  @override
   String get verificationProfileEyebrow => 'הפרופיל שלך';
 
   @override

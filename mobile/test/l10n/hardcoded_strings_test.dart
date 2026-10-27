@@ -35,6 +35,8 @@ const _notTranslatable = <String, String>{
   'Español': 'nom de la langue écrit dans sa langue (AppLanguage.autonym)',
   'Authorization': 'en-tête HTTP',
   'Content-Type': 'en-tête HTTP',
+  'Accept-Language': 'en-tête HTTP',
+  'AppIcon-\$id': 'nom d\'un jeu d\'icônes de l\'app dans le bundle iOS',
   'Geist': 'nom de la police',
   'GeistMono': 'nom de la police',
 };

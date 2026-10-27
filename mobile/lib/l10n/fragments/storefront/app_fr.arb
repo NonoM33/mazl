@@ -1,0 +1,44 @@
+{
+  "storefrontCampaignUntil": "Jusqu'au {date}",
+  "@storefrontCampaignUntil": {
+    "description": "Dernier jour d'une offre de saison, sous son titre. {date} = date longue (« 14 février 2027 »).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "storefrontDiscountBadge": "-{percent} %",
+  "@storefrontDiscountBadge": {
+    "description": "Pastille de réduction d'une offre de saison sur une formule mazl+. {percent} est un nombre entier (10 à 90). Doit rester très court.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "storefrontCampaignDefaultCta": "Profiter de l'offre",
+  "@storefrontCampaignDefaultCta": {
+    "description": "Texte du bouton d'une offre de saison quand le serveur n'en donne pas. Ouvre le code d'offre de l'App Store ou lance l'achat."
+  },
+  "storefrontPlanSemanticsHighlight": "{plan}. {highlight}",
+  "@storefrontPlanSemanticsHighlight": {
+    "description": "Phrase lue par le lecteur d'écran pour une formule mise en avant. {plan} = la phrase habituelle de la formule, {highlight} = l'accroche (« Le plus choisi »).",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "highlight": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFestiveIconTitle": "Icône des fêtes",
+  "@settingsFestiveIconTitle": {
+    "description": "Titre du réglage (interrupteur) qui autorise l'app à changer son icône pendant les fêtes (Saint-Valentin, Hanoucca, Noël...)."
+  },
+  "settingsFestiveIconSubtitle": "L'icône de l'app change à l'approche des fêtes. iOS affiche une alerte à chaque changement.",
+  "@settingsFestiveIconSubtitle": {
+    "description": "Explication sous le réglage « Icône des fêtes ». Dit que iOS montre sa propre alerte à chaque changement d'icône."
+  }
+}

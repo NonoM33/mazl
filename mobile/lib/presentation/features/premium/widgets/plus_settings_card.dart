@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../l10n/l10n.dart';
+import '../../../../core/storefront/storefront_models.dart';
 import '../../../common/widgets/directional_icon.dart';
+import '../../storefront/widgets/campaign_banner.dart';
 import 'plus_widgets.dart';
 
 /// Ligne unique de la section « Abonnement » des réglages : mène à la gestion
@@ -13,6 +15,7 @@ class PlusSettingsCard extends StatelessWidget {
     required this.isPremium,
     required this.onTap,
     this.detail,
+    this.campaign,
   });
 
   final bool isPremium;
@@ -21,10 +24,14 @@ class PlusSettingsCard extends StatelessWidget {
   /// Ligne secondaire pour un abonné (« 6 mois · jusqu'au 12 mars 2027 »).
   final String? detail;
 
+  /// The season's offer, shown as a strip under the pitch of a free account.
+  final StorefrontCampaign? campaign;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
+    final running = isPremium ? null : campaign;
     final subtitle = isPremium
         ? (detail ?? l10n.plusActiveSubscription)
         : l10n.plusSettingsPitch;
@@ -34,7 +41,9 @@ class PlusSettingsCard extends StatelessWidget {
         button: true,
         label: isPremium
             ? l10n.plusSettingsSemanticsActive(subtitle)
-            : l10n.plusSettingsSemanticsUpgrade(subtitle),
+            : l10n.plusSettingsSemanticsUpgrade(
+                running == null ? subtitle : '$subtitle ${running.title}',
+              ),
         excludeSemantics: true,
         onTap: onTap,
         child: Material(
@@ -79,6 +88,13 @@ class PlusSettingsCard extends StatelessWidget {
                               color: scheme.onSurfaceVariant,
                             ),
                           ),
+                          if (running != null) ...[
+                            const SizedBox(height: 8),
+                            CampaignBanner(
+                              campaign: running,
+                              surface: scheme.surfaceContainer,
+                            ),
+                          ],
                         ],
                       ),
                     ),

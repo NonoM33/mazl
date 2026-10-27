@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/di/providers/privacy_providers.dart';
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/di/providers/storefront_providers.dart';
 import '../../../../core/duo_tutorial/duo_tutorial_policy.dart';
 import '../../../../core/layout/fold_state.dart';
 import '../../../../core/links/public_links.dart';
@@ -1280,6 +1281,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     l10n.settingsLanguageSystem,
                 onTap: _showLanguageSheet,
               ),
+              // The app icon changes only on iOS.
+              if (Theme.of(context).platform == TargetPlatform.iOS)
+                SwitchListTile(
+                  secondary: const Icon(
+                    LucideIcons.sparkles,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(l10n.settingsFestiveIconTitle),
+                  subtitle: Text(l10n.settingsFestiveIconSubtitle),
+                  value: ref.watch(festiveIconEnabledProvider),
+                  onChanged: ref.read(festiveIconEnabledProvider.notifier).set,
+                ),
 
               // Discovery section (meaningless once the member is in a couple)
               if (!inCouple) ...[
@@ -1329,6 +1342,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _SectionHeader(title: l10n.settingsSectionSubscription),
               PlusSettingsCard(
                 isPremium: isMazlPro,
+                campaign: ref.watch(storefrontProvider).campaign,
                 detail: subscriptionDetail,
                 onTap: _handleOpenSubscription,
               ),

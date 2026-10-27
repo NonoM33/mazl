@@ -3998,6 +3998,31 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsRestoreNothing => 'Подписка не найдена.';
 
   @override
+  String storefrontCampaignUntil(String date) {
+    return 'До $date';
+  }
+
+  @override
+  String storefrontDiscountBadge(int percent) {
+    return '-$percent %';
+  }
+
+  @override
+  String get storefrontCampaignDefaultCta => 'Воспользоваться предложением';
+
+  @override
+  String storefrontPlanSemanticsHighlight(String plan, String highlight) {
+    return '$plan. $highlight';
+  }
+
+  @override
+  String get settingsFestiveIconTitle => 'Праздничный значок';
+
+  @override
+  String get settingsFestiveIconSubtitle =>
+      'Значок приложения меняется в праздники. При каждой смене iOS показывает уведомление.';
+
+  @override
   String get verificationProfileEyebrow => 'Ваш профиль';
 
   @override

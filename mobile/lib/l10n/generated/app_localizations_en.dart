@@ -3951,6 +3951,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsRestoreNothing => 'No subscription found.';
 
   @override
+  String storefrontCampaignUntil(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String storefrontDiscountBadge(int percent) {
+    return '-$percent%';
+  }
+
+  @override
+  String get storefrontCampaignDefaultCta => 'Get the offer';
+
+  @override
+  String storefrontPlanSemanticsHighlight(String plan, String highlight) {
+    return '$plan. $highlight';
+  }
+
+  @override
+  String get settingsFestiveIconTitle => 'Holiday icon';
+
+  @override
+  String get settingsFestiveIconSubtitle =>
+      'The app icon changes around the holidays. iOS shows an alert each time it changes.';
+
+  @override
   String get verificationProfileEyebrow => 'Your profile';
 
   @override
