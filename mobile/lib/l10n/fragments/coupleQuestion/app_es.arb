@@ -1,0 +1,23 @@
+{
+  "coupleQuestionTitle": "Pregunta del día",
+  "coupleQuestionEyebrow": "Pregunta del día · {day}",
+  "coupleQuestionEmptyTitle": "La pregunta del día llega pronto",
+  "coupleQuestionEmptyLine": "Cada día, una pregunta para haceros el uno al otro. Vuelve un poco más tarde.",
+  "coupleQuestionPartnerFallback": "Tu pareja",
+  "coupleQuestionPartnerAnsweredTitle": "{name} ha respondido",
+  "coupleQuestionPartnerAnsweredLine": "Responde tú también para leer su respuesta.",
+  "coupleQuestionPartnerPendingTitle": "{name} aún no ha respondido",
+  "coupleQuestionPartnerPendingLine": "Leeréis su respuesta cuando los dos hayáis respondido.",
+  "coupleQuestionHiddenTitle": "Su respuesta está oculta",
+  "coupleQuestionHiddenLine": "Se mostrará en cuanto hayas respondido.",
+  "coupleQuestionYourAnswer": "Tu respuesta",
+  "coupleQuestionHint": "Escribe lo primero que se te ocurra…",
+  "coupleQuestionCounter": "{count} / {max}",
+  "coupleQuestionSendTo": "Enviar a {name}",
+  "coupleQuestionSend": "Enviar",
+  "coupleQuestionSending": "Enviando",
+  "coupleQuestionSendFailed": "Tu respuesta no se ha enviado. Se queda en el campo, puedes volver a intentarlo.",
+  "coupleQuestionPartnerAnswerTitle": "Respuesta de {name}",
+  "coupleQuestionPartnerWaiting": "{name} aún no ha respondido. Vuelve más tarde para leer su respuesta.",
+  "coupleQuestionHistory": "Vuestras respuestas anteriores"
+}
