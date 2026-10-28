@@ -104,13 +104,17 @@ describe("legal pages: nothing is invented", () => {
     }
   });
 
-  // The sole trader's SIREN, given by Renaud on 2026-10-28, is the one number
-  // allowed, and only in the legal notice.
+  // The sole trader's SIREN and telephone, given by Renaud on 2026-10-28, are
+  // the only numbers allowed, and only in the legal notice.
   const PUBLISHER_SIREN = "822 073 706";
+  const PUBLISHER_PHONE = "01 42 37 53 53";
 
-  test("no company number other than the publisher's, VAT number, IBAN or telephone number has been written in", () => {
+  test("no number other than the publisher's SIREN and telephone has been written in", () => {
     for (const slug of LEGAL_SLUGS) {
-      const text = slug === "mentions-legales" ? sources[slug].replace(`SIREN ${PUBLISHER_SIREN}`, "SIREN") : sources[slug];
+      const text =
+        slug === "mentions-legales"
+          ? sources[slug].replace(`SIREN ${PUBLISHER_SIREN}`, "SIREN").replace(`Téléphone : ${PUBLISHER_PHONE}`, "Téléphone :")
+          : sources[slug];
       expect(text).not.toMatch(/\b\d{3} ?\d{3} ?\d{3}( ?\d{5})?\b/);
       expect(text).not.toMatch(/\bFR ?\d{2} ?\d{9}\b/);
       expect(text).not.toMatch(/\bIBAN\b/i);
@@ -125,7 +129,9 @@ describe("legal pages: nothing is invented", () => {
     expect(notice).toContain("- Éditeur : Renaud Cosson, entrepreneur individuel (EI)");
     expect(notice).toContain("Le directeur de la publication est Renaud Cosson");
     expect(notice).toContain(`- Immatriculation : SIREN ${PUBLISHER_SIREN}`);
-    for (const field of ["- Adresse (domiciliation) :", "- TVA :"]) {
+    expect(notice).toContain("- Adresse : 116 avenue John Fitzgerald Kennedy, 92160 Antony, France");
+    expect(notice).toContain(`- Téléphone : ${PUBLISHER_PHONE}`);
+    for (const field of ["- TVA :"]) {
       const line = notice.split("\n").find((entry) => entry.startsWith(field)) ?? "";
       expect([field, /\[À COMPLÉTER/.test(line)]).toEqual([field, true]);
     }

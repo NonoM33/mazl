@@ -221,7 +221,7 @@ Les CGU sont soumises au **droit français**. Pour un consommateur résidant dan
 
 **Plateforme européenne de règlement en ligne des litiges (RLL).** La Commission européenne a mis fin à sa plateforme de règlement en ligne des litiges le 20 juillet 2025 ; le recours au médiateur ci-dessus demeure ouvert.
 
-**Juridiction.** À défaut de résolution amiable, les tribunaux français sont compétents. Le consommateur peut saisir, à son choix, la juridiction du lieu où il demeurait au moment de la conclusion du contrat ou de la survenance du fait dommageable, ou celle du lieu de résidence de MAZL. Pour un membre agissant à titre professionnel : [À COMPLÉTER : tribunal compétent, par exemple le tribunal de commerce du siège de l'éditeur].
+**Juridiction.** À défaut de résolution amiable, les tribunaux français sont compétents. Le consommateur peut saisir, à son choix, la juridiction du lieu où il demeurait au moment de la conclusion du contrat ou de la survenance du fait dommageable, ou celle du lieu de résidence de MAZL. Pour un membre agissant à titre professionnel : le tribunal judiciaire de Nanterre.
 
 ## 18. Contact
 
