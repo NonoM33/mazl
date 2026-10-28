@@ -13,11 +13,12 @@ status: projet
 Conformément à l'article 6 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (« LCEN »), le site https://mazl.app (« le Site »), l'espace membre accessible depuis ce site et l'application mobile MAZL (« l'Application ») sont édités par :
 
 - Éditeur : Renaud Cosson, entrepreneur individuel (EI), exerçant sous le nom commercial MAZL
-- Adresse (domiciliation) : [À COMPLÉTER : adresse de domiciliation]
+- Adresse : 116 avenue John Fitzgerald Kennedy, 92160 Antony, France
+- Téléphone : 01 42 37 53 53
 - Immatriculation : SIREN 822 073 706, inscrit au Registre national des entreprises
 - TVA : [À COMPLÉTER : numéro de TVA intracommunautaire, ou « TVA non applicable, article 293 B du CGI » en franchise en base]
 - Adresse électronique de contact : hello@mazl.app
-- Adresse postale de contact : l'adresse de domiciliation ci-dessus
+- Adresse postale de contact : l'adresse ci-dessus
 
 L'éditeur est désigné ci-après « MAZL » ou « nous ».
 
