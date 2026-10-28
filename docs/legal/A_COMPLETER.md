@@ -8,7 +8,7 @@ Les identités (raison sociale, siège, SIREN, TVA, directeur de la publication)
 
 ## État au 2026-10-28
 
-Tranché par Renaud le 2026-10-28 et reporté dans les textes : l'éditeur est **Renaud Cosson, entrepreneur individuel** (nom commercial MAZL), SIREN 822 073 706, 116 avenue John Fitzgerald Kennedy, 92160 Antony, téléphone 01 42 37 53 53 ; tribunal judiciaire de Nanterre pour un membre professionnel ; contacts `hello@` (général, réclamations, rétractation, remboursements), `privacy@` (RGPD) et `legal@` (autorités, DSA) sur mazl.app ; aucun DPO désigné à ce jour ; prospection sur consentement ; préavis CGU de 30 jours ; pas de politique d'inactivité ni de plafond de responsabilité.
+Tranché par Renaud le 2026-10-28 et reporté dans les textes : l'éditeur est **Renaud Cosson, entrepreneur individuel** (nom commercial MAZL), SIREN 822 073 706, 116 avenue John Fitzgerald Kennedy, 92160 Antony, téléphone +1 343 495 6005 ; tribunal judiciaire de Nanterre pour un membre professionnel ; contacts `hello@` (général, réclamations, rétractation, remboursements), `privacy@` (RGPD) et `legal@` (autorités, DSA) sur mazl.app ; aucun DPO désigné à ce jour ; prospection sur consentement ; préavis CGU de 30 jours ; pas de politique d'inactivité ni de plafond de responsabilité.
 
 Durées fixées et appliquées par la purge automatique du serveur (feature `retention`) : positions 30 jours, sessions de vérification 12 mois, journal de modération 12 mois, empreinte d'un membre banni 5 ans. Sauvegardes : 14 dernières sauvegardes quotidiennes (réglage Coolify vérifié). Hébergeur : téléphone de Hetzner reporté, Helsinki retenu.
 
