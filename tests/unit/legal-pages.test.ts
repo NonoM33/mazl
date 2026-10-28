@@ -114,12 +114,15 @@ describe("legal pages: nothing is invented", () => {
     }
   });
 
-  test("the publisher block of the legal notice is still a visible mark until it is filled in", () => {
+  // The publisher (a sole trader, given by Renaud on 2026-10-28) is named; the
+  // address and company number he has not given yet stay visible marks.
+  test("the legal notice names the sole trader and still marks what he has not given", () => {
     const notice = sources["mentions-legales"];
-    for (const field of ["Raison sociale", "Siège social", "Immatriculation", "Directeur de la publication"]) {
-      const line = notice.split("\n").find((entry) => entry.includes(field)) ?? "";
-      const next = notice.split("\n")[notice.split("\n").indexOf(line) + 2] ?? "";
-      expect([field, /\[À COMPLÉTER|Le directeur de la publication est \[À COMPLÉTER/.test(line + next)]).toEqual([field, true]);
+    expect(notice).toContain("- Éditeur : Renaud Cosson, entrepreneur individuel (EI)");
+    expect(notice).toContain("Le directeur de la publication est Renaud Cosson");
+    for (const field of ["- Adresse (domiciliation) :", "- Immatriculation :", "- TVA :"]) {
+      const line = notice.split("\n").find((entry) => entry.startsWith(field)) ?? "";
+      expect([field, /\[À COMPLÉTER/.test(line)]).toEqual([field, true]);
     }
   });
 });

@@ -14,7 +14,7 @@ status: projet
 
 MAZL (« l'Application » ou « le Service ») est une application mobile de rencontre destinée à la communauté juive, accompagnée d'un site accessible à l'adresse https://mazl.app (« le Site ») et d'un espace membre accessible depuis ce site (mazl.app/app).
 
-Le Service est édité par la société identifiée dans les [mentions légales](/mentions-legales), qui font partie intégrante des présentes conditions (« MAZL », « nous »). Le « membre » ou « vous » désigne toute personne qui crée un compte ou utilise le Service.
+Le Service est édité par Renaud Cosson, entrepreneur individuel, identifié dans les [mentions légales](/mentions-legales), qui font partie intégrante des présentes conditions (« MAZL », « nous »). Le « membre » ou « vous » désigne toute personne qui crée un compte ou utilise le Service.
 
 ## 2. Objet, acceptation et modification
 
@@ -22,7 +22,7 @@ Les présentes conditions générales d'utilisation (« CGU ») régissent l'acc
 
 Les offres payantes (abonnement mazl+, MAZL Couple, Boosts, Super Likes) sont soumises en plus aux [Conditions générales de vente](/cgv). Le traitement de vos données personnelles est décrit dans la [Politique de confidentialité](/confidentialite) et l'usage des traceurs dans la [Politique de cookies](/cookies).
 
-Nous pouvons modifier les CGU, notamment pour tenir compte de l'évolution du Service ou de la loi. Les membres sont informés des modifications substantielles dans l'Application ou par e-mail, avec un préavis raisonnable [À COMPLÉTER : préavis retenu, par exemple 30 jours]. La poursuite de l'utilisation après l'entrée en vigueur vaut acceptation ; à défaut, le membre peut supprimer son compte (article 13).
+Nous pouvons modifier les CGU, notamment pour tenir compte de l'évolution du Service ou de la loi. Les membres sont informés des modifications substantielles dans l'Application ou par e-mail, avec un préavis d'au moins 30 jours. La poursuite de l'utilisation après l'entrée en vigueur vaut acceptation ; à défaut, le membre peut supprimer son compte (article 13).
 
 ## 3. Description du Service
 
@@ -125,7 +125,7 @@ Un membre peut contester gratuitement une décision de sanction ou de restrictio
 
 ### 8.5 Autres recours
 
-Le membre peut aussi saisir un organe de règlement extrajudiciaire des litiges certifié au titre de l'article 21 du DSA [À COMPLÉTER : organe choisi, le cas échéant], le médiateur de la consommation (article 17), le coordinateur pour les services numériques du pays où il réside (en France, l'Arcom) ou les tribunaux, sans préjudice de ses autres droits.
+Le membre peut aussi saisir un organe de règlement extrajudiciaire des litiges certifié au titre de l'article 21 du DSA de son choix, le médiateur de la consommation (article 17), le coordinateur pour les services numériques du pays où il réside (en France, l'Arcom) ou les tribunaux, sans préjudice de ses autres droits.
 
 ## 9. Sanctions
 
@@ -184,7 +184,7 @@ Vous pouvez supprimer votre compte à tout moment, **depuis l'Application** (ré
 
 ### 13.2 Suspension ou suppression par MAZL
 
-MAZL peut suspendre ou supprimer un compte dans les cas de l'article 9, en cas d'inactivité prolongée [À COMPLÉTER : durée d'inactivité, si une politique d'inactivité est appliquée], d'inexactitude des informations, ou à la demande d'une autorité. Le membre dont le compte est supprimé ne peut en principe pas en créer un nouveau sans l'accord de MAZL.
+MAZL peut suspendre ou supprimer un compte dans les cas de l'article 9 d'inexactitude des informations, ou à la demande d'une autorité. Le membre dont le compte est supprimé ne peut en principe pas en créer un nouveau sans l'accord de MAZL.
 
 ### 13.3 Arrêt du Service
 
@@ -195,7 +195,7 @@ MAZL peut cesser d'exploiter tout ou partie du Service ; les membres en sont alo
 - MAZL est tenu d'une obligation de moyens pour l'accès et le fonctionnement du Service.
 - MAZL **n'est pas responsable** du contenu publié par les membres, de leurs propos, de leur comportement en ligne ou hors ligne, de l'exactitude des informations qu'ils déclarent, ni des rencontres. La responsabilité de MAZL ne peut être recherchée que pour les contenus qu'il a lui-même publiés ou après qu'il a eu connaissance du caractère manifestement illicite d'un contenu et qu'il n'a pas agi promptement pour le retirer.
 - MAZL n'est pas responsable des interruptions dues à un cas de force majeure, à un tiers (réseau, fournisseur d'accès, boutique d'applications, fournisseur d'authentification) ou à un défaut de l'appareil du membre.
-- Sauf faute lourde ou dolosive, dommage corporel ou toute autre responsabilité qui ne peut être limitée par la loi, et sauf dispositions impératives plus favorables aux consommateurs, la responsabilité de MAZL est limitée aux dommages directs et prévisibles. [À COMPLÉTER : plafond éventuel de responsabilité, à valider par l'éditeur]
+- Sauf faute lourde ou dolosive, dommage corporel ou toute autre responsabilité qui ne peut être limitée par la loi, et sauf dispositions impératives plus favorables aux consommateurs, la responsabilité de MAZL est limitée aux dommages directs et prévisibles.
 - Rien dans les présentes CGU n'exclut les droits dont le consommateur bénéficie en vertu de dispositions légales impératives, notamment la garantie légale de conformité des contenus et services numériques (articles L224-25-1 et suivants du Code de la consommation).
 
 ## 15. Données personnelles
@@ -215,11 +215,11 @@ Les données des membres sont traitées conformément au règlement (UE) 2016/67
 
 Les CGU sont soumises au **droit français**. Pour un consommateur résidant dans l'Union européenne, cette clause ne le prive pas de la protection que lui assurent les dispositions impératives de la loi de son pays de résidence.
 
-**Réclamation préalable.** En cas de difficulté, contactez d'abord MAZL à l'adresse [À COMPLÉTER : adresse électronique ou postale du service de réclamation].
+**Réclamation préalable.** En cas de difficulté, contactez d'abord MAZL à l'adresse hello@mazl.app.
 
 **Médiation de la consommation.** Conformément aux articles L611-1 et suivants du Code de la consommation, le consommateur peut recourir gratuitement à un médiateur de la consommation en vue de la résolution amiable du litige qui l'oppose à MAZL, après avoir tenté de résoudre le litige directement auprès de MAZL par une réclamation écrite. Le médiateur compétent est : [À COMPLÉTER : nom, adresse postale et site internet du médiateur de la consommation choisi par l'éditeur].
 
-**Plateforme européenne de règlement en ligne des litiges (RLL).** La Commission européenne a mis fin à sa plateforme de règlement en ligne des litiges le 20 juillet 2025 ; le recours au médiateur ci-dessus demeure ouvert. [À COMPLÉTER : faire confirmer par le conseil de l'éditeur que cette mention peut être retirée]
+**Plateforme européenne de règlement en ligne des litiges (RLL).** La Commission européenne a mis fin à sa plateforme de règlement en ligne des litiges le 20 juillet 2025 ; le recours au médiateur ci-dessus demeure ouvert.
 
 **Juridiction.** À défaut de résolution amiable, les tribunaux français sont compétents. Le consommateur peut saisir, à son choix, la juridiction du lieu où il demeurait au moment de la conclusion du contrat ou de la survenance du fait dommageable, ou celle du lieu de résidence de MAZL. Pour un membre agissant à titre professionnel : [À COMPLÉTER : tribunal compétent, par exemple le tribunal de commerce du siège de l'éditeur].
 

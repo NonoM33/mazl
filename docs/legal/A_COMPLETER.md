@@ -6,6 +6,14 @@ Pour compléter : remplacer la mention dans le `.md`, lancer `bun run legal:buil
 
 Les identités (raison sociale, siège, SIREN, TVA, directeur de la publication) ne figurent plus qu'à un seul endroit, `mentions-legales.md` ; les CGU, les CGV et la politique de confidentialité y renvoient.
 
+## État au 2026-10-28
+
+Tranché par Renaud le 2026-10-28 et reporté dans les textes : l'éditeur est **Renaud Cosson, entrepreneur individuel** (nom commercial MAZL), domicilié à une adresse de domiciliation ; contacts `hello@` (général, réclamations, rétractation, remboursements), `privacy@` (RGPD) et `legal@` (autorités, DSA) sur mazl.app ; aucun DPO désigné à ce jour ; prospection sur consentement ; préavis CGU de 30 jours ; pas de politique d'inactivité ni de plafond de responsabilité.
+
+Durées fixées et appliquées par la purge automatique du serveur (feature `retention`) : positions 30 jours, sessions de vérification 12 mois, journal de modération 12 mois, empreinte d'un membre banni 5 ans. Sauvegardes : 14 dernières sauvegardes quotidiennes (réglage Coolify vérifié). Hébergeur : téléphone de Hetzner reporté, Helsinki retenu.
+
+Reste ouvert : SIREN, adresse de domiciliation, situation TVA ; médiateur de la consommation (adhésion à faire) ; tribunal compétent pour un membre professionnel ; boîtes `privacy@` et `legal@` à créer chez OVH ; points B à G ci-dessous encore marqués dans les textes (conseil juridique, produit, AIPD).
+
 ## A. Identification de l'éditeur (`mentions-legales.md`, articles 1 et 2)
 
 | Information | Remarque |
