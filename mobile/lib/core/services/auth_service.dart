@@ -14,6 +14,7 @@ import '../cache/api_snapshots.dart';
 import '../images/photo_cache.dart';
 import '../dev/dev_login.dart';
 import 'couple_service.dart';
+import 'apple/apple_web_sign_in.dart';
 import 'google/google_client_ids.dart';
 import '../dev/dev_session.dart';
 import 'api_service.dart';
@@ -315,13 +316,17 @@ class AuthService extends ChangeNotifier {
   /// Sign in with Apple
   Future<AuthResult> signInWithApple() async {
     try {
-      // Check if Apple Sign-In is available
-      if (!Platform.isIOS && !Platform.isMacOS) {
+      // Natif sur iOS et macOS ; ailleurs, par la page web d'Apple.
+      final webOptions = appleWebAuthenticationOptions(
+        platform: defaultTargetPlatform,
+      );
+      if (!Platform.isIOS && !Platform.isMacOS && webOptions == null) {
         return AuthResult.failure(AuthFailure.unsupported);
       }
 
       // Generate nonce for security
       final rawNonce = _generateNonce();
+      final webState = webOptions == null ? null : _generateNonce();
       final hashedNonce = _sha256ofString(rawNonce);
 
       // Request Apple Sign-In
@@ -331,7 +336,15 @@ class AuthService extends ChangeNotifier {
           AppleIDAuthorizationScopes.fullName,
         ],
         nonce: hashedNonce,
+        webAuthenticationOptions: webOptions,
+        state: webState,
       );
+
+      // Par le web, la réponse revient par un lien que n'importe quelle page
+      // peut ouvrir : seule celle qui porte notre `state` est la nôtre.
+      if (!appleWebAnswerIsOurs(sent: webState, received: credential.state)) {
+        return AuthResult.failure(AuthFailure.unknown);
+      }
 
       return await signInWithAppleCredential(credential);
     } catch (e) {

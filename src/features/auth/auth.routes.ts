@@ -5,6 +5,7 @@ import { missingProfileFields } from "../profile/domain/profile-completeness";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { createIpRateLimiter } from "../../shared/http/rate-limit";
 import type { AppleSignInPort } from "./apple/apple-sign-in";
+import { androidCallbackRedirect } from "./apple/android-callback";
 import type { ReviewAccount } from "./review/review-account";
 import { checkReviewCredentials, parseReviewCredentials, REVIEW_PROVIDER, type PasswordVerifier, type ReviewLoginConfig } from "./review/review-login";
 
@@ -28,6 +29,8 @@ const NAME_MAX = 100;
 // the monolith (src/index.ts) and mounted under `/api/auth`. Behaviour, payloads
 // and status codes are identical to the original inline handlers.
 export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, appleSignIn: AppleSignInPort, review: ReviewSignIn): void {
+  // The Services ID Apple's web sign-in uses (site and Android app).
+  const appleServicesId = process.env.APPLE_WEB_SERVICES_ID?.trim() || null;
   const auth = new Hono<{ Variables: AppVariables }>();
 
   // Google OAuth - Verify ID token from mobile app
@@ -107,8 +110,10 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
         return c.json({ success: false, error: "Identity token required" }, 400);
       }
 
-      // Verify the Apple identity token
-      const appleUser = await verifyAppleIdToken(identityToken);
+      // Issued to the iOS app, or to the Services ID when Android signs in
+      // through Apple's web page.
+      const fromApp = await verifyAppleIdToken(identityToken);
+      const appleUser = fromApp ?? (appleServicesId === null ? null : await verifyAppleIdToken(identityToken, appleServicesId));
       if (!appleUser) {
         return c.json({ success: false, error: "Invalid Apple token" }, 401);
       }
@@ -127,7 +132,9 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
       if (user.is_active === false) return c.json(accountDisabled, 403);
 
       // A failure at Apple is logged there and never fails the sign-in.
-      if (authorizationCode !== undefined) await appleSignIn.rememberAuthorization(user.id, authorizationCode);
+      // A web sign-in's code belongs to the Services ID: the app's client
+      // secret cannot exchange it.
+      if (authorizationCode !== undefined && fromApp !== null) await appleSignIn.rememberAuthorization(user.id, authorizationCode);
 
       // Generate JWT token
       const token = generateJWT({
@@ -159,6 +166,14 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
       console.error("Apple auth error:", error);
       return c.json({ success: false, error: "Authentication failed" }, 500);
     }
+  });
+
+  // Apple's answer to an Android sign-in (form_post), handed to the app.
+  auth.post("/apple/android-callback", signInLimiter, async (c) => {
+    const form = await c.req.parseBody().catch(() => null);
+    const target = form === null ? null : androidCallbackRedirect(form);
+    if (target === null) return c.json({ success: false, error: "Invalid Apple answer" }, 400);
+    return c.redirect(target, 303);
   });
 
   // App Store review account: user name + password (docs/launch/REVIEW-LOGIN-CONTRAT.md).

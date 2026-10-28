@@ -14,12 +14,14 @@ import { FakeApple, appleEnv, testSigningKey, verifyEs256 } from "./support/fake
 const PORT = 3000 + Math.floor(Math.random() * 900) + 5200;
 const BASE = `http://127.0.0.1:${PORT}`;
 const key = testSigningKey();
+// The Services ID Apple's web sign-in uses (site and Android app).
+const SERVICES_ID = "app.mazl.signin.test";
 const apple = new FakeApple();
 let server: Subprocess | null = null;
 
 beforeAll(async () => {
   apple.start();
-  const env = { ...(process.env as Record<string, string>), PORT: String(PORT), ...appleEnv(key, apple.url) };
+  const env = { ...(process.env as Record<string, string>), PORT: String(PORT), ...appleEnv(key, apple.url), APPLE_WEB_SERVICES_ID: SERVICES_ID };
   server = Bun.spawn(["bun", join(import.meta.dir, "../src/index.ts")], { env, stdout: "ignore", stderr: "ignore" });
   for (let i = 0; i < 150; i++) {
     try {
@@ -98,6 +100,54 @@ describe("sign in with Apple", () => {
     } finally {
       apple.tokenAnswer = null;
     }
+  });
+});
+
+describe("sign in with Apple on Android (Apple's web page)", () => {
+  test("accepts a token issued to the Services ID, without exchanging its code", async () => {
+    const before = apple.requestsTo("/auth/token").length;
+    const sub = `apple-android-${Date.now()}`;
+    const response = await fetch(`${BASE}/api/auth/apple`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ identityToken: apple.identityToken({ sub, email: `${sub}@example.com`, aud: SERVICES_ID }), authorizationCode: "code-web" }),
+    });
+    expect(response.status).toBe(200);
+    // The web code belongs to the Services ID: the app's secret cannot exchange it.
+    expect(apple.requestsTo("/auth/token").length).toBe(before);
+  });
+
+  test("still refuses a token issued to anyone else", async () => {
+    const response = await fetch(`${BASE}/api/auth/apple`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ identityToken: apple.identityToken({ sub: "intruder", aud: "com.example.other" }) }),
+    });
+    expect(response.status).toBe(401);
+  });
+
+  test("hands Apple's answer back to the app through its intent link", async () => {
+    const response = await fetch(`${BASE}/api/auth/apple/android-callback`, {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ code: "c-1", id_token: "h.p.s", state: "st" }),
+      redirect: "manual",
+    });
+    expect(response.status).toBe(303);
+    const target = response.headers.get("location") ?? "";
+    expect(target.startsWith("intent://callback?")).toBe(true);
+    expect(target.endsWith("#Intent;package=com.mazl.app;scheme=signinwithapple;end")).toBe(true);
+    expect(new URLSearchParams(target.split("?")[1]?.split("#")[0]).get("id_token")).toBe("h.p.s");
+  });
+
+  test("refuses an answer that is not Apple's", async () => {
+    const response = await fetch(`${BASE}/api/auth/apple/android-callback`, {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ nothing: "here" }),
+      redirect: "manual",
+    });
+    expect(response.status).toBe(400);
   });
 });
 
