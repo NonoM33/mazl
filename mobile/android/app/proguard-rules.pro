@@ -1,5 +1,5 @@
 # Règles R8 de la release Android (isMinifyEnabled = true).
-# Android n'est pas publié en v1 : ce fichier garde le build de release sain.
+# Utilisé par la release Android (test fermé Play).
 
 # --- Flutter ---------------------------------------------------------------
 # Les composants différés de Flutter citent Play Core, absent de l'app.
@@ -25,3 +25,16 @@
 # --- Lecture NFC des passeports (flutter_nfc_kit, via dmrtd) ----------------
 # Le plugin s'appuie sur les classes android.nfc.tech.* et leurs noms.
 -keep class im.nfc.flutter_nfc_kit.** { *; }
+
+# --- ML Kit ----------------------------------------------------------------
+# Seule l'écriture latine (MRZ du passeport) est embarquée, les autres
+# écritures sont des dépendances optionnelles du plugin.
+-dontwarn com.google.mlkit.vision.text.chinese.**
+-dontwarn com.google.mlkit.vision.text.devanagari.**
+-dontwarn com.google.mlkit.vision.text.japanese.**
+-dontwarn com.google.mlkit.vision.text.korean.**
+
+# --- Agora (appels vidéo) --------------------------------------------------
+# Le SDK natif retrouve ses classes Java par réflexion (JNI).
+-keep class io.agora.** { *; }
+-dontwarn io.agora.**

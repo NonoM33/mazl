@@ -14,6 +14,7 @@ import '../cache/api_snapshots.dart';
 import '../images/photo_cache.dart';
 import '../dev/dev_login.dart';
 import 'couple_service.dart';
+import 'google/google_client_ids.dart';
 import '../dev/dev_session.dart';
 import 'api_service.dart';
 import 'profile_completeness_service.dart';
@@ -179,7 +180,8 @@ class AuthService extends ChangeNotifier {
 
   // Google Sign-In instance
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: '114247778518-kpbe9qm21122c1kken6m1d3o23fmtqre.apps.googleusercontent.com',
+    clientId: googleClientIdsFor(defaultTargetPlatform).clientId,
+    serverClientId: googleClientIdsFor(defaultTargetPlatform).serverClientId,
     scopes: ['email', 'profile'],
   );
 

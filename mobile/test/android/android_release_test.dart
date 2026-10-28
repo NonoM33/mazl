@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// Android n'est pas publié en v1, mais le build de release doit rester sain :
+/// Build de release Android (test fermé Play), qui doit rester sain :
 /// pas de sauvegarde automatique des données de l'app dans le cloud de Google,
 /// et les règles R8 que `build.gradle.kts` annonce doivent exister.
 void main() {
@@ -54,7 +54,17 @@ void main() {
     });
   });
 
-  test('l\'identifiant d\'application ne change pas', () {
-    expect(gradle, contains('applicationId = "com.mazl.mazl"'));
+  // Le même identifiant que l'app iOS ; figé dès le premier envoi sur Play.
+  test('l\'identifiant d\'application est celui de l\'app iOS', () {
+    expect(gradle, contains('applicationId = "com.mazl.app"'));
+  });
+
+  test('minSdk couvre flutter_nfc_kit (Android 8)', () {
+    expect(gradle, contains('minSdk = 26'));
+  });
+
+  test('les écritures ML Kit non embarquées ne cassent pas R8', () {
+    final rules = rulesFile.readAsStringSync();
+    expect(rules, contains('-dontwarn com.google.mlkit.vision.text.chinese.**'));
   });
 }
