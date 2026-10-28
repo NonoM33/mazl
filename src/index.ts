@@ -111,6 +111,7 @@ import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
 import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
 import { createCheckoutOverrides } from "./features/storefront/storefront.module";
+import { startRetention } from "./features/retention/retention.module";
 import { appStoreNotConfigured, webPricingNotConfigured } from "./features/storefront/infra/not-configured";
 import { createAppStorePricing } from "./features/storefront/infra/app-store-connect";
 import { createWebPricing } from "./features/storefront/infra/stripe";
@@ -848,6 +849,7 @@ await ensureVerificationSchema(sql);
 await ensureWebSessionSchema(sql);
 await backoffice.ensureSchemas();
 backoffice.startSweeper();
+startRetention(sql);
 await seedTestProfilesIfRequested();
 
 console.log(`Server running on http://localhost:${port}`);
