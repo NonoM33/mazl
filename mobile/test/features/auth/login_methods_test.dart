@@ -39,13 +39,29 @@ void main() {
       testWidgets('on iOS: Apple and Google, no e-mail form', (tester) async {
         await pumpLocalized(
           tester,
-          const LoginScreen(showApple: true),
+          const LoginScreen(showApple: true, platform: TargetPlatform.iOS),
           locale: locale,
         );
         final l10n = lookupAppLocalizations(locale);
         expect(_buttonLabels(tester), [
           l10n.authLoginApple,
           l10n.authLoginGoogle,
+          l10n.authLoginReviewLink,
+          if (kDevLoginAvailable) l10n.authLoginDev,
+        ]);
+      });
+
+      // Renaud, 2026-10-28: each store puts its own sign-in first.
+      testWidgets('on Android: Google first, then Apple', (tester) async {
+        await pumpLocalized(
+          tester,
+          const LoginScreen(showApple: true, platform: TargetPlatform.android),
+          locale: locale,
+        );
+        final l10n = lookupAppLocalizations(locale);
+        expect(_buttonLabels(tester), [
+          l10n.authLoginGoogle,
+          l10n.authLoginApple,
           l10n.authLoginReviewLink,
           if (kDevLoginAvailable) l10n.authLoginDev,
         ]);

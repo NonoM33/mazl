@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/dev/dev_login.dart';
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/services/apple/apple_web_sign_in.dart';
 import '../../../../core/layout/fold_aware_split.dart';
 import '../../../../core/links/public_links.dart';
 import '../../../../core/router/route_names.dart';
@@ -29,12 +31,18 @@ class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({
     super.key,
     this.showApple,
+    this.platform,
     this.onOpenTerms,
     this.onOpenPrivacy,
   });
 
-  /// Connexion avec Apple : proposée sur iOS uniquement quand non précisé.
+  /// Connexion avec Apple : sur iOS, et sur Android une fois le Services ID
+  /// d'Apple configuré (connexion par le web), quand non précisé.
   final bool? showApple;
+
+  /// Ordre des boutons : chaque store met sa propre connexion en premier
+  /// (Apple sur iOS, Google sur Android). Par défaut, la plateforme courante.
+  final TargetPlatform? platform;
 
   /// Ouvre les Conditions / la Confidentialité. Sans valeur, les liens
   /// ouvrent les pages publiques de mazl.app hors de l'application.
@@ -75,7 +83,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     null => null,
   };
 
-  bool get _showApple => widget.showApple ?? Platform.isIOS;
+  bool get _showApple =>
+      widget.showApple ??
+      (Platform.isIOS || (Platform.isAndroid && appleWebSignInConfigured));
+
+  bool get _googleFirst =>
+      (widget.platform ?? defaultTargetPlatform) == TargetPlatform.android;
 
   @override
   void dispose() {
@@ -257,26 +270,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ],
   );
 
+  Widget _appleButton() => ElevatedButton.icon(
+    onPressed: _isLoading ? null : _handleAppleSignIn,
+    icon: _activeMethod == _SignInMethod.apple
+        ? const AuthButtonSpinner()
+        : const Icon(LucideIcons.apple, size: 20),
+    label: Text(context.l10n.authLoginApple),
+  );
+
+  Widget _googleButton() => OutlinedButton(
+    onPressed: _isLoading ? null : _handleGoogleSignIn,
+    child: _activeMethod == _SignInMethod.google
+        ? const AuthButtonSpinner()
+        : Text(context.l10n.authLoginGoogle),
+  );
+
+  List<Widget> _providerButtons() {
+    if (!_showApple) return [_googleButton()];
+    return _googleFirst
+        ? [_googleButton(), _appleButton()]
+        : [_appleButton(), _googleButton()];
+  }
+
   Widget _buildActions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (_showApple) ...[
-          ElevatedButton.icon(
-            onPressed: _isLoading ? null : _handleAppleSignIn,
-            icon: _activeMethod == _SignInMethod.apple
-                ? const AuthButtonSpinner()
-                : const Icon(LucideIcons.apple, size: 20),
-            label: Text(context.l10n.authLoginApple),
-          ),
-          const SizedBox(height: 12),
+        for (final (index, button) in _providerButtons().indexed) ...[
+          if (index > 0) const SizedBox(height: 12),
+          button,
         ],
-        OutlinedButton(
-          onPressed: _isLoading ? null : _handleGoogleSignIn,
-          child: _activeMethod == _SignInMethod.google
-              ? const AuthButtonSpinner()
-              : Text(context.l10n.authLoginGoogle),
-        ),
         const SizedBox(height: 4),
         TextButton(
           onPressed: _isLoading
