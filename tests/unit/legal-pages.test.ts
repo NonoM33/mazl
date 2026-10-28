@@ -104,9 +104,13 @@ describe("legal pages: nothing is invented", () => {
     }
   });
 
-  test("no company number, VAT number, IBAN or telephone number has been written in", () => {
+  // The sole trader's SIREN, given by Renaud on 2026-10-28, is the one number
+  // allowed, and only in the legal notice.
+  const PUBLISHER_SIREN = "822 073 706";
+
+  test("no company number other than the publisher's, VAT number, IBAN or telephone number has been written in", () => {
     for (const slug of LEGAL_SLUGS) {
-      const text = sources[slug];
+      const text = slug === "mentions-legales" ? sources[slug].replace(`SIREN ${PUBLISHER_SIREN}`, "SIREN") : sources[slug];
       expect(text).not.toMatch(/\b\d{3} ?\d{3} ?\d{3}( ?\d{5})?\b/);
       expect(text).not.toMatch(/\bFR ?\d{2} ?\d{9}\b/);
       expect(text).not.toMatch(/\bIBAN\b/i);
@@ -120,7 +124,8 @@ describe("legal pages: nothing is invented", () => {
     const notice = sources["mentions-legales"];
     expect(notice).toContain("- Éditeur : Renaud Cosson, entrepreneur individuel (EI)");
     expect(notice).toContain("Le directeur de la publication est Renaud Cosson");
-    for (const field of ["- Adresse (domiciliation) :", "- Immatriculation :", "- TVA :"]) {
+    expect(notice).toContain(`- Immatriculation : SIREN ${PUBLISHER_SIREN}`);
+    for (const field of ["- Adresse (domiciliation) :", "- TVA :"]) {
       const line = notice.split("\n").find((entry) => entry.startsWith(field)) ?? "";
       expect([field, /\[À COMPLÉTER/.test(line)]).toEqual([field, true]);
     }
