@@ -12,29 +12,26 @@ status: projet
 
 Conformément à l'article 6 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (« LCEN »), le site https://mazl.app (« le Site »), l'espace membre accessible depuis ce site et l'application mobile MAZL (« l'Application ») sont édités par :
 
-- Raison sociale : [À COMPLÉTER : raison sociale de l'éditeur]
-- Forme juridique et capital social : [À COMPLÉTER : forme juridique, montant du capital]
-- Siège social : [À COMPLÉTER : adresse complète du siège]
-- Immatriculation : [À COMPLÉTER : numéro SIREN et ville du greffe du RCS]
-- N° de TVA intracommunautaire : [À COMPLÉTER : numéro de TVA, le cas échéant]
-- Adresse électronique de contact : hello@mazl.app [À COMPLÉTER : confirmer que cette adresse est celle de l'éditeur ; elle figure déjà sur le Site]
-- Adresse postale de contact : [À COMPLÉTER : adresse postale à laquelle écrire]
-
-L'éditeur propose des services payants : il agit à titre professionnel et ne peut donc pas se prévaloir de l'anonymat que la loi réserve aux éditeurs non professionnels. S'il s'agit d'une personne physique, ses nom, prénom et domicile doivent figurer ci-dessus. [À COMPLÉTER : confirmer la forme de l'éditeur avec son conseil]
+- Éditeur : Renaud Cosson, entrepreneur individuel (EI), exerçant sous le nom commercial MAZL
+- Adresse (domiciliation) : [À COMPLÉTER : adresse de domiciliation]
+- Immatriculation : SIREN 822 073 706, inscrit au Registre national des entreprises
+- TVA : [À COMPLÉTER : numéro de TVA intracommunautaire, ou « TVA non applicable, article 293 B du CGI » en franchise en base]
+- Adresse électronique de contact : hello@mazl.app
+- Adresse postale de contact : l'adresse de domiciliation ci-dessus
 
 L'éditeur est désigné ci-après « MAZL » ou « nous ».
 
 ## 2. Directeur de la publication
 
-Le directeur de la publication est [À COMPLÉTER : nom et prénom du directeur de la publication], en sa qualité de [À COMPLÉTER : fonction, par exemple gérant ou président].
+Le directeur de la publication est Renaud Cosson, en sa qualité d'éditeur.
 
 ## 3. Hébergement
 
 Les serveurs qui font fonctionner le Site, l'espace membre, l'interface de programmation de l'Application, la base de données, les fichiers des membres et l'outil de mesure d'audience sont hébergés par :
 
 - Hetzner Online GmbH, Industriestr. 25, 91710 Gunzenhausen, Allemagne, https://www.hetzner.com
-- Téléphone de l'hébergeur : [À COMPLÉTER : numéro de téléphone de Hetzner Online GmbH, qui doit figurer ici d'après l'article 6, III, 1 de la LCEN]
-- Emplacement des serveurs : Helsinki (Finlande), dans l'Union européenne. L'adresse du serveur du Site appartient à la plage « CLOUD-HEL1 » de Hetzner Online GmbH dans le registre RIPE. [À COMPLÉTER : confirmer le centre de données dans la console d'administration de Hetzner]
+- Téléphone de l'hébergeur : +49 9831 505-0
+- Emplacement des serveurs : Helsinki (Finlande), dans l'Union européenne. L'adresse du serveur du Site appartient à la plage « CLOUD-HEL1 » de Hetzner Online GmbH dans le registre RIPE.
 
 Les applications sont déployées et exploitées par MAZL elle-même sur ce serveur, au moyen d'un logiciel de déploiement installé par ses soins. Aucun autre hébergeur n'intervient pour les données des membres ; la liste des autres prestataires figure dans la [Politique de confidentialité](/confidentialite).
 
@@ -42,8 +39,8 @@ Les applications sont déployées et exploitées par MAZL elle-même sur ce serv
 
 Conformément au règlement (UE) 2022/2065 sur les services numériques (« DSA »), MAZL met à disposition un point de contact unique, électronique, pour les autorités des États membres, la Commission européenne et le Comité européen des services numériques (article 11), et pour les utilisateurs du service (article 12) :
 
-- Adresse électronique : [À COMPLÉTER : adresse dédiée aux autorités et aux signalements, par exemple legal@mazl.app ; à défaut, hello@mazl.app]
-- Langues de communication : français et anglais [À COMPLÉTER : confirmer les langues acceptées]
+- Adresse électronique : legal@mazl.app
+- Langues de communication : français et anglais
 
 Toute personne, membre ou non, peut signaler un contenu qu'elle estime illicite : dans l'Application (profil, photo, message), ou par écrit à l'adresse ci-dessus. La procédure, la motivation des décisions et les voies de recours sont décrites à l'article 8 des [Conditions générales d'utilisation](/cgu).
 

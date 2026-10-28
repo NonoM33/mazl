@@ -12,7 +12,7 @@ status: projet
 
 ## 1. Vendeur et champ d'application
 
-Les présentes conditions générales de vente (« CGV ») s'appliquent aux achats de services numériques payants proposés dans l'application mobile MAZL (« l'Application ») et sur le site de MAZL (« le Site ») par la société identifiée dans les [mentions légales](/mentions-legales) (raison sociale, forme et capital, siège, immatriculation, numéro de TVA, adresse électronique de contact), qui font partie intégrante des CGV (« MAZL »), à toute personne physique qui agit à des fins n'entrant pas dans le cadre de son activité professionnelle (« le Membre » ou « le Consommateur »).
+Les présentes conditions générales de vente (« CGV ») s'appliquent aux achats de services numériques payants proposés dans l'application mobile MAZL (« l'Application ») et sur le site de MAZL (« le Site ») par Renaud Cosson, entrepreneur individuel exerçant sous le nom commercial MAZL, identifié dans les [mentions légales](/mentions-legales) (adresse, immatriculation, situation au regard de la TVA, adresse électronique de contact), qui font partie intégrante des CGV (« MAZL »), à toute personne physique qui agit à des fins n'entrant pas dans le cadre de son activité professionnelle (« le Membre » ou « le Consommateur »).
 
 Elles complètent les [CGU](/cgu). En cas de contradiction sur un achat, les CGV prévalent.
 
@@ -95,7 +95,7 @@ Un tarif de bienvenue peut être proposé : à la date de ces CGV, le **premier 
 - **Dans l'Application**, la réduction sur un abonnement prend la forme d'un **code d'offre Apple** : vous l'activez vous-même, et l'App Store applique ses règles (produits concernés, durée de l'offre, éligibilité des nouveaux, anciens ou actuels abonnés).
 - **Sur le Site**, la réduction est un **code promotionnel** appliqué au paiement pendant la campagne.
 - L'offre précise les produits concernés, sa durée et son éventuelle limite ; sauf indication contraire, elle ne s'applique pas à un achat antérieur et ne se cumule pas avec une autre réduction.
-- Lorsqu'une réduction est annoncée en pourcentage ou par un prix barré, le prix de référence est le prix le plus bas pratiqué au cours des 30 jours précédents (arrêté du 11 mars 2015 relatif aux annonces de réduction de prix). [À COMPLÉTER : faire valider cet engagement par le conseil de l'éditeur et vérifier que la vitrine le respecte]
+- Lorsqu'une réduction est annoncée en pourcentage ou par un prix barré, le prix de référence est le prix le plus bas pratiqué au cours des 30 jours précédents (arrêté du 11 mars 2015 relatif aux annonces de réduction de prix).
 - Les offres de campagne se terminent à la date annoncée ; l'abonnement se renouvelle ensuite au prix normal, sauf résiliation.
 
 ## 4. Commande, paiement et facturation
@@ -143,7 +143,7 @@ Pour l'abonnement, lorsque le Membre n'a pas renoncé ou lorsque la loi l'exige,
 
 ### 6.3 Comment se rétracter
 
-Lorsque le droit existe, le Consommateur l'exerce en adressant une déclaration dénuée d'ambiguïté à l'adresse indiquée dans les [mentions légales](/mentions-legales) [À COMPLÉTER : adresse de contact du vendeur pour la rétractation, si différente], ou en utilisant le formulaire ci-dessous :
+Lorsque le droit existe, le Consommateur l'exerce en adressant une déclaration dénuée d'ambiguïté à l'adresse indiquée dans les [mentions légales](/mentions-legales), ou en utilisant le formulaire ci-dessous :
 
 > *Je vous notifie par la présente ma rétractation du contrat portant sur l'offre suivante : [offre]. Commandée le : [date]. Nom : [nom du Membre]. Adresse électronique du compte : [adresse]. Date : [date].*
 
@@ -151,7 +151,7 @@ Lorsque le droit existe, le Consommateur l'exerce en adressant une déclaration 
 
 ## 7. Remboursements
 
-**Achats faits sur le Site.** Les remboursements des achats faits sur le Site sont **traités par MAZL**, sur demande à [À COMPLÉTER : adresse à laquelle demander le remboursement d'un achat fait sur le Site] ou, lorsque le droit de rétractation s'applique, selon l'article 6. Le remboursement est effectué par Stripe sur le moyen de paiement utilisé. Lorsque MAZL rembourse un pack de Boosts ou de Super Likes, les crédits correspondants sont retirés du solde, qui peut devenir négatif s'ils ont déjà été utilisés ; lorsqu'elle rembourse un abonnement, l'abonnement prend fin.
+**Achats faits sur le Site.** Les remboursements des achats faits sur le Site sont **traités par MAZL**, sur demande à hello@mazl.app ou, lorsque le droit de rétractation s'applique, selon l'article 6. Le remboursement est effectué par Stripe sur le moyen de paiement utilisé. Lorsque MAZL rembourse un pack de Boosts ou de Super Likes, les crédits correspondants sont retirés du solde, qui peut devenir négatif s'ils ont déjà été utilisés ; lorsqu'elle rembourse un abonnement, l'abonnement prend fin.
 
 **Achats faits dans l'Application.** Le paiement ayant été encaissé par la boutique, **les demandes de remboursement sont traitées par Apple** (reportaproblem.apple.com ou la page « Signaler un problème » ; ou, pour Android, par Google Play), selon leurs conditions. MAZL ne peut pas rembourser lui-même un achat réalisé via une boutique, mais peut apporter son concours en cas de difficulté technique.
 
@@ -177,11 +177,11 @@ Les données nécessaires à la gestion des achats (identifiant de transaction, 
 
 ## 12. Réclamations, médiation et droit applicable
 
-Les CGV sont soumises au droit français (sous réserve des dispositions impératives du pays de résidence du consommateur). Pour toute réclamation : [À COMPLÉTER : adresse électronique ou postale du service client].
+Les CGV sont soumises au droit français (sous réserve des dispositions impératives du pays de résidence du consommateur). Pour toute réclamation : hello@mazl.app.
 
 **Médiation de la consommation.** Après réclamation écrite restée sans réponse satisfaisante, le Consommateur peut recourir gratuitement au médiateur de la consommation : [À COMPLÉTER : nom, adresse et site du médiateur de la consommation auquel l'éditeur a adhéré] (articles L612-1 et R612-1 du Code de la consommation).
 
-**Règlement en ligne des litiges (RLL).** La plateforme européenne a été fermée par la Commission européenne en juillet 2025 : le recours au médiateur ci-dessus demeure ouvert. [À COMPLÉTER : faire confirmer par le conseil de l'éditeur que cette mention peut être retirée]
+**Règlement en ligne des litiges (RLL).** La plateforme européenne a été fermée par la Commission européenne en juillet 2025 : le recours au médiateur ci-dessus demeure ouvert.
 
 À défaut d'accord amiable, les tribunaux français sont compétents, sans préjudice de l'option de juridiction ouverte au consommateur par la loi.
 
