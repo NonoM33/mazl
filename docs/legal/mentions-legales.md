@@ -14,7 +14,7 @@ Conformément à l'article 6 de la loi n° 2004-575 du 21 juin 2004 pour la conf
 
 - Éditeur : Renaud Cosson, entrepreneur individuel (EI), exerçant sous le nom commercial MAZL
 - Adresse : 116 avenue John Fitzgerald Kennedy, 92160 Antony, France
-- Téléphone : 01 42 37 53 53
+- Téléphone : +1 343 495 6005
 - Immatriculation : SIREN 822 073 706, inscrit au Registre national des entreprises
 - TVA : [À COMPLÉTER : numéro de TVA intracommunautaire, ou « TVA non applicable, article 293 B du CGI » en franchise en base]
 - Adresse électronique de contact : hello@mazl.app

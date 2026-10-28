@@ -107,7 +107,7 @@ describe("legal pages: nothing is invented", () => {
   // The sole trader's SIREN and telephone, given by Renaud on 2026-10-28, are
   // the only numbers allowed, and only in the legal notice.
   const PUBLISHER_SIREN = "822 073 706";
-  const PUBLISHER_PHONE = "01 42 37 53 53";
+  const PUBLISHER_PHONE = "+1 343 495 6005";
 
   test("no number other than the publisher's SIREN and telephone has been written in", () => {
     for (const slug of LEGAL_SLUGS) {
